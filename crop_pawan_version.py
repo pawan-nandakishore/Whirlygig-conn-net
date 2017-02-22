@@ -3,13 +3,12 @@ from scipy.io import loadmat
 import random
 import matplotlib.pyplot as plt
 import os
-import cv2 
+import cv2
 
 
 # Also try unit test with 5 n 3 linear convolution
 df = loadmat('final_image_with_classes.mat')
 img = df['final_image']
-
 
 raw_image = cv2.imread('raw_image.png')
 gray_image = cv2.cvtColor(raw_image, cv2.COLOR_BGR2GRAY)
@@ -29,23 +28,23 @@ exteriors_pixellist = []
 
 
 def generateSamples(data, foldername, num,fileindx,pixellist):
-    random_index_list = np.random.random_integers(1,len(pixellist),num) 
+    random_index_list = np.random.random_integers(1,len(pixellist),num)
     print(random_index_list)
 
     data2 = np.asanyarray(data)
-    samples = data2[random_index_list] 
-    pixellist2 = np.asanyarray(pixellist)    
+    samples = data2[random_index_list]
+    pixellist2 = np.asanyarray(pixellist)
     files = pixellist2[random_index_list]
-  
-    newpath = r'/media/pawan/0B6F079E0B6F079E/PYTHON_SCRIPTS/Data science challenges/whirlygig/' + foldername 
+
+    newpath = foldername
     if not os.path.exists(newpath):
         os.makedirs(newpath)
-    
+
     for i in range(0,num):
-        sample = samples[i] 
+        sample = samples[i]
         filename = str(fileindx) +'_'+str(i) +'_'+ files[i]
         filename = os.path.join(newpath,filename)
-        np.save(filename,sample) 
+        np.save(filename,sample)
 
 
 
@@ -68,13 +67,13 @@ for i in range(c/2, M-c/2):
             interiors.append(square)
             pixel_label = str(i)+'_'+str(j)
             interiors_pixellist.append(pixel_label)
-        
-        
-        
+
+
+
 #for i in xrange(c/2, N-c/2)
-boundaryindex = 1 
-interiorindex= 2 
-exteriorindex =0 
+boundaryindex = 1
+interiorindex= 2
+exteriorindex =0
 
 foldername1 = 'boundaries_' + str(c) +'x'
 foldername2 = 'exteriors_' + str(c) +'x'
