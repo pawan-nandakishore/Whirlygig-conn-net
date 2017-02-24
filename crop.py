@@ -1,11 +1,12 @@
 #import numpy as np
 from scipy.io import loadmat
+from skimage.io import imread
 import random
 import matplotlib.pyplot as plt
 
 # Also try unit test with 5 n 3 linear convolution
-df = loadmat('final_image_with_classes.mat')
-img = df['final_image']
+img = imread('raw_image.png', as_grey=True)
+output = imread('boundaries3.png')
 
 M, N = img.shape
 c = 15
@@ -36,8 +37,6 @@ for i in range(c/2, M-c/2):
             interiors.append(square)
 
 #for i in xrange(c/2, N-c/2)
-
-
 generateSamples(boundaries, 'boundaries', sample_size)
 generateSamples(interiors, 'interiors', sample_size)
 generateSamples(exteriors, 'exteriors', sample_size)
