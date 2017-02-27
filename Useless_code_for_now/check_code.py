@@ -41,8 +41,18 @@ plt.imshow(raw_image)
 final_index =raw_image.shape[1]*raw_image.shape[0]
 indices = np.array(range(0,final_index))
 
-[x1,y2] = ind2sub(raw_image.shape,indices) 
-final_pixel_list_array = np.array([x1,y2]).T    
+[x1,y1] = ind2sub(raw_image.shape,indices) 
+grt_indx_x =  np.where(x1>window)  
+grt_indx_y  =  np.where(y1>window)
+grt_indx = np.intersect1d(grt_indx_x, grt_indx_y)
+          
+all_pixel_list_array = np.array([x1,y1]).T    
+all_pixel_list_array = all_pixel_list_array[grt_indx,:]
+
+final_pixel_list_array =all_pixel_list_array
+           
+    
+        
         
 for pixel in range(0,len(final_pixel_list_array)):
          
