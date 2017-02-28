@@ -4,6 +4,7 @@ from skimage import io
 import numpy as np
 from skimage.color import gray2rgb
 from skimage.io import imsave
+from datetime import datetime
 
 img = io.imread('raw_image.png', as_grey=True)
 img = img[400:1000,400:920]
@@ -26,28 +27,35 @@ exteriors = []
 count = 0
 positives = 0
 
+squares = []
+
+startTime = datetime.now()
+
 # Run the square over the entire image
 for i in range(c/2, M-c/2):
     for j in range(c/2, N-c/2):
         square = img[i-c/2:i+c/2+1, j-c/2:j+c/2+1]
-        square = square.reshape(1,1,31,31)
-        output = model.predict(square)
-       # print(output, max_out)
-        #print(output[0].shape)
-        #idx = np.argmax(output[0])
-        #print (idx)
-        #labelled[labels[idx]] = True
-        if output>0.5:
-            colors_heart[i,j] = [255,0,0]
-            positives += 1
+        squares.append(square.reshape(1,31,31))
 
-        print (positives,i,j)
-        #rez[i,j] = labels[idx]
-        #print(labelled.keys())
-        #print(model.predict(np.array([square])))
-            #print(rez)
-        count += 1
+squares2 = np.array(squares)
+print(squares2.shape)
 
-plt.imshow(colors_heart)
-plt.show()
+model.predict(squares2)
+
+print(datetime.now() - startTime)
+
+# for i in range(c/2, M-c/2):
+    # for j in range(c/2, N-c/2):
+        # square = img[i-c/2:i+c/2+1, j-c/2:j+c/2+1]
+        # square = square.reshape(1,1,31,31)
+        # output = model.predict(square)
+        # if output>0.5:
+            # colors_heart[i,j] = [255,0,0]
+            # positives += 1
+
+        # print (positives,i,j)
+        # count += 1
+
+#plt.imshow(colors_heart)
+#plt.show()
 
