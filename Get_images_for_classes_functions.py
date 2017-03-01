@@ -10,7 +10,8 @@ from scipy.io import loadmat
 import matplotlib.pyplot as plt
 import os
 import cv2 
-
+import PIL
+from PIL import Image
 
 
 
@@ -60,8 +61,15 @@ def get_images_per_class(labeled_image,raw_image,background_pixel_val,discard_ba
            
            class_pixel_list = np.where(red_pixel_class == i )
           
-           grt_indx_x =  np.where(class_pixel_list[0]>window)  
-           grt_indx_y  =  np.where(class_pixel_list[1]>window)
+           grt_indx_x =  np.where(class_pixel_list[0]>window  )  
+           grt_indx_y  =  np.where(class_pixel_list[1]>window )
+           
+           grt_indx_x2 = np.where( class_pixel_list[0]< raw_image.shape[0] -window )
+           grt_indx_y2  =  np.where( class_pixel_list[0]< raw_image.shape[1] -window)
+           
+           grt_indx_x = np.intersect1d(grt_indx_x,grt_indx_x2)
+           grt_indx_y = np.intersect1d(grt_indx_y,grt_indx_y2)
+           
            grt_indx = np.intersect1d(grt_indx_x, grt_indx_y)
           
            class_pixel_list_array = np.asanyarray(class_pixel_list).T
@@ -121,9 +129,22 @@ def get_images(raw_image,window):
     final_index =raw_image.shape[1]*raw_image.shape[0]
     indices = np.array(range(0,final_index))
     
-    [x1,y2] = ind2sub(raw_image.shape,indices) 
-    final_pixel_list_array = np.array([x1,y2]).T    
-            
+    [x1,y1] = ind2sub(raw_image.shape,indices) 
+    grt_indx_x =  np.where(x1>window )  
+    grt_indx_y  =  np.where(y1>window )
+    grt_indx_x2 =  np.where(x1<raw_image.shape[0]-window)  
+    grt_indx_y2  =  np.where( y1<raw_image.shape[1]-window)
+    grt_indx_x = np.intersect1d(grt_indx_x,grt_indx_x2)
+    grt_indx_y = np.intersect1d(grt_indx_y,grt_indx_y2)
+           
+              
+    grt_indx = np.intersect1d(grt_indx_x, grt_indx_y)
+          
+    all_pixel_list_array = np.array([x1,y1]).T    
+    all_pixel_list_array = all_pixel_list_array[grt_indx,:]
+
+    final_pixel_list_array =all_pixel_list_array
+        
     for pixel in range(0,len(final_pixel_list_array)):
              
      pixelx = final_pixel_list_array[pixel,0]
@@ -139,8 +160,14 @@ def get_images(raw_image,window):
         
         
        
-    return(image_list)
+    return(image_list,final_pixel_list_array)
         
         
 
 
+def resize_image(img,basewidth):
+                
+ wpercent = (basewidth / float(img.size[0]))
+ hsize = int((float(img.size[1]) * float(wpercent)))
+ img = img.resize((basewidth, hsize), PIL.Image.ANTIALIAS)
+ return(img)
