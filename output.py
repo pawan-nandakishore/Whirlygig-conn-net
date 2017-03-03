@@ -6,14 +6,14 @@ from skimage.color import gray2rgb
 from skimage.io import imsave
 from datetime import datetime
 
-img = io.imread('images/raw_image_cropped.png')
-gray = io.imread('images/raw_image_cropped.png', as_grey=True)
+img = io.imread('images/raw_image_cropped2.png')
+gray = io.imread('images/raw_image_cropped2.png', as_grey=True)
 
-model = load_model('models/15_16_batch_aug.h5')
+model = load_model('models/clean.h5')
 
 M, N = gray.shape
 print(gray.shape)
-c = 15
+c = 21
 
 positives = 0
 

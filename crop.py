@@ -2,26 +2,29 @@ import numpy as np
 from skimage.io import imread, imsave
 import random
 
-img = imread('images/raw_image_cropped.png', as_grey=True) #Grayscale images are already scaled between 0 and 1
-labels = np.load('data/labeled_image.npy')/255 # This needs scaling
+images = ['images/raw_image_cropped.png', 'images/raw_image_cropped2.png']
+labels = np.load('data/labeled_images.npy')/255 # This needs scaling
 
-# Do the crop
-M, N = img.shape
-c = 15
+for idx, fl in enumerate(images):
+	img = imread(fl, as_grey=True) #Grayscale images are already scaled between 0 and 1
+	label = labels[idx]
+	# Do the crop
+	M, N = img.shape
+	c = 21
 
-junctions = []
-others = []
+	junctions = []
+	others = []
 
-for i in range(c/2, M-c/2):
-    for j in range(c/2, N-c/2):
-        square = img[i-c/2:i+c/2+1, j-c/2:j+c/2+1]
-        if labels[i][j] == 1:
-            junctions.append(square)
-        else:
-            others.append(square)
+	for i in range(c/2, M-c/2):
+		for j in range(c/2, N-c/2):
+			square = img[i-c/2:i+c/2+1, j-c/2:j+c/2+1]
+			if labels[i][j] == 1:
+				junctions.append(square)
+			else:
+				others.append(square)
 
 sample_size = len(junctions)
-others_sample_size = 16*len(junctions)
+others_sample_size = 8*len(junctions)
 others = random.sample(others, others_sample_size)
 print(len(others), len(junctions))
 # Equally sample from both
