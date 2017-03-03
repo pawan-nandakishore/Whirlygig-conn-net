@@ -26,13 +26,16 @@ print(x.shape, x.max(), y.shape, y.max())
 datagen = ImageDataGenerator(
         #featurewise_center=True,
         #featurewise_std_normalization=True,
+        width_shift_range=0.01,
+        height_shift_range=0.01,
+        zoom_range=0.01,
         rotation_range=180,
         horizontal_flip=True
 )
 
 # Create model
 model = Sequential()
-model.add(Convolution2D(64, 3, 3, border_mode='same', input_shape=(1,7,7), name='conv1_1'))
+model.add(Convolution2D(64, 3, 3, border_mode='same', input_shape=(1,15,15), name='conv1_1'))
 model.add(BatchNormalization())
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2,2)))
@@ -47,16 +50,10 @@ model.add(Activation('relu'))
 model.add(Dense(1, activation='sigmoid'))
 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-model.fit(x,y,nb_epoch=100, batch_size=32)
-#model.fit_generator(datagen.flow(x, y, batch_size=32), samples_per_epoch=len(x), nb_epoch=100)
+#model.fit(x,y,nb_epoch=7, batch_size=64)
+model.fit_generator(datagen.flow(x, y, batch_size=64), samples_per_epoch=len(x), nb_epoch=8)
 
 scores = model.evaluate(x, y)
 print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 
-model.save('models/%d_batch_noflow.h5')
-
-
-
-
-
-
+model.save('models/15_16_batch_aug.h5')

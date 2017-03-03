@@ -7,7 +7,7 @@ labels = np.load('data/labeled_image.npy')/255 # This needs scaling
 
 # Do the crop
 M, N = img.shape
-c = 6
+c = 15
 
 junctions = []
 others = []
@@ -21,7 +21,7 @@ for i in range(c/2, M-c/2):
             others.append(square)
 
 sample_size = len(junctions)
-others_sample_size = 4*len(junctions)
+others_sample_size = 16*len(junctions)
 others = random.sample(others, others_sample_size)
 print(len(others), len(junctions))
 # Equally sample from both
