@@ -9,7 +9,7 @@ from datetime import datetime
 img = io.imread('images/raw_image_cropped2.png')
 gray = io.imread('images/raw_image_cropped2.png', as_grey=True)
 
-model = load_model('models/clean.h5')
+model = load_model('models/model.h5')
 
 M, N = gray.shape
 print(gray.shape)
