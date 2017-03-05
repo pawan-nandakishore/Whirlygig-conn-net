@@ -9,11 +9,11 @@ from datetime import datetime
 img = io.imread('images/raw_image_cropped2.png')
 gray = io.imread('images/raw_image_cropped2.png', as_grey=True)
 
-model = load_model('models/model.h5')
+model = load_model('models/new.h5')
 
 M, N = gray.shape
 print(gray.shape)
-c = 21
+c = 17
 
 positives = 0
 
@@ -44,6 +44,6 @@ for i in range(c/2, M-c/2):
 
 print(count-len(squares2))
 plt.imshow(img)
-plt.imsave('plots/15_16_batch_aug.png', img)
+plt.imsave('plots/new.png', img)
 plt.show()
 

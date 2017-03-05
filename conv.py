@@ -38,7 +38,7 @@ cb = keras.callbacks.TensorBoard(log_dir='graph', histogram_freq=10, write_graph
 
 # Create model
 model = Sequential()
-model.add(Convolution2D(16, 3, 3, border_mode='same', input_shape=(1,21,21), name='conv1_1'))
+model.add(Convolution2D(16, 3, 3, border_mode='same', input_shape=(1,17,17), name='conv1_1'))
 model.add(BatchNormalization())
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2,2)))

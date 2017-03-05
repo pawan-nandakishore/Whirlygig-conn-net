@@ -14,7 +14,7 @@ def rotate_thrice(square):
 	return [square, rotate(square, 90), rotate(square, 180), rotate(square, 270)]
 
 def transforms(square):
-	return rotate_thrice(square) + rotate_thrice(np.fliplr(square)) + rotate_thrice(np.flipud(square))
+	return rotate_thrice(square) + rotate_thrice(np.fliplr(square))
 
 for idx, fl in enumerate(images):
 	img = imread(fl, as_grey=True) #Grayscale images are already scaled between 0 and 1
@@ -24,7 +24,7 @@ for idx, fl in enumerate(images):
 
 	# Do the crop
 	M, N = img.shape
-	c = 21
+	c = 17
 
 	junctions = []
 	others = []
