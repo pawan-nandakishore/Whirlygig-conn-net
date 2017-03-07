@@ -6,10 +6,10 @@ from skimage.color import gray2rgb
 from skimage.io import imsave
 from datetime import datetime
 
-img = io.imread('images/raw_image_cropped2.png')
-gray = io.imread('images/raw_image_cropped2.png', as_grey=True)
+img = io.imread('images/raw_image_cropped3.png')
+gray = io.imread('images/raw_image_cropped3.png', as_grey=True)
 
-model = load_model('models/new.h5')
+model = load_model('models/model.h5')
 
 M, N = gray.shape
 print(gray.shape)
@@ -33,17 +33,18 @@ print(datetime.now() - startTime)
 
 count = 0
 
+zeros = np.zeros(img.shape)
+
 for i in range(c/2, M-c/2):
     for j in range(c/2, N-c/2):
         output = result[count]
-        if output>0.5:
-            img[i,j] = [255,0,0,255]
-            positives += 1
-
+        zeros[i,j,np.argmax(output)] = 255
         count += 1
+        
+zeros[:,:,3]=255
 
 print(count-len(squares2))
-plt.imshow(img)
-plt.imsave('plots/new.png', img)
+plt.imshow(zeros/255)
+plt.imsave('plots/new.png', zeros)
 plt.show()
 
