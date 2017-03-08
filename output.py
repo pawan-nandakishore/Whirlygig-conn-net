@@ -6,8 +6,8 @@ from skimage.color import gray2rgb
 from skimage.io import imsave
 from datetime import datetime
 
-img = io.imread('images/raw_image_cropped3.png')
-gray = io.imread('images/raw_image_cropped3.png', as_grey=True)
+img = io.imread('images/fucked.png')
+gray = io.imread('images/fucked.png', as_grey=True)
 
 model = load_model('models/model.h5')
 
@@ -40,7 +40,7 @@ for i in range(c/2, M-c/2):
         output = result[count]
         zeros[i,j,np.argmax(output)] = 255
         count += 1
-        
+
 zeros[:,:,3]=255
 
 print(count-len(squares2))
