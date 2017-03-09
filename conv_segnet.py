@@ -1,0 +1,139 @@
+from keras import models
+from keras.layers.core import Activation, Reshape, Permute
+from keras.layers.convolutional import Convolution2D, MaxPooling2D, UpSampling2D
+from keras.layers.normalization import BatchNormalization
+from skimage.io import imread
+from keras import backend as K
+from skimage.transform import rotate
+
+import numpy as np
+import json
+
+img_w = 280
+img_h = 280
+n_labels = 4
+
+kernel = 3
+
+encoding_layers = [
+    Convolution2D(32, kernel, kernel, border_mode='same', input_shape=(1, img_h, img_w)),
+    BatchNormalization(),
+    Activation('relu'),
+    Convolution2D(32, kernel, kernel, border_mode='same'),
+    BatchNormalization(),
+    Activation('relu'),
+    MaxPooling2D(),
+
+    Convolution2D(64, kernel, kernel, border_mode='same'),
+    BatchNormalization(),
+    Activation('relu'),
+    Convolution2D(64, kernel, kernel, border_mode='same'),
+    BatchNormalization(),
+    Activation('relu'),
+    MaxPooling2D(),
+
+    # Convolution2D(128, kernel, kernel, border_mode='same'),
+    # BatchNormalization(),
+    # Activation('relu'),
+    # Convolution2D(128, kernel, kernel, border_mode='same'),
+    # BatchNormalization(),
+    # Activation('relu'),
+    # MaxPooling2D(),
+]
+
+autoencoder = models.Sequential()
+autoencoder.encoding_layers = encoding_layers
+
+for l in autoencoder.encoding_layers:
+    autoencoder.add(l)
+
+decoding_layers = [
+
+    # UpSampling2D(),
+    # Convolution2D(128, kernel, kernel, border_mode='same'),
+    # BatchNormalization(),
+    # Activation('relu'),
+    # Convolution2D(128, kernel, kernel, border_mode='same'),
+    # BatchNormalization(),
+    # Activation('relu'),
+
+    UpSampling2D(),
+    Convolution2D(64, kernel, kernel, border_mode='same'),
+    BatchNormalization(),
+    Activation('relu'),
+    Convolution2D(64, kernel, kernel, border_mode='same'),
+    BatchNormalization(),
+    Activation('relu'),
+
+    UpSampling2D(),
+    Convolution2D(32, kernel, kernel, border_mode='same'),
+    BatchNormalization(),
+    Activation('relu'),
+    Convolution2D(n_labels, 1, 1, border_mode='valid'),
+    BatchNormalization(),
+]
+autoencoder.decoding_layers = decoding_layers
+for l in autoencoder.decoding_layers:
+    autoencoder.add(l)
+
+autoencoder.add(Reshape((n_labels, img_h * img_w)))
+autoencoder.add(Permute((2, 1)))
+autoencoder.add(Activation('softmax'))
+
+
+def your_loss(y_true, y_pred):
+        #weights = np.ones(4)
+        weights = np.array([ 4 ,  0.55,  1.1,  0.01])
+        #weights = np.array([1,,0.1,0.001])
+        # scale preds so that the class probas of each sample sum to 1
+        y_pred /= K.sum(y_pred, axis=-1, keepdims=True)
+        # clip
+        y_pred = K.clip(y_pred, K.epsilon(), 1)
+        # calc
+        loss = y_true*K.log(y_pred)*weights
+        loss =-K.sum(loss,-1)
+        return loss
+
+def rotate_thrice(square):
+        return [square, rotate(square, 90), rotate(square, 180), rotate(square, 270)]
+
+def transforms(square):
+        return rotate_thrice(square) + rotate_thrice(np.fliplr(square))
+
+
+autoencoder.compile(loss=your_loss, optimizer='adam', metrics=['accuracy'])
+autoencoder.summary()
+
+#autoencoder.save('segnet.h5')
+
+# Time to run the segnet
+img = imread('images/raw_image_cropped2.png', as_grey=True)
+labels = np.load('labels.npy')
+labels_280 = np.zeros((280,280,4))
+labels_280[:-1,:-1,:]=labels
+print(labels_280.shape)
+
+# Add the extra row
+grey = np.zeros((280,280))
+grey[:-1,:-1] = img
+
+greys = transforms(grey)
+labels = transforms(labels_280)
+
+
+xs = np.reshape(greys, (len(greys),1,280,280))
+ys = np.reshape(labels, (len(labels),280*280,4))
+print(xs.shape, ys.shape)
+
+#def custom_objective(y_true, y_pred):
+#    '''Just another crossentropy'''
+#y_pred = T.clip(y_pred, epsilon, 1.0 - epsilon)
+#y_pred /= y_pred.sum(axis=-1, keepdims=True)
+#cce = T.nnet.categorical_crossentropy(y_pred, y_true)
+#    return cce
+#
+if __name__=="__main__":
+    print('lol')
+    autoencoder.fit(xs, ys, nb_epoch=100, batch_size=2)
+    ##datum = autoencoder.predict(xs, batch_size=1)
+    autoencoder.save('auto.h5')

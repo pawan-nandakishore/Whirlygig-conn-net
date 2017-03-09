@@ -7,9 +7,11 @@ This is a temporary script file.
 from functions import resize_crop_image
 from skimage.io import imread, imsave
 import matplotlib.pyplot as plt
+import numpy as np
 
 img = imread('marked_image2_3cl')
 img_new = imread('images/raw_image_cropped2.png')
+labels2 = np.zeros((img_new.shape[0], img_new.shape[1]))
 
 def labels2img(labels):
     img = np.zeros((labels.shape))
@@ -29,6 +31,7 @@ for channel in [2,1,0]:
     channel_resized=channel_resized[1:,1:]
 
     img_new[channel_resized==1]=colors[channel]
+    labels2[channel_resized==1]=channel
 
 # Pick out and resize green channel
 
@@ -45,6 +48,7 @@ for channel in [2,1,0]:
 #imsave('')
 imsave('images/colors.png', img_new)
 
+
 labels = img_new/255
 blacks_pos = (labels[:,:,0]==0)&(labels[:,:,1]==0)&(labels[:,:,2]==0)
 # All not clearly classified pixels must be black
@@ -52,10 +56,13 @@ channels_pos = (labels[:,:,0]>0)|(labels[:,:,1]>0)|(labels[:,:,2]>0)
 labels[~channels_pos]=[0,0,0,1]
 labels[~blacks_pos,3]=0
 
+labels2[~channels_pos]=3
+
 for i in xrange(4):
     print("Class: %d: %d"%(i, labels[:,:,i].sum()))
 
 # Save labels
 np.save('labels.npy', labels)
+np.save('labels2.npy', labels2)
 
 plt.imshow(labels2img(labels))
