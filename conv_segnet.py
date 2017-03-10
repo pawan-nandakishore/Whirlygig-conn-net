@@ -5,7 +5,7 @@ from keras.layers.normalization import BatchNormalization
 from skimage.io import imread
 from keras import backend as K
 from skimage.transform import rotate
-
+from keras.callbacks import ModelCheckpoint
 import numpy as np
 import json
 
@@ -83,7 +83,7 @@ autoencoder.add(Activation('softmax'))
 
 def your_loss(y_true, y_pred):
         #weights = np.ones(4)
-        weights = np.array([ 4 ,  0.55,  1.1,  0.01])
+        weights = np.array([ 4.2 ,  0.55,  1.3,  0.05])
         #weights = np.array([1,,0.1,0.001])
         # scale preds so that the class probas of each sample sum to 1
         y_pred /= K.sum(y_pred, axis=-1, keepdims=True)
@@ -134,6 +134,9 @@ print(xs.shape, ys.shape)
 #
 if __name__=="__main__":
     print('lol')
-    autoencoder.fit(xs, ys, nb_epoch=100, batch_size=2)
     ##datum = autoencoder.predict(xs, batch_size=1)
+
+    checkpointer = ModelCheckpoint(filepath="weights.hdf5", verbose=1, save_best_only=True)
+    autoencoder.fit(xs, ys, nb_epoch=100, batch_size=2, validation_data=(xs, ys), callbacks=[checkpointer])
+
     autoencoder.save('auto.h5')
