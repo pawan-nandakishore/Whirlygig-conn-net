@@ -14,23 +14,24 @@ from conv_segnet import your_loss
 
 model = load_model('auto.h5', custom_objects={'your_loss': your_loss})
 
-img = imread('images/raw_image_cropped.png', as_grey=True)
+img = imread('raw_images/00015-frames_ScaledUp2592-raw.png', as_grey=True)
+#img = imread('images/raw_image_cropped.png', as_grey=True)
 #labels = np.load('labels.npy')
-#labels_280 = np.zeros((280,280,4))
-#labels_280[:-1,:-1,:]=labels
-#print(labels_280.shape)
+#labels_712 = np.zeros((712,712,4))
+#labels_712[:-1,:-1,:]=labels
+#print(labels_712.shape)
 
 # Add the extra row
-grey = np.zeros((280,280))
+grey = np.zeros((712,712))
 grey[:-1,:-1] = img
 
-xs = grey.reshape(1,1,280,280)
+xs = grey.reshape(1,1,712,712)
 
-result = model.predict(xs).reshape(280,280,4)
+result = model.predict(xs).reshape(712,712,4)
 
 #count = 0
 
-zeros = np.zeros((280,280,4))
+zeros = np.zeros((712,712,4))
 
 for i in range(grey.shape[0]):
     for j in range(grey.shape[1]):

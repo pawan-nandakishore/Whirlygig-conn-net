@@ -1,4 +1,5 @@
 from keras import models
+from keras.layers import ZeroPadding2D
 from keras.layers.core import Activation, Reshape, Permute
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, UpSampling2D
 from keras.layers.normalization import BatchNormalization
@@ -9,14 +10,17 @@ from keras.callbacks import ModelCheckpoint
 import numpy as np
 import json
 
-img_w = 280
-img_h = 280
+img_w = 712
+img_h = 712
 n_labels = 4
 
 kernel = 3
 
+autoencoder = models.Sequential()
+autoencoder.add(ZeroPadding2D((1,1), input_shape=(1, img_h, img_w), dim_ordering='th'))
+
 encoding_layers = [
-    Convolution2D(32, kernel, kernel, border_mode='same', input_shape=(1, img_h, img_w)),
+    Convolution2D(32, kernel, kernel, border_mode='same'),
     BatchNormalization(),
     Activation('relu'),
     Convolution2D(32, kernel, kernel, border_mode='same'),
@@ -41,7 +45,6 @@ encoding_layers = [
     # MaxPooling2D(),
 ]
 
-autoencoder = models.Sequential()
 autoencoder.encoding_layers = encoding_layers
 
 for l in autoencoder.encoding_layers:
@@ -83,7 +86,8 @@ autoencoder.add(Activation('softmax'))
 
 def your_loss(y_true, y_pred):
         #weights = np.ones(4)
-        weights = np.array([ 4.2 ,  0.55,  1.3,  0.05])
+        #weights = np.array([ 4.2 ,  0.55,  1.3,  0.05])
+        weights = np.array([0.00713773, 0.20517703, 0.15813273, 0.62955252])
         #weights = np.array([1,,0.1,0.001])
         # scale preds so that the class probas of each sample sum to 1
         y_pred /= K.sum(y_pred, axis=-1, keepdims=True)
@@ -107,22 +111,24 @@ autoencoder.summary()
 #autoencoder.save('segnet.h5')
 
 # Time to run the segnet
-img = imread('images/raw_image_cropped2.png', as_grey=True)
-labels = np.load('labels.npy')
-labels_280 = np.zeros((280,280,4))
-labels_280[:-1,:-1,:]=labels
-print(labels_280.shape)
+#img = imread('images/raw_image_cropped2.png', as_grey=True)
+#labels = np.load('labels.npy')
+#labels_280 = np.zeros((280,280,4))
+#labels_280[:-1,:-1,:]=labels
+#print(labels_280.shape)
 
 # Add the extra row
-grey = np.zeros((280,280))
-grey[:-1,:-1] = img
+#grey = np.zeros((280,280))
+#grey[:-1,:-1] = img
 
-greys = transforms(grey)
-labels = transforms(labels_280)
+#greys = transforms(grey)
+#labels = transforms(labels_280)
 
 
-xs = np.reshape(greys, (len(greys),1,280,280))
-ys = np.reshape(labels, (len(labels),280*280,4))
+#xs = np.reshape(greys, (len(greys),1,280,280))
+#ys = np.reshape(labels, (len(labels),280*280,4))
+xs = np.load('data/xs.npy')
+ys = np.load('data/ys.npy')
 print(xs.shape, ys.shape)
 
 #def custom_objective(y_true, y_pred):
@@ -137,6 +143,6 @@ if __name__=="__main__":
     ##datum = autoencoder.predict(xs, batch_size=1)
 
     checkpointer = ModelCheckpoint(filepath="weights.hdf5", verbose=1, save_best_only=True)
-    autoencoder.fit(xs, ys, nb_epoch=100, batch_size=2, validation_data=(xs, ys), callbacks=[checkpointer])
+    autoencoder.fit(xs, ys, nb_epoch=10, batch_size=1, validation_data=(xs, ys), callbacks=[checkpointer])
 
     autoencoder.save('auto.h5')
