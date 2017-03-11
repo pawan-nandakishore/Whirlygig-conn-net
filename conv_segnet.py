@@ -9,6 +9,7 @@ from skimage.transform import rotate
 from keras.callbacks import ModelCheckpoint
 import numpy as np
 import json
+from keras.models import load_model
 
 img_w = 712
 img_h = 712
@@ -86,8 +87,9 @@ autoencoder.add(Activation('softmax'))
 
 def your_loss(y_true, y_pred):
         #weights = np.ones(4)
-        #weights = np.array([ 4.2 ,  0.55,  1.3,  0.05])
-        weights = np.array([0.00713773, 0.20517703, 0.15813273, 0.62955252])
+        weights = np.array([ 4.2 ,  0.52,  1.3,  0.05])
+        #weights = np.array([ 0.05 ,  1.3,  0.55,  4.2])
+        #weights = np.array([0.00713773, 0.20517703, 0.15813273, 0.62955252])
         #weights = np.array([1,,0.1,0.001])
         # scale preds so that the class probas of each sample sum to 1
         y_pred /= K.sum(y_pred, axis=-1, keepdims=True)
@@ -107,6 +109,8 @@ def transforms(square):
 
 autoencoder.compile(loss=your_loss, optimizer='adam', metrics=['accuracy'])
 autoencoder.summary()
+
+#autoencoder = load_model('auto.h5', custom_objects={'your_loss': your_loss})
 
 #autoencoder.save('segnet.h5')
 
@@ -142,7 +146,7 @@ if __name__=="__main__":
     print('lol')
     ##datum = autoencoder.predict(xs, batch_size=1)
 
-    checkpointer = ModelCheckpoint(filepath="weights.hdf5", verbose=1, save_best_only=True)
-    autoencoder.fit(xs, ys, nb_epoch=10, batch_size=1, validation_data=(xs, ys), callbacks=[checkpointer])
+    checkpointer = ModelCheckpoint(filepath="weights.hdf5", verbose=1, save_best_only=False)
+    autoencoder.fit(xs, ys, nb_epoch=10, batch_size=1, callbacks=[checkpointer])
 
     autoencoder.save('auto.h5')

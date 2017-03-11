@@ -14,7 +14,7 @@ from conv_segnet import your_loss
 
 model = load_model('auto.h5', custom_objects={'your_loss': your_loss})
 
-img = imread('raw_images/00015-frames_ScaledUp2592-raw.png', as_grey=True)
+img = imread('raw_images/00015-frames_ScaledUp3560-raw.png', as_grey=True)
 #img = imread('images/raw_image_cropped.png', as_grey=True)
 #labels = np.load('labels.npy')
 #labels_712 = np.zeros((712,712,4))
