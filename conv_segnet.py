@@ -87,7 +87,7 @@ autoencoder.add(Activation('softmax'))
 
 def your_loss(y_true, y_pred):
         #weights = np.ones(4)
-        weights = np.array([ 4.2 ,  0.52,  1.3,  0.05])
+        weights = np.array([ 4.2 ,  0.52,  1.3,  0.08])
         #weights = np.array([ 0.05 ,  1.3,  0.55,  4.2])
         #weights = np.array([0.00713773, 0.20517703, 0.15813273, 0.62955252])
         #weights = np.array([1,,0.1,0.001])
