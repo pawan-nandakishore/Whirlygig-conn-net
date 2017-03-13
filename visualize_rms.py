@@ -45,7 +45,7 @@ img_height=712
 layer_dict = dict([(layer.name, layer) for layer in model.layers])
 
 input_img = model.layers[0].input
-filter_index = 1
+filter_index = 2
 
 
 #layer_output = get_layer_output([input_img, 0])[0]
@@ -71,7 +71,7 @@ plt.show()
 
 #gamma = 0.5
 #velocity = 0.0
-lr = 0.05
+lr = 5
 
 cache = None
 for i in range(500):
@@ -81,9 +81,9 @@ for i in range(500):
     input_img_data += lr*grads_value
     #input_img_data += velocity
     img2 = deprocess_img(input_img_data)
-    plt.imshow(deprocess_img(input_img_data))
-    plt.savefig('viz.png')
-    #imsave('viz.png', img2)
+    #plt.imshow(deprocess_img(input_img_data))
+    #plt.savefig('viz.png')
+    imsave('viz.png', img2)
     print(i, loss_value, grads_value.mean(), input_img_data.mean())
 
 plt.imshow(deprocess_img(input_img_data))
