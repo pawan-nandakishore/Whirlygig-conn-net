@@ -17,9 +17,9 @@ def rmsprop(grads, cache=None, decay_rate=0.95):
 
     return step, cache
 
-def deprocess_img(x):
+def deprocess_img(y):
     # normalize tensor: center on 0., ensure std is 0.1
-    x = x.reshape(712, 712)
+    x = y.copy().reshape(712, 712)
     x -= x.mean()
     x /= (x.std() + 1e-5)
     x *= 0.1
