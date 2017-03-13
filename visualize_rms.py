@@ -19,7 +19,7 @@ def rmsprop(grads, cache=None, decay_rate=0.95):
 
 def deprocess_img(x):
     # normalize tensor: center on 0., ensure std is 0.1
-    x = x.reshape(712, 712)
+    x = x.copy().reshape(712, 712)
     x -= x.mean()
     x /= (x.std() + 1e-5)
     x *= 0.1
@@ -47,7 +47,6 @@ layer_dict = dict([(layer.name, layer) for layer in model.layers])
 input_img = model.layers[0].input
 filter_index = 1
 
-get_layer_output = K.function([model.layers[0].input, K.learning_phase()], [layer_dict['convolution2d_2'].output])
 
 #layer_output = get_layer_output([input_img, 0])[0]
 #import pdb; pdb.set_trace()
@@ -61,26 +60,31 @@ grads /= (K.sqrt(K.mean(K.square(grads))) + 1e-5)
 
 iterate = K.function([input_img], [loss, grads])
 
-input_img_data = (np.zeros((1, 1, img_width, img_height)))
-#input_img_data = np.random.random((1, 1, img_width, img_height))
+#input_img_data = (np.ones((1, 1, img_width, img_height)))
+#input_img_data = np.random.random((1, 1, img_width, img_height)) * 20 + 128.
+input_img_data = np.random.random((1, 1, img_width, img_height))
+print(input_img_data.mean())
 #plt.imshow(input_img_data.reshape(img_width, img_height), cmap='Greys')
 #plt.show()
 plt.imshow(deprocess_img(input_img_data))
 plt.show()
 
-#step = 0.1
+#gamma = 0.5
+#velocity = 0.0
+lr = 0.05
 
 cache = None
 for i in range(500):
     loss_value, grads_value = iterate([input_img_data])
-    step, cache = rmsprop(grads_value, cache)
-    input_img_data += step
-    #input_img_data += grads_value * step
+    #velocity = gamma * velocity + lr * grads_value
+    #step, cache = rmsprop(grads_value, cache)
+    input_img_data += lr*grads_value
+    #input_img_data += velocity
     img2 = deprocess_img(input_img_data)
     plt.imshow(deprocess_img(input_img_data))
     plt.savefig('viz.png')
     #imsave('viz.png', img2)
-    print(i, loss_value, grads_value.mean())
+    print(i, loss_value, grads_value.mean(), input_img_data.mean())
 
 plt.imshow(deprocess_img(input_img_data))
 plt.show()
