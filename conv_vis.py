@@ -38,7 +38,7 @@ def deprocess_image(y):
     x *= 0.1
 
     # clip to [0, 1]
-    x += 0.5
+    #x += 0.5
     x = np.clip(x, 0, 1)
     return x
 
