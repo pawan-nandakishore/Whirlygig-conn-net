@@ -16,6 +16,12 @@ def resize_crop_image(image,scale,cutoff_percent):
 	#plt.show()
 	return(image)
 
+def rotate_thrice(square):
+        return [square, np.rot90(square, 1), np.rot90(square, 2), np.rot90(square, 3)]
+
+def transforms(square):
+        return rotate_thrice(square) + rotate_thrice(np.fliplr(square))
+
 def your_loss(y_true, y_pred):
 	#weights = np.ones(4)
 	weights = np.array([ 4.2 ,  0.52,  1.3,  0.08])
@@ -31,5 +37,14 @@ def your_loss(y_true, y_pred):
 	loss =-K.sum(loss,-1)
 	return loss
 
-#img = imread('marked_image2_3cl')
-#resize_crop_image(img, 0.25, 15)
+def raw_to_labels(image):
+    assert(image.max()==255)
+    inside_bool = (image[:,:,0] <= 120 ) & ( image[:,:,1] <= 120) & (image[:,:,2] >= 130 )
+    boundary_bool = (image[:,:,0] <=120  ) & ( image[:,:,1] >= 150) & (image[:,:,2] <= 120 )
+    exterior_bool = ~inside_bool & ~boundary_bool
+
+    softmax_labeled_image = np.zeros(image.shape)
+    softmax_labeled_image[inside_bool] = [1,0,0]
+    softmax_labeled_image[boundary_bool] = [0,1,0]
+    softmax_labeled_image[exterior_bool] = [0,0,1]
+    return softmax_labeled_image

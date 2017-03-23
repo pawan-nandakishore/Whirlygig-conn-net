@@ -3,6 +3,7 @@ import glob
 from skimage.io import imread
 from skimage.transform import rotate
 import matplotlib.pyplot as plt
+from functions import transforms
 
 
 labels_m = np.load('labeled_images.npy')[:]
@@ -22,15 +23,8 @@ labels[labels_m==90]=[0,0,1,0]
 labels[labels_m==180]=[0,1,0,0]
 labels[labels_m==255]=[1,0,0,0]
 
-def rotate_thrice(square):
-        return [square, rotate(square, 90), rotate(square, 180), rotate(square, 270)]
-
-def transforms(square):
-        return rotate_thrice(square) + rotate_thrice(np.fliplr(square))
-
 xs = []
 ys = []
-
 
 for img, label in zip(imgs, labels):
   print(img.shape[0]+1)

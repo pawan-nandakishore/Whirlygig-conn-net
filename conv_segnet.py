@@ -10,11 +10,11 @@ from keras.callbacks import ModelCheckpoint
 import numpy as np
 import json
 from keras.models import load_model
+from functions import your_loss
 
 img_w = 712
 img_h = 712
 n_labels = 4
-
 kernel = 3
 
 autoencoder = models.Sequential()
@@ -83,29 +83,6 @@ for l in autoencoder.decoding_layers:
 autoencoder.add(Reshape((n_labels, img_h * img_w)))
 autoencoder.add(Permute((2, 1)))
 autoencoder.add(Activation('softmax'))
-
-
-def your_loss(y_true, y_pred):
-        #weights = np.ones(4)
-        weights = np.array([ 4.2 ,  0.52,  1.3,  0.08])
-        #weights = np.array([ 0.05 ,  1.3,  0.55,  4.2])
-        #weights = np.array([0.00713773, 0.20517703, 0.15813273, 0.62955252])
-        #weights = np.array([1,,0.1,0.001])
-        # scale preds so that the class probas of each sample sum to 1
-        y_pred /= K.sum(y_pred, axis=-1, keepdims=True)
-        # clip
-        y_pred = K.clip(y_pred, K.epsilon(), 1)
-        # calc
-        loss = y_true*K.log(y_pred)*weights
-        loss =-K.sum(loss,-1)
-        return loss
-
-def rotate_thrice(square):
-        return [square, rotate(square, 90), rotate(square, 180), rotate(square, 270)]
-
-def transforms(square):
-        return rotate_thrice(square) + rotate_thrice(np.fliplr(square))
-
 
 autoencoder.compile(loss=your_loss, optimizer='adam', metrics=['accuracy'])
 autoencoder.summary()
