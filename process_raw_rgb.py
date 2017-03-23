@@ -56,5 +56,5 @@ xs = xs.reshape(xs.shape[0], n_labels, size, size).astype(float)/255 # Convert t
 ys = ys.reshape(xs.shape[0], size*size, n_labels).astype(float) # Convert to one hot float between 0-1
 print(xs.shape, ys.shape)
 
-np.save('xs.npy',xs) # Normalize between 0-1
-np.save('ys.npy',ys)
+np.save('xs_e.npy',xs) # Normalize between 0-1
+np.save('ys_e.npy',ys)
