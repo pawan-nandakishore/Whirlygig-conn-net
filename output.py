@@ -6,8 +6,8 @@ from skimage.color import gray2rgb
 from skimage.io import imsave
 from datetime import datetime
 
-img = io.imread('images/fucked.png')
-gray = io.imread('images/fucked.png', as_grey=True)
+img = io.imread('images/raw_image_cropped.png')
+gray = io.imread('images/raw_image_cropped.png', as_grey=True)
 
 model = load_model('models/model.h5')
 

@@ -9,36 +9,37 @@ from datetime import datetime
 from keras import backend as K
 from conv_segnet import your_loss
 import glob
+from scipy.misc import imread
 
 #img = io.imread('images/fucked.png')
 #gray = io.imread('images/fucked.png', as_grey=True)
 
-model = load_model('auto.h5', custom_objects={'your_loss': your_loss})
+model = load_model('weights.hdf5', custom_objects={'your_loss': your_loss})
 
-files = glob.glob('raw_images/*')
+files = glob.glob('cropped/*')
 for fl in files:
 	print("Processing: %s"%fl)
-	img = imread(fl, as_grey=True)
+	img = imread(fl, mode='RGB')
 	#img = imread('images/raw_image_cropped.png', as_grey=True)
 	#labels = np.load('labels.npy')
-	#labels_712 = np.zeros((712,712,4))
-	#labels_712[:-1,:-1,:]=labels
-	#print(labels_712.shape)
+	#labels_432 = np.zeros((432,432,4))
+	#labels_432[:-1,:-1,:]=labels
+	#print(labels_432.shape)
 
 	# Add the extra row
-	grey = np.zeros((712,712))
-	grey[:-1,:-1] = img
+	#grey = np.zeros((432,432))
+	#grey[:-1,:-1] = img
 
-	xs = grey.reshape(1,1,712,712)
+	xs = img.reshape(1,3,432,432)
 
-	result = model.predict(xs).reshape(712,712,4)
+	result = model.predict(xs).reshape(432,432,3)
 
 	#count = 0
 
-	zeros = np.zeros((712,712,4))
+	zeros = np.zeros((432,432,4))
 
-	for i in range(grey.shape[0]):
-	    for j in range(grey.shape[1]):
+	for i in range(img.shape[0]):
+	    for j in range(img.shape[1]):
 		output = result[i,j]
 		zeros[i,j,np.argmax(output)] = 255
 		#count += 1
