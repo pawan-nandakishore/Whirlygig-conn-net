@@ -30,11 +30,11 @@ for fl in files:
 	#grey = np.zeros((432,432))
 	#grey[:-1,:-1] = img
 
-	xs = img.reshape(1,3,432,432)
+	xs = img.reshape(1,3,432,432)/255
 
 	result = model.predict(xs).reshape(432,432,3)
 
-	#count = 0
+	assert(xs.max()==1.0)
 
 	zeros = np.zeros((432,432,4))
 
