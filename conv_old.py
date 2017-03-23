@@ -10,6 +10,7 @@ from skimage.io import imread
 from keras.callbacks import ModelCheckpoint, LambdaCallback
 import numpy as np
 from keras.models import load_model
+from functions import your_loss
 
 img_w = 712
 img_h = 712
@@ -68,36 +69,10 @@ autoencoder.add(Reshape((n_labels, img_h * img_w)))
 autoencoder.add(Permute((2, 1)))
 autoencoder.add(Activation('softmax'))
 
-
-def your_loss(y_true, y_pred):
-        #weights = np.ones(4)
-        #weights = np.array([ 1.5,  0.8, 0.008])
-        #weights = np.array([0.99524712791495196, 0.98911715534979427, 0.015705375514403319])
-        #weights = np.array([ 0.91640706, 0.60022308, 0.001442506])
-        weights = np.array([ 4.2 ,  0.52,  1.3,  0.08])
-        #weights = np.array([0.00713773, 0.20517703, 0.15813273, 0.62955252])
-        #weights = np.array([1,,0.1,0.001])
-        # scale preds so that the class probas of each sample sum to 1
-        y_pred /= K.sum(y_pred, axis=-1, keepdims=True)
-        # clip
-        y_pred = K.clip(y_pred, K.epsilon(), 1)
-        # calc
-        loss = y_true*K.log(y_pred)*weights
-        loss =-K.sum(loss,-1)
-        return loss
-
-def rotate_thrice(square):
-        return [square, rotate(square, 90), rotate(square, 180), rotate(square, 270)]
-
-def transforms(square):
-        return rotate_thrice(square) + rotate_thrice(np.fliplr(square))
-
-
 #sgd = SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)
 #rmsprop = keras.optimizers.RMSprop(lr=1e-5, rho=0.9, epsilon=1e-08, decay=0.0)
 autoencoder.compile(loss=your_loss, optimizer='adam', metrics=['accuracy'])
 autoencoder.summary()
-
 
 #xs = np.load('xs_e.npy')
 #ys = np.load('ys_e.npy')
