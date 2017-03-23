@@ -11,17 +11,17 @@ import numpy as np
 import json
 from keras.models import load_model
 
-img_w = 432
-img_h = 432
-n_labels = 3
+img_w = 712
+img_h = 712
+n_labels = 4
 
 kernel = 3
 
 autoencoder = models.Sequential()
-#autoencoder.add(ZeroPadding2D((1,1), input_shape=(3, img_h, img_w), dim_ordering='th'))
+autoencoder.add(ZeroPadding2D((1,1), input_shape=(1, img_h, img_w), dim_ordering='th'))
 
 encoding_layers = [
-    Convolution2D(32, kernel, kernel, border_mode='same', input_shape=(3, img_h, img_w)),
+    Convolution2D(32, kernel, kernel, border_mode='same'),
     BatchNormalization(),
     Activation('relu'),
     Convolution2D(32, kernel, kernel, border_mode='same'),
@@ -87,7 +87,7 @@ autoencoder.add(Activation('softmax'))
 
 def your_loss(y_true, y_pred):
         #weights = np.ones(4)
-        weights = np.array([ 1,  1, 0.00001])
+        weights = np.array([ 4.2 ,  0.52,  1.3,  0.08])
         #weights = np.array([ 0.05 ,  1.3,  0.55,  4.2])
         #weights = np.array([0.00713773, 0.20517703, 0.15813273, 0.62955252])
         #weights = np.array([1,,0.1,0.001])
@@ -131,8 +131,8 @@ autoencoder.summary()
 
 #xs = np.reshape(greys, (len(greys),1,280,280))
 #ys = np.reshape(labels, (len(labels),280*280,4))
-xs = np.load('xs_e.npy')
-ys = np.load('ys_e.npy')
+xs = np.load('data/xs.npy')
+ys = np.load('data/ys.npy')
 print(xs.shape, ys.shape)
 
 #def custom_objective(y_true, y_pred):
@@ -147,6 +147,6 @@ if __name__=="__main__":
     ##datum = autoencoder.predict(xs, batch_size=1)
 
     checkpointer = ModelCheckpoint(filepath="weights.hdf5", verbose=1, save_best_only=False)
-    autoencoder.fit(xs, ys, nb_epoch=20, batch_size=1, callbacks=[checkpointer])
+    autoencoder.fit(xs, ys, nb_epoch=10, batch_size=1, callbacks=[checkpointer])
 
     autoencoder.save('auto.h5')

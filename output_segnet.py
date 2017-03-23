@@ -1,3 +1,7 @@
+import os
+
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
+
 from keras.models import load_model
 import matplotlib.pyplot as plt
 from skimage import io
@@ -19,7 +23,8 @@ model = load_model('weights.hdf5', custom_objects={'your_loss': your_loss})
 files = glob.glob('cropped/*')
 for fl in files:
 	print("Processing: %s"%fl)
-	img = imread(fl, mode='RGB')
+        print
+	img = imread(fl, mode='RGB').astype(float)/255
 	#img = imread('images/raw_image_cropped.png', as_grey=True)
 	#labels = np.load('labels.npy')
 	#labels_432 = np.zeros((432,432,4))
@@ -30,23 +35,25 @@ for fl in files:
 	#grey = np.zeros((432,432))
 	#grey[:-1,:-1] = img
 
-	xs = img.reshape(1,3,432,432)/255
+	xs = img.reshape(1,3,432,432)
+        print(np.unique(xs[0]))
 
 	result = model.predict(xs).reshape(432,432,3)
 
-	assert(xs.max()==1.0)
+	#assert(xs.max()==1.0)
 
 	zeros = np.zeros((432,432,4))
 
 	for i in range(img.shape[0]):
 	    for j in range(img.shape[1]):
 		output = result[i,j]
-		zeros[i,j,np.argmax(output)] = 255
+		zeros[i,j,np.argmax(output)] = 1
 		#count += 1
 
-	zeros[:,:,3]=255
+	zeros[:,:,3]=1
 
 	#print(count-len(squares2))
-	plt.imshow(zeros/255)
-	plt.imsave('plots/%s'%fl, zeros/255)
+	plt.imshow(zeros)
+	plt.imsave('plots/%s'%fl, zeros)
+	plt.imsave('plots/%s_i'%fl, img)
 	#plt.show()

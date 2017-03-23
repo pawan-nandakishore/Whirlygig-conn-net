@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import os
 import cv2
 import glob
+import random
 
 def rotate_thrice(square):
         return [square, np.rot90(square, 1), np.rot90(square, 2), np.rot90(square, 3)]
@@ -48,12 +49,21 @@ for img, out in zip(imgs, labels):
     xs.extend(transforms(x))
     ys.extend(transforms(y))
 
+# Shuffle the data
+data = zip(xs, ys)
+random.shuffle(data)
+xs, ys = zip(*data)
+
+# Convert to numpy array
 xs = np.array(xs)
 ys = np.array(ys)
 
+# Reshape: xs: num, labels, size, size,  ys: num, size*size, labels
 xs = xs.reshape(xs.shape[0], n_labels, size, size).astype(float)/255 # Convert to float between 0-1
 ys = ys.reshape(xs.shape[0], size*size, n_labels).astype(float) # Convert to one hot float between 0-1
-print(xs.shape, ys.shape)
+
+# Some descriptive statistics
+print(xs.shape, ys.shape, np.unique(xs), np.unique(ys))
 
 np.save('xs_e.npy',xs) # Normalize between 0-1
 np.save('ys_e.npy',ys)
