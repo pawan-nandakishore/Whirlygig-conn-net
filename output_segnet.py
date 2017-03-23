@@ -1,20 +1,18 @@
 import os
 
-#os.environ['CUDA_VISIBLE_DEVICES'] = ''
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 from keras.models import load_model
 import matplotlib.pyplot as plt
 from skimage import io
-from skimage.io import imread
 import numpy as np
 from skimage.color import gray2rgb
 from skimage.io import imsave
 from datetime import datetime
-from keras import backend as K
 from functions import your_loss
 import glob
-#from scipy.misc import imread
-from skimage.io import imread
+from scipy.misc import imread
+#from skimage.io import imread
 import shelve 
 import glob
 
@@ -23,23 +21,23 @@ import glob
 
 # Shelf to sync up
 
-labels = 4
-channels = 1
-size = 712
+labels = 3
+channels = 3
+size = 432
 
 #models = ['']
 models = glob.glob('models/*')
-models.sort(reverse=True)
+models.sort(reverse=False)
 
 for model_n in models:
     model = load_model(model_n, custom_objects={'your_loss': your_loss})
 
-    files = glob.glob('raw_images/*')[0:1]
+    files = glob.glob('cropped/*')[0:1]
     for idx, fl in enumerate(files):
             print("Processing: %s"%fl)
 
-            img = imread(fl, as_grey=True)
-            #img = imread(fl, mode='RGB').astype(float)/255
+            #img = imread(fl, as_grey=True)
+            img = imread(fl, mode='RGB').astype(float)/255
             #img = imread('images/raw_image_cropped.png', as_grey=True)
             #labels = np.load('labels.npy')
             #labels_432 = np.zeros((432,432,4))
@@ -47,15 +45,16 @@ for model_n in models:
             #print(labels_432.shape)
 
             # Add the extra row
-            xs = np.zeros((size,size))
-            xs[:-1,:-1] = img
+            #xs = np.zeros((size,size))
+            #xs[:-1,:-1] = img
+            xs = img
 
             xs = xs.reshape(1,channels,size,size)
             print(np.unique(xs[0]))
 
             result = model.predict(xs).reshape(size,size,labels)
 
-            #assert(xs.max()==1.0)
+            assert(xs.max()==1.0)
 
             zeros = np.zeros((size,size,4))
 

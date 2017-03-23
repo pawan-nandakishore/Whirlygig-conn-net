@@ -24,7 +24,9 @@ def transforms(square):
 
 def your_loss(y_true, y_pred):
 	#weights = np.ones(4)
-	weights = np.array([ 4.2 ,  0.52,  1.3,  0.08])
+	#weights = np.array([ 4.2 ,  0.52,  1.3,  0.08])
+        #weights = np.array([0.99524712791495196, 0.98911715534979427, 0.015705375514403319])
+        weights = np.array([ 0.91640706, 0.60022308, 0.001442506])
 	#weights = np.array([ 0.05 ,  1.3,  0.55,  4.2])
 	#weights = np.array([0.00713773, 0.20517703, 0.15813273, 0.62955252])
 	#weights = np.array([1,,0.1,0.001])
