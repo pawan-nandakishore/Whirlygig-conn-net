@@ -6,7 +6,6 @@ from skimage.transform import rotate
 import matplotlib.pyplot as plt
 import os
 import cv2
-import Get_images_for_classes_functions as gi
 import glob
 
 def rotate_thrice(square):
