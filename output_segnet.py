@@ -37,7 +37,8 @@ for model_n in models:
             print("Processing: %s"%fl)
 
             #img = imread(fl, as_grey=True)
-            img = np.invert(imread(fl, mode='L')).astype(float)/255
+            img = imread(fl, mode='L').astype(float)/255
+            #img = np.invert(imread(fl, mode='L')).astype(float)/255
             #img = imread('images/raw_image_cropped.png', as_grey=True)
             #labels = np.load('labels.npy')
             #labels_432 = np.zeros((432,432,4))

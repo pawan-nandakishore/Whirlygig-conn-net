@@ -90,13 +90,13 @@ def save_mod(epoch, logs):
         autoencoder.save('models/%d.h5'%count)
     count+=1
 
-count = 130
+count = 0
 cb = LambdaCallback(on_batch_begin=save_mod)
 
 if __name__=="__main__":
     print('lol')
 
     reduce_lr = ReduceLROnPlateau(monitor='your_loss', factor=0.2, patience=5, min_lr=0.0001)
-    autoencoder = load_model('models/130.h5', custom_objects={'your_loss': your_loss})
+    #autoencoder = load_model('models/130.h5', custom_objects={'your_loss': your_loss})
     #checkpointer = ModelCheckpoint(filepath="weights.hdf5", verbose=1, save_best_only=False)
     autoencoder.fit(xs, ys, nb_epoch=10, batch_size=1, callbacks=[cb, reduce_lr])

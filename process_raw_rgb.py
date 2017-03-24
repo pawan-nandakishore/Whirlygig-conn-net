@@ -28,7 +28,7 @@ ys = []
 
 for img, out in zip(imgs, labels):
     x = img
-    x = np.invert(x)
+    #x = np.invert(x)
     y = raw_to_labels(out)
 
     xs.extend(transforms(x))
