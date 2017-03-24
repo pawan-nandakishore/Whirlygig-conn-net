@@ -47,11 +47,9 @@ layer_dict = dict([(layer.name, layer) for layer in model.layers])
 input_img = model.layers[0].input
 filter_index = 1
 
-get_layer_output = K.function([model.layers[0].input, K.learning_phase()], [layer_dict['convolution2d_2'].output])
 
-#layer_output = get_layer_output([input_img, 0])[0]
-#import pdb; pdb.set_trace()
 layer_output = layer_dict['convolution2d_8'].output
+import pdb; pdb.set_trace()
 
 loss = K.mean(layer_output[:, filter_index, :, :])
 

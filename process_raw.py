@@ -6,11 +6,13 @@ import matplotlib.pyplot as plt
 from functions import transforms
 
 
-labels_m = np.load('labeled_images.npy')[:]
+labels_m = np.load('labeled_images.npy')[:5]
 
 files = glob.glob('raw_images/*')
 files.sort()
-files = files[:]
+files = files[0:5]
+
+print(len(files))
 
 labels = np.zeros((labels_m.shape[0], labels_m[0].shape[0], labels_m[0].shape[1], 4))
 imgs = [imread(fl, as_grey=True) for fl in files]

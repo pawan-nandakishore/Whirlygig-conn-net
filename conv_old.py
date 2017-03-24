@@ -7,15 +7,15 @@ from keras.layers.convolutional import Convolution2D, MaxPooling2D, UpSampling2D
 from keras.layers.normalization import BatchNormalization
 from keras.optimizers import SGD
 from skimage.io import imread
-from keras.callbacks import ModelCheckpoint, LambdaCallback
+from keras.callbacks import ModelCheckpoint, LambdaCallback, ReduceLROnPlateau
 import numpy as np
 from keras.models import load_model
 from functions import your_loss
 
-img_w = 432
-img_h = 432
+img_w = 320
+img_h = 320
 n_labels = 3
-channels = 3
+channels = 1
 kernel = 3
 
 autoencoder = models.Sequential()
@@ -75,8 +75,8 @@ autoencoder.compile(loss=your_loss, optimizer='adam', metrics=['accuracy'])
 autoencoder.summary()
 
 
-xs = np.load('xs_e.npy')
-ys = np.load('ys_e.npy')
+xs = np.load('xs_s.npy')
+ys = np.load('ys_s.npy')
 #xs = np.load('data/xs.npy')
 #ys = np.load('data/ys.npy')
 
@@ -90,14 +90,13 @@ def save_mod(epoch, logs):
         autoencoder.save('models/%d.h5'%count)
     count+=1
 
-count = 0
+count = 130
 cb = LambdaCallback(on_batch_begin=save_mod)
 
 if __name__=="__main__":
     print('lol')
 
-    #auto = load_model('auto.h5', custom_objects={'your_loss': your_loss})
+    reduce_lr = ReduceLROnPlateau(monitor='your_loss', factor=0.2, patience=5, min_lr=0.0001)
+    autoencoder = load_model('models/130.h5', custom_objects={'your_loss': your_loss})
     #checkpointer = ModelCheckpoint(filepath="weights.hdf5", verbose=1, save_best_only=False)
-    autoencoder.fit(xs, ys, nb_epoch=10, batch_size=1, callbacks=[cb])
-
-    autoencoder.save('auto.h5')
+    autoencoder.fit(xs, ys, nb_epoch=10, batch_size=1, callbacks=[cb, reduce_lr])

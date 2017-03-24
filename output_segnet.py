@@ -13,8 +13,8 @@ from functions import your_loss
 import glob
 from scipy.misc import imread
 #from skimage.io import imread
-import shelve 
 import glob
+import re
 
 #img = io.imread('images/fucked.png')
 #gray = io.imread('images/fucked.png', as_grey=True)
@@ -22,22 +22,22 @@ import glob
 # Shelf to sync up
 
 labels = 3
-channels = 3
-size = 432
+channels = 1
+size = 320
 
 #models = ['']
-models = glob.glob('models/*')
-models.sort(reverse=False)
+models = sorted(glob.glob('models/*'), key=lambda name: int(re.search(r'\d+', name).group()), reverse=True)
+print(models)
 
 for model_n in models:
     model = load_model(model_n, custom_objects={'your_loss': your_loss})
 
-    files = glob.glob('cropped/*')[0:1]
+    files = glob.glob('small_cropped/raw/*')[0:1]
     for idx, fl in enumerate(files):
             print("Processing: %s"%fl)
 
             #img = imread(fl, as_grey=True)
-            img = imread(fl, mode='RGB').astype(float)/255
+            img = np.invert(imread(fl, mode='L')).astype(float)/255
             #img = imread('images/raw_image_cropped.png', as_grey=True)
             #labels = np.load('labels.npy')
             #labels_432 = np.zeros((432,432,4))
@@ -54,7 +54,7 @@ for model_n in models:
 
             result = model.predict(xs).reshape(size,size,labels)
 
-            assert(xs.max()==1.0)
+            assert(xs.max()<=1.0)
 
             zeros = np.zeros((size,size,4))
 

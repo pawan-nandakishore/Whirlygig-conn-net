@@ -9,8 +9,8 @@ from skimage.io import imread, imsave
 import matplotlib.pyplot as plt
 import numpy as np
 
-img = imread('marked_image2_3cl')
-img_new = imread('images/raw_image_cropped2.png')
+img = imread('woof.png')
+img_new = img.copy()
 labels2 = np.zeros((img_new.shape[0], img_new.shape[1]))
 
 def labels2img(labels):
@@ -24,7 +24,7 @@ def labels2img(labels):
 
 colors = [[255,0,0,255], [0,255,0,255], [0,0,255,255]]
 
-for channel in [2,1,0]:
+for channel in [2,1]:
     channel_i = (img[:,:,channel]>200).astype(float)
     channel_resized = resize_crop_image(channel_i, 0.25, 15)
     channel_resized[channel_resized>0]=1
@@ -46,7 +46,7 @@ for channel in [2,1,0]:
 #img_new[green_r==1][:,:,1]=255
 #(img_new[red_r==1])[:,:,0]=255
 #imsave('')
-imsave('images/colors.png', img_new)
+#imsave('images/colors.png', img_new)
 
 
 labels = img_new/255
@@ -66,3 +66,4 @@ np.save('labels.npy', labels)
 np.save('labels2.npy', labels2)
 
 plt.imshow(labels2img(labels))
+plt.show()
