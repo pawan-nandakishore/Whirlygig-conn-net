@@ -2,7 +2,7 @@ from skimage.io import imsave
 import numpy as np
 import matplotlib.pyplot as plt
 
-size = 320
+size = 432
 
 xs = np.load('xs_s.npy')
 ys = np.load('ys_s.npy')

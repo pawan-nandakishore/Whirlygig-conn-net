@@ -11,12 +11,12 @@ import random
 from functions import transforms, raw_to_labels
 
 
-size = 320
+size = 432
 n_labels = 3
 n_channels = 1
 
-img_names = sorted(glob.glob('small_cropped/raw/*'))
-label_names = sorted(glob.glob('small_cropped/labeled/*'))
+img_names = sorted(glob.glob('cropped/*'))
+label_names = sorted(glob.glob('labeled_cropped/*'))
 
 imgs = [imread(fl, mode='L') for fl in img_names]
 labels = [imread(fl, mode='RGB') for fl in label_names]

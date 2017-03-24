@@ -23,7 +23,7 @@ import re
 
 labels = 3
 channels = 1
-size = 320
+size = 432
 
 #models = ['']
 models = sorted(glob.glob('models/*'), key=lambda name: int(re.search(r'\d+', name).group()), reverse=True)
@@ -32,7 +32,8 @@ print(models)
 for model_n in models:
     model = load_model(model_n, custom_objects={'your_loss': your_loss})
 
-    files = glob.glob('small_cropped/raw/*')[0:1]
+    files = glob.glob('cropped/*')[0:1]
+    print(files)
     for idx, fl in enumerate(files):
             print("Processing: %s"%fl)
 
