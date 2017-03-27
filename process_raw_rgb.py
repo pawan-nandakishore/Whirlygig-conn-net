@@ -15,8 +15,8 @@ size = 432
 n_labels = 3
 n_channels = 1
 
-img_names = sorted(glob.glob('cropped/*'))
-label_names = sorted(glob.glob('labeled_cropped/*'))
+img_names = sorted(glob.glob('cleaned_raw/*'))
+label_names = sorted(glob.glob('cleaned_labeled/*'))
 
 imgs = [imread(fl, mode='L') for fl in img_names]
 labels = [imread(fl, mode='RGB') for fl in label_names]

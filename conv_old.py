@@ -12,8 +12,8 @@ import numpy as np
 from keras.models import load_model
 from functions import your_loss
 
-img_w = 432
-img_h = 432
+img_w = 1180
+img_h = 1080
 n_labels = 3
 channels = 1
 kernel = 3
