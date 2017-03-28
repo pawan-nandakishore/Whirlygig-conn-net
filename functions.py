@@ -1,4 +1,3 @@
-import cv2
 import matplotlib.pyplot as plt
 from skimage.io import imread
 from keras import backend as K

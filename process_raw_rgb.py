@@ -5,7 +5,6 @@ from skimage.io import imsave
 from skimage.transform import rotate
 import matplotlib.pyplot as plt
 import os
-import cv2
 import glob
 import random
 from functions import transforms, raw_to_labels
