@@ -41,12 +41,14 @@ def your_loss(y_true, y_pred):
 
 def raw_to_labels(image):
     assert(image.max()==255)
-    inside_bool = (image[:,:,0] <= 120 ) & ( image[:,:,1] <= 120) & (image[:,:,2] >= 130 )
+    junctions_bool = (image[:,:,0]>=150) & ( image[:,:,1] <= 120) & (image[:,:,2] <= 120 )
     boundary_bool = (image[:,:,0] <=120  ) & ( image[:,:,1] >= 150) & (image[:,:,2] <= 120 )
-    exterior_bool = ~inside_bool & ~boundary_bool
+    inside_bool = (image[:,:,0] <= 120 ) & ( image[:,:,1] <= 120) & (image[:,:,2] >= 130 )
+    exterior_bool = ~inside_bool & ~boundary_bool & ~junctions_bool
 
-    softmax_labeled_image = np.zeros(image.shape)
-    softmax_labeled_image[inside_bool] = [1,0,0]
-    softmax_labeled_image[boundary_bool] = [0,1,0]
-    softmax_labeled_image[exterior_bool] = [0,0,1]
+    softmax_labeled_image = np.zeros(image.shape[0], image.shape[1], 4)
+    softmax_labeled_image[junctions_bool] = [1,0,0,0]
+    softmax_labeled_image[boundary_bool] = [0,1,0,0]
+    softmax_labeled_image[inside_bool] = [0,0,1,0]
+    softmax_labeled_image[exterior_bool] = [0,0,0,1]
     return softmax_labeled_image
