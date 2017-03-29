@@ -21,16 +21,20 @@ labels = 4
 channels = 1
 size = 1080
 
-def output_to_colors(result, rows, cols):
-    zeros = np.zeros((size,size,4))
+def output_to_colors(result, rows, cols, x):
+    zeros = np.zeros((rows,cols,4))
+    zeros[:,:,:-1]=gray2rgb(x.copy())
 
     for i in range(rows):
 	for j in range(cols):
 	    output = result[i,j]
-	    zeros[i,j,np.argmax(output)] = 1
+            index = np.argmax(output)
+            if index == 2:
+	        zeros[i,j,index] = 1
 	    #count += 1
 
     zeros[:,:,3]=1
+    return zeros
 
 
 models = sorted(glob.glob('models/*'), key=lambda name: int(re.search(r'\d+', name).group()), reverse=True)[0:1]
@@ -41,6 +45,7 @@ for model_n in models:
     print("Loaded :%s", model_n)
 
     files = glob.glob('cleaned/raw/*')
+    files = files + files[-4:-1]
     print(files)
 
     imgs = np.array([imread(fl, mode='L').astype(float)/255 for fl in files])
@@ -58,6 +63,6 @@ for model_n in models:
     print("---- %s seconds for size: %d ----"%(time.time()-start_time, xs.shape[0]))
     ys = ys.reshape(xs.shape[0], size, size, labels)
 
-    colors = [output_to_colors(y, size, size) for y in ys]
+    colors = [output_to_colors(y, size, size, imgs[i]) for i,y in enumerate(ys)]
 
     [plt.imsave('/home/thutupallilab/Dropbox/Whirlygig/plots/%s_%d.png'%(model_n, idx), zeros) for idx,zeros in enumerate(colors)]
