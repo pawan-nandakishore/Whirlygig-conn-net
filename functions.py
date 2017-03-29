@@ -23,9 +23,9 @@ def transforms(square):
 
 def your_loss(y_true, y_pred):
 	#weights = np.ones(4)
-	#weights = np.array([ 4.2 ,  0.52,  1.3,  0.08])
+	weights = np.array([ 4.2 ,  0.82,  1.3,  0.06])
         #weights = np.array([0.99524712791495196, 0.98911715534979427, 0.015705375514403319])
-        weights = np.array([ 0.91640706, 0.5022308, 0.1])
+        #weights = np.array([ 0.91640706, 0.5022308, 0.1])
 	#weights = np.array([ 0.05 ,  1.3,  0.55,  4.2])
 	#weights = np.array([0.00713773, 0.20517703, 0.15813273, 0.62955252])
 	#weights = np.array([1,,0.1,0.001])
@@ -45,7 +45,7 @@ def raw_to_labels(image):
     inside_bool = (image[:,:,0] <= 120 ) & ( image[:,:,1] <= 120) & (image[:,:,2] >= 130 )
     exterior_bool = ~inside_bool & ~boundary_bool & ~junctions_bool
 
-    softmax_labeled_image = np.zeros(image.shape[0], image.shape[1], 4)
+    softmax_labeled_image = np.zeros((image.shape[0], image.shape[1], 4))
     softmax_labeled_image[junctions_bool] = [1,0,0,0]
     softmax_labeled_image[boundary_bool] = [0,1,0,0]
     softmax_labeled_image[inside_bool] = [0,0,1,0]

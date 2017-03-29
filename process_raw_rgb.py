@@ -12,7 +12,7 @@ from functions import transforms, raw_to_labels
 
 height = 1080
 width = 1080
-n_labels = 3
+n_labels = 4
 n_channels = 1
 
 img_names = sorted(glob.glob('cleaned/raw/*'))
