@@ -60,6 +60,7 @@ Solution: Identify roughly how many morphological classes there are. Weigh down 
 
 ### Doing
 * Identify the misclassified classes and fix the erroneous classes.
+* Generate outputs for videos 14 and 15.
 
 ### Issues faced:
 * Erroneous classifications because of class underrepresentation:
