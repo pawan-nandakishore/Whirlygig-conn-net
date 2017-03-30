@@ -1,4 +1,4 @@
-##Swarm tracker:
+## Swarm tracker:
 
 For a machine learning classification problem the no of training examples shown to a classifier has to be proportionate to the pattern complexity. For example a pattern like the pixels with intensity == 0px is background. A classifier might need more examples to learn that something is a square than to learn something like a uniform background.
 
