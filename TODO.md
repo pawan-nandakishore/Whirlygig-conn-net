@@ -78,6 +78,7 @@ Solution: Identify roughly how many morphological classes there are. Weigh down 
 ### Things to think about:
 * Decomposing the problem into multiple problems: Finding the contours first and then trying to segmennt vs joint end to end.
 * Automatically sample the erroneous classes.
-* Automated way to identify morphological classes? Possibly some form Will make this useful as a reusable swarm tracking toolkit.
-
+* Automated way to identify morphological classes? Will make this useful as a reusable swarm tracking toolkit.
+* Contour wise classification.
+* Attention mechanisms.
 
