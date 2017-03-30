@@ -6,6 +6,8 @@ Members of a class should be homogeneous mogrphologically, Our initial idea was 
 
 Thus for a network to generalize across all of these, you need to identify the common morphological classes.
 
+Output folder: https://www.dropbox.com/sh/d0hhm878kqq9852/AADrizLzxQzng2NJM3N8gkgZa?dl=0
+
 ### Morphological classes which are abundant and thus the network learns them: 
 
 <figure>
