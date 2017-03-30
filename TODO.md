@@ -63,10 +63,10 @@ Solution: Identify roughly how many morphological classes there are. Weigh down 
 
 ### Issues faced:
 * Erroneous classifications because of class underrepresentation:
-* Memory errors since working with 1080x1080 images.
+* Memory errors since working with 1080x1080 images: Reduced batch size
 * Training time takes too long: Solution: Add multiple gpus and batch run the code on them.
 * Setting stuff on google compute engine.
-* Solution: Run on a k80/Make the network sparser(working on it, can still use some improvements)
+* Larger time for processing multiple videos: Solution: Run on a k80/Make the network sparser(working on it, can still use some improvements)
 
 ### Next steps:
 * Try to make network sparser to make it faster.
@@ -76,6 +76,7 @@ Solution: Identify roughly how many morphological classes there are. Weigh down 
 
 ### Things to think about:
 * Decomposing the problem into multiple problems: Finding the contours first and then trying to segmennt vs joint end to end.
+* Automatically sample the erroneous classes.
 * Automated way to identify morphological classes? Possibly some form Will make this useful as a reusable swarm tracking toolkit.
 
 
