@@ -1,9 +1,8 @@
 ## Swarm tracker:
 
-For a machine learning classification problem the no of training examples shown to a classifier has to be proportionate to the pattern complexity. For example a pattern like the pixels with intensity == 0px is background. A classifier might need more examples to learn that something is a square than to learn something like a uniform background.
+For a machine learning classification problem the no of training examples shown to a classifier has to be proportionate to the pattern complexity. A classifier might need more examples to learn that something is a square than to learn something like a uniform background.
 
-Issue is in a swarm problem, the 
-Problems: Concept of a class. Members of a class should be homogeneous mogrphologically, Our initial idea was that the junctions, interiors and exteriors form the classes. But in a collective swarm problem because of the dynamics involved, there can be a large morpological variation inside a class itself. For instance all of these morphological_classes represent nieghbourhoods of junctions. [morphological_classes]
+Members of a class should be homogeneous mogrphologically, Our initial idea was that the junctions, interiors and exteriors form the classes. But in a collective swarm problem because of the dynamics involved, there can be a large morpological variation inside a class itself. For instance all of the following blue images represent interior pixels, even though there is a large variation in the morphology.
 
 Thus for a network to generalize across all of these, you need to identify the common morphological classes.
 
