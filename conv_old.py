@@ -22,18 +22,18 @@ autoencoder = models.Sequential()
 #autoencoder.add(ZeroPadding2D((1,1), input_shape=(3, img_h, img_w), dim_ordering='th'))
 
 encoding_layers = [
-    Convolution2D(32, kernel, kernel, border_mode='same', input_shape=(channels, img_h, img_w)),
+    Convolution2D(16, kernel, kernel, border_mode='same', input_shape=(channels, img_h, img_w)),
     BatchNormalization(),
     Activation('relu'),
-    Convolution2D(32, kernel, kernel, border_mode='same'),
+    Convolution2D(16, kernel, kernel, border_mode='same'),
     BatchNormalization(),
     Activation('relu'),
     MaxPooling2D(),
 
-    Convolution2D(64, kernel, kernel, border_mode='same'),
+    Convolution2D(32, kernel, kernel, border_mode='same'),
     BatchNormalization(),
     Activation('relu'),
-    Convolution2D(64, kernel, kernel, border_mode='same'),
+    Convolution2D(32, kernel, kernel, border_mode='same'),
     BatchNormalization(),
     Activation('relu'),
     MaxPooling2D(),
@@ -47,15 +47,15 @@ for l in autoencoder.encoding_layers:
 decoding_layers = [
 
     UpSampling2D(),
-    Convolution2D(64, kernel, kernel, border_mode='same'),
+    Convolution2D(32, kernel, kernel, border_mode='same'),
     BatchNormalization(),
     Activation('relu'),
-    Convolution2D(64, kernel, kernel, border_mode='same'),
+    Convolution2D(32, kernel, kernel, border_mode='same'),
     BatchNormalization(),
     Activation('relu'),
 
     UpSampling2D(),
-    Convolution2D(32, kernel, kernel, border_mode='same'),
+    Convolution2D(16, kernel, kernel, border_mode='same'),
     BatchNormalization(),
     Activation('relu'),
     Convolution2D(n_labels, 1, 1, border_mode='valid'),
@@ -90,13 +90,13 @@ def save_mod(epoch, logs):
         autoencoder.save('models/%d.h5'%count)
     count+=1
 
-count = 3980
+count = 0
 cb = LambdaCallback(on_batch_begin=save_mod)
 
 if __name__=="__main__":
     print('lol')
 
     reduce_lr = ReduceLROnPlateau(monitor='your_loss', factor=0.2, patience=5, min_lr=0.0001)
-    autoencoder = load_model('models/3980.h5', custom_objects={'your_loss': your_loss})
+    #autoencoder = load_model('models/3980.h5', custom_objects={'your_loss': your_loss})
     #checkpointer = ModelCheckpoint(filepath="weights.hdf5", verbose=1, save_best_only=False)
     autoencoder.fit(xs, ys, nb_epoch=100, batch_size=1, callbacks=[cb, reduce_lr])

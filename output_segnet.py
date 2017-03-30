@@ -70,6 +70,6 @@ for model_n in models:
 
             #print(count-len(squares2))
             #plt.imshow(zeros)
-            plt.imsave('/home/thutupallilab/Dropbox/Whirlygig/plots/%s_%d.png'%(model_n, idx), zeros)
+            plt.imsave('plots/%s_%d.png'%(model_n, idx), zeros)
             #plt.imsave('plots/%s_i_%d.png'%(model_n, idx), img)
             #plt.show()
