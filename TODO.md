@@ -7,7 +7,7 @@ Problems: Concept of a class. Members of a class should be homogeneous mogrpholo
 
 Thus for a network to generalize across all of these, you need to identify the common morphological classes.
 
-Morphological classes which are abundant and thus the network learns them instantly: single whirligig (elliptical) ![](morphological_classes/single.png?raw=true), pearl,![](morphological_classes/single.png?raw=true) H shaped pattern(two necks).
+Morphological classes which are abundant and thus the network learns them instantly: single whirligig (elliptical) ![](morphological_classes/single.png?raw=true  =100x100), pearl,![](morphological_classes/single.png?raw=true =100x100) H shaped pattern(two necks).
 
 Relatively sparse classes on which the network misperforms: batman pattern,![](morphological_classes/single.png?raw=true) snake pattern,![](morphological_classes/single.png?raw=true) u pattern (only one neck),![](morphological_classes/single.png?raw=true) lightsaber pattern, fatneck pattern![](morphological_classes/single.png?raw=true)
 
