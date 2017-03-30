@@ -7,9 +7,45 @@ Problems: Concept of a class. Members of a class should be homogeneous mogrpholo
 
 Thus for a network to generalize across all of these, you need to identify the common morphological classes.
 
-Morphological classes which are abundant and thus the network learns them instantly: single whirligig (elliptical) ![](morphological_classes/single.png?raw=true  =100x100), pearl,![](morphological_classes/single.png?raw=true =100x100) H shaped pattern(two necks).
+### Morphological classes which are abundant and thus the network learns them: 
 
-Relatively sparse classes on which the network misperforms: batman pattern,![](morphological_classes/single.png?raw=true) snake pattern,![](morphological_classes/single.png?raw=true) u pattern (only one neck),![](morphological_classes/single.png?raw=true) lightsaber pattern, fatneck pattern![](morphological_classes/single.png?raw=true)
+<figure>
+    <img src='morphological_classes/pearl.png?raw=true' width="200" height="200" alt='missing' />
+    <figcaption>Pearl</figcaption>
+
+</figure>
+
+<figure>
+    <img src='morphological_classes/single.png?raw=true' width="200" height="200" alt='missing' />
+    <figcaption>Single</figcaption>
+
+</figure>
+
+### Relatively sparse classes on which the network misclassifies: 
+
+<figure>
+    <img src='morphological_classes/batman.png?raw=true' width="200" height="200" alt='missing' />
+    <figcaption>Batman</figcaption>
+
+</figure>
+
+<figure>
+    <img src='morphological_classes/fatneck.png?raw=true' width="200" height="200" alt='missing' />
+    <figcaption>Fatneck</figcaption>
+
+</figure>
+
+<figure>
+    <img src='morphological_classes/S.png?raw=true' width="200" height="200" alt='missing' />
+    <figcaption>S</figcaption>
+
+</figure>
+
+<figure>
+    <img src='morphological_classes/U.png?raw=true' width="200" height="200" alt='missing' />
+    <figcaption>U</figcaption>
+
+</figure>
 
 Solution: Identify roughly how many morphological classes there are. Weigh down classes by pattern complexity.
 
