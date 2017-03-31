@@ -21,9 +21,9 @@ import re
 
 # Shelf to sync up
 
-labels = 3
+labels = 4
 channels = 1
-size = 432
+size = 1080
 
 #models = ['']
 models = sorted(glob.glob('models/*'), key=lambda name: int(re.search(r'\d+', name).group()), reverse=True)
@@ -32,7 +32,7 @@ print(models)
 for model_n in models:
     model = load_model(model_n, custom_objects={'your_loss': your_loss})
 
-    files = glob.glob('cropped/*')[0:1]
+    files = glob.glob('cleaned/raw/*')[0:1]
     print(files)
     for idx, fl in enumerate(files):
             print("Processing: %s"%fl)
@@ -69,7 +69,7 @@ for model_n in models:
             zeros[:,:,3]=1
 
             #print(count-len(squares2))
-            plt.imshow(zeros)
-            plt.imsave('plots/%s_%d.png'%(model_n, idx), zeros)
+            #plt.imshow(zeros)
+            plt.imsave('/home/thutupallilab/Dropbox/Whirlygig/plots/%s_%d.png'%(model_n, idx), zeros)
             #plt.imsave('plots/%s_i_%d.png'%(model_n, idx), img)
             #plt.show()

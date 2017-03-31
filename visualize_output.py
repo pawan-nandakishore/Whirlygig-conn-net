@@ -2,7 +2,7 @@ from skimage.io import imsave
 import numpy as np
 import matplotlib.pyplot as plt
 
-size = 432
+size = 1080
 
 xs = np.load('xs_s.npy')
 ys = np.load('ys_s.npy')
@@ -10,7 +10,7 @@ ys = np.load('ys_s.npy')
 count = 0
 
 for x,y in zip(xs, ys):
-    y = y.reshape(size, size, 3)
+    y = y.reshape(size, size, 4)
 
     #x_rgba = np.zeros((size,size,4))
     y_rgba = np.zeros((size,size,4))
