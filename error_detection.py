@@ -1,8 +1,8 @@
 
 import scipy
+from scipy.misc import imread
 from scipy import ndimage
 import matplotlib.pyplot as plt 
-import cv2 
 import numpy as np
 import os
 import numpy.matlib as npmat 
@@ -21,7 +21,7 @@ def get_num_pixels(list_of_labels, labeled):
         y = points[1]
 
         centroid = (sum(x) / len(points[0]), sum(y) / len(points[0]))
-        centroid = np.round(centroid)
+        centroid = int(centroid)
         centroid = tuple(centroid)
         list_of_centroids.append(centroid)
             
@@ -65,7 +65,8 @@ def get_image_patch(image,cropped_images ):
     stride =image.shape[1]/50 
     stride = np.linspace(50, mask.shape[1]-50, 20)
     positions= []
-    stride = np.round(stride)
+    print(stride)
+    stride = np.round(stride,0)
 
     for i in stride: 
         for j in stride: 
@@ -74,6 +75,7 @@ def get_image_patch(image,cropped_images ):
     
     length_ij = len(positions)
 
+    print(len(cropped_images))
     ij = 0  
     for i in stride: 
         for j in stride: 
@@ -104,9 +106,9 @@ def open_files(i,file_ind,folderloc,raw_folder,raw_files,labeled_folder,labeled_
 
     file_ind += 1 
     
-    image = cv2.imread(imageLoc)
-    raw_image = cv2.imread(raw_imageLoc)
-    labeled_image = cv2.imread(labeled_imageLoc)
+    image = imread(imageLoc)
+    raw_image = imread(raw_imageLoc)
+    labeled_image = imread(labeled_imageLoc)
     
     print(image.shape,raw_image.shape)
 
@@ -122,14 +124,16 @@ def open_files(i,file_ind,folderloc,raw_folder,raw_files,labeled_folder,labeled_
 
 
 
-raw_folder = 'raw2-2/'
-labeled_folder = 'labeled2/'
-folderloc = 'results/'
+raw_folder = 'cleaned/raw/'
+labeled_folder = 'cleaned/labeled/'
+folderloc = 'plots/results/'
 files = os.listdir(folderloc)
 raw_files= os.listdir(raw_folder)
 labeled_files = os.listdir(labeled_folder)
+print(files, raw_files, labeled_files)
 file_ind = 0 
 
+print(files)
 
 for i in files:
    
@@ -159,10 +163,10 @@ for i in files:
     
     empty_image,positions  = get_image_patch(raw_image,cropped_images )
     
-    plt.figure()
-    plt.imshow(empty_image)
-    plt.show()
-
+    #plt.figure()
+    #plt.imshow(empty_image)
+    #   plt.show()
+    imsave('plots/empty.png', empty_image)
 
 
 

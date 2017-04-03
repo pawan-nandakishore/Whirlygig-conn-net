@@ -1,6 +1,6 @@
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = ''
+#os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 from keras.models import load_model
 import matplotlib.pyplot as plt

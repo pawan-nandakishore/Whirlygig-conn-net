@@ -44,8 +44,8 @@ for model_n in models:
     model = load_model(model_n, custom_objects={'your_loss': your_loss})
     print("Loaded :%s", model_n)
 
-    files_all = glob.glob('images/single_frames/*.png')
-    #files_all = glob.glob('images/single_frames/*')
+    #files_all = glob.glob('images/single_frames/*.png')
+    files_all = glob.glob('cleaned/raw/*')
     #files = files+files+files# + files[-4:-1]
     #print(files)
 
@@ -73,4 +73,5 @@ for model_n in models:
         colors = [output_to_colors(y, imgs[i]) for i,y in enumerate(ys)]
         #colors = [label2rgb(y.argmax(axis=-1), image=imgs[i], colors=[(1,0,0), (0,1,0), (0,0,1), (0,0,0)], alpha=0.9, bg_label=3) for i,y in enumerate(ys)]
 
-        [plt.imsave('plots/%s_%s'%(model_n, file_names[i]), zeros) for i,zeros in enumerate(colors)]
+        #[plt.imsave('plots/%s_%s'%(model_n, file_names[i]), zeros) for i,zeros in enumerate(colors)]
+        [plt.imsave('plots/results/%s'%(file_names[i]), zeros) for i,zeros in enumerate(colors)]
