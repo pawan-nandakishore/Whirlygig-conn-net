@@ -122,7 +122,7 @@ def open_files(i,file_ind,folderloc,raw_folder,raw_files,labeled_folder,labeled_
 
 
 
-raw_folder = 'raw2/'
+raw_folder = 'raw2-2/'
 labeled_folder = 'labeled2/'
 folderloc = 'results/'
 files = os.listdir(folderloc)
@@ -155,9 +155,9 @@ for i in files:
     empty_image  = np.ones(image.shape)*255
 
     cropped_images =[]
-    cropped_images = get_cropped_images_list(image, labeled,errval_all, list_of_centroids)
+    cropped_images = get_cropped_images_list(raw_image, labeled,errval_all, list_of_centroids)
     
-    empty_image,positions  = get_image_patch(image,cropped_images )
+    empty_image,positions  = get_image_patch(raw_image,cropped_images )
     
     plt.figure()
     plt.imshow(empty_image)
