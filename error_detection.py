@@ -1,6 +1,6 @@
 
 import scipy
-from scipy.misc import imread
+from scipy.misc import imread,imsave
 from scipy import ndimage
 import matplotlib.pyplot as plt 
 import numpy as np
@@ -19,9 +19,8 @@ def get_num_pixels(list_of_labels, labeled):
         points = np.where(label_bool==1)
         x = points[0]
         y = points[1]
-
-        centroid = (sum(x) / len(points[0]), sum(y) / len(points[0]))
-        centroid = int(centroid)
+        centroid = [sum(x) / len(points[0]), sum(y) / len(points[0])]
+        centroid = np.round((centroid))
         centroid = tuple(centroid)
         list_of_centroids.append(centroid)
             
@@ -47,13 +46,14 @@ def get_cropped_images_list(image, labeled,errval_all, list_of_centroids):
         
 
         label = errval_all[0][l]
-        label_bool = (labeled==label)
+        # label_bool = (labeled==label)
         
         #get list of centroids
         centroid = list_of_centroids[label-1]   
         
         # crop image 
-        cropped_image = image[centroid[0]-image_limit:centroid[0]+image_limit,centroid[1]-image_limit:centroid[1]+image_limit,: ]
+        image2 = image
+        cropped_image = image2[centroid[0]-image_limit:centroid[0]+image_limit,centroid[1]-image_limit:centroid[1]+image_limit,: ]
         cropped_images.append(cropped_image)
         
         # plt.scatter(centroid[1],centroid[0], color = 'green' )
@@ -114,7 +114,7 @@ def open_files(i,file_ind,folderloc,raw_folder,raw_files,labeled_folder,labeled_
 
     mask = np.zeros(image.shape[0:2])
     
-    mask_bool  = (image[:,:,0]!=image[:,:,1])
+    mask_bool  = (image[:,:,0]!=image[:,:,2])
     mask[mask_bool] = 255
     return(mask,image,raw_image,labeled_image,mask_bool)
 
@@ -138,9 +138,14 @@ print(files)
 for i in files:
    
     plt.close('all')
+
     mask,image,raw_image,labeled_image,mask_bool= open_files(i,file_ind,folderloc,raw_folder,raw_files,labeled_folder,labeled_files)
-    
+    image = image-255 
     # label all the individual images and get a list of labels
+    # plt.figure()
+    # plt.imshow(labeled_image)
+    # plt.show()
+    
     labeled, nr_objects = ndimage.label(mask)
     list_of_labels = np.unique(labeled) 
     
@@ -148,24 +153,31 @@ for i in files:
     num_pixels = dict()
     num_pixels[0] = 0 
     image_limit =  15
-
+    
     #get list of image centroids as a dict, get the values in the dict 
     num_pixels, list_of_centroids = get_num_pixels(list_of_labels, labeled)
     values_num_pixels = num_pixels.values()
       
-    #get 
+
     errval_all = calculate_outside_interval(values_num_pixels)
 
     empty_image  = np.ones(image.shape)*255
 
     cropped_images =[]
-    cropped_images = get_cropped_images_list(raw_image, labeled,errval_all, list_of_centroids)
+    image_type = labeled_image
     
-    empty_image,positions  = get_image_patch(raw_image,cropped_images )
+    cropped_images = get_cropped_images_list(image_type, labeled,errval_all, list_of_centroids)
     
-    #plt.figure()
-    #plt.imshow(empty_image)
-    #   plt.show()
+    # placing the patches in empty image 
+    empty_image,positions  = get_image_patch(image_type,cropped_images )
+    
+    plt.figure()
+    plt.imshow(empty_image/255)
+    plt.show()
+    plt.figure()
+    plt.imshow(labeled_image)
+    plt.show()
+    
     imsave('plots/empty.png', empty_image)
 
 
