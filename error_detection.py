@@ -106,9 +106,9 @@ def open_files(i,file_ind,folderloc,raw_folder,raw_files,labeled_folder,labeled_
 
     file_ind += 1 
     
-    image = imread(imageLoc)
-    raw_image = imread(raw_imageLoc)
-    labeled_image = imread(labeled_imageLoc)
+    image = imread(imageLoc, mode='RGB')
+    raw_image = imread(raw_imageLoc, mode='RGB')
+    labeled_image = imread(labeled_imageLoc, mode='RGB')
     
     print(image.shape,raw_image.shape)
 
