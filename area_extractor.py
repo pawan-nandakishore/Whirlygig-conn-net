@@ -13,7 +13,7 @@ import random
 def calculate_stats(data):
     mean = np.mean(data)
     std = np.std(data)
-    confidence = 1.5*std
+    confidence = 2*std
     left = mean - confidence
     right = mean + confidence
     return mean, std, left, right
@@ -35,9 +35,15 @@ def get_regions(image):
 
 if __name__ == "__main__":
     # Read files
-    output_files = glob.glob('plots/results/all/*.png')
-    output_files = random.sample(output_files, 200)
-    raw_files =  ['cleaned/all/'+'_'.join(fl.split('_')[1:]) for fl in output_files]
+    #output_files = sorted(glob.glob('comparison/joint+u+weighted/*.png'))
+    #output_files = sorted(glob.glob('/home/pavan/Dropbox/Whirlygig/*.png'))
+    #print(output_files)
+    output_files = sorted(glob.glob('plots/results/*.png'))
+    #raw_files = sorted(glob.glob('cleaned/raw/*.png'))
+    output_files = random.sample(output_files, 300)
+    raw_files =  ['cleaned/all/'+fl.split('/')[-1] for fl in output_files]
+    #raw_files =  ['cleaned/all/'+'_'.join(fl.split('_')[1:]) for fl in output_files]
+    print("Output files: %s, raw files: %s" % (output_files, raw_files))
 
     raw_images = []
     output_images = []
@@ -45,7 +51,7 @@ if __name__ == "__main__":
     attributes_g = []
     regions_g = []
 
-    square_size = 30
+    square_size = 36
 
     # Read all regions
     for i,fl in enumerate(output_files):
@@ -72,7 +78,7 @@ if __name__ == "__main__":
     box_h_conf = box_h_mean + 1.5*box_h_std
     box_w_conf = box_w_mean + 1.5*box_w_std
     #box_dim = int(max(box_h_conf, box_w_conf))
-    box_dim = 26
+    box_dim = 34
     diff = (square_size - box_dim)/2
     print(box_h_mean, box_w_mean, box_h_conf, box_w_conf, box_dim)
     #plt.hist(box_h, bins=30)
@@ -99,28 +105,39 @@ if __name__ == "__main__":
             #plt.imshow(img_cropped)
             #plt.show()
 
+
     num_squares = 1080/square_size
     data = zip(images_g, images_o)
-    data = random.sample(data, min(len(images_g),num_squares**2))
+    errors_length = len(data)
+    #data = random.sample(data, min(len(images_g),num_squares**2))
+    # Sample the top 400 contours, assume that you have more
+    data = random.sample(data, min(len(images_g),400))
     images_g, images_o = zip(*data)
     #images_g = random.sample(images_g, min(len(images_g),num_squares**2))
-    print("len: %d"%len(images_g))
+    print("Erroneous contours: %d/%d"%(errors_length, 200*len(output_files)))
+    [imsave('comparison/errors/%d.png'%i, img) for i, img in enumerate(images_o)]
+    #print("Num squares: %d", num_squares)
 
-    y = len(images_g)/num_squares
-    print(y)
-    x = len(images_g)%num_squares
+    #y = len(images_g)/num_squares
+    #print(y)
+    #x = len(images_g)%num_squares
 
-    print(len(images_g))
-    for i in xrange(y):
-        for j in xrange(num_squares):
+    #if y==0:
+    #    y=1
+
+    #print(len(images_g))
+    #for i in xrange(y):
+    #    for j in xrange(num_squares):
             #print(images_g[i*16+j].shape)
             #print(square_size*i+diff,square_size*(i+1)-diff,square_size*j+diff,square_size*(j+1)-diff)
-            huge[square_size*i+diff:square_size*(i+1)-diff,square_size*j+diff:square_size*(j+1)-diff] = images_g[i*box_dim+j]
-            huge_out[square_size*i+diff:square_size*(i+1)-diff,square_size*j+diff:square_size*(j+1)-diff] = images_o[i*box_dim+j]
+    #        huge[square_size*i+diff:square_size*(i+1)-diff,square_size*j+diff:square_size*(j+1)-diff] = images_g[i*box_dim+j]
+    #        huge_out[square_size*i+diff:square_size*(i+1)-diff,square_size*j+diff:square_size*(j+1)-diff] = images_o[i*box_dim+j]
             #huge[i+2:i+square_size,j+2:j+square_size,:] = images_g[i*16+j]
+    #plt.imshow(huge)
+    #plt.show()
 
-    imsave('output_i.png', huge/255)
-    imsave('output_o.png', huge_out/255)
+    #imsave('output_i.png', huge/255)
+    #imsave('output_o.png', huge_out/255)
     #plt.imshow(huge/255, cmap='Greys')
     #plt.show()
 
