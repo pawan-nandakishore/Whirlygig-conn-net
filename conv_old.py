@@ -7,7 +7,7 @@ from keras.layers.convolutional import Convolution2D, MaxPooling2D, UpSampling2D
 from keras.layers.normalization import BatchNormalization
 from keras.optimizers import SGD
 from skimage.io import imread
-from keras.callbacks import ModelCheckpoint, LambdaCallback, ReduceLROnPlateau
+from keras.callbacks import ModelCheckpoint, LambdaCallback, ReduceLROnPlateau, TensorBoard
 import numpy as np
 from keras.models import load_model
 from functions import your_loss
@@ -96,7 +96,9 @@ cb = LambdaCallback(on_batch_begin=save_mod)
 if __name__=="__main__":
     print('lol')
 
-    reduce_lr = ReduceLROnPlateau(monitor='your_loss', factor=0.2, patience=5, min_lr=0.0001)
-    #autoencoder = load_model('models/3980.h5', custom_objects={'your_loss': your_loss})
+    reduce_lr = ReduceLROnPlateau(monitor='your_loss', factor=0.2, patience=2, min_lr=0.0001)
+    tbCallBack = TensorBoard(log_dir='./Graph', histogram_freq=0, write_graph=True, write_images=True)
+
+    #autoencoder = load_model('models/7080.h5', custom_objects={'your_loss': your_loss})
     #checkpointer = ModelCheckpoint(filepath="weights.hdf5", verbose=1, save_best_only=False)
-    autoencoder.fit(xs, ys, nb_epoch=100, batch_size=1, callbacks=[cb, reduce_lr])
+    autoencoder.fit(xs, ys, nb_epoch=200, batch_size=1, shuffle=True, callbacks=[cb, reduce_lr, tbCallBack])

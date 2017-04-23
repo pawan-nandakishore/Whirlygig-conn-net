@@ -1,6 +1,6 @@
 import os
 
-#os.environ['CUDA_VISIBLE_DEVICES'] = ''
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 from keras.models import load_model
 import matplotlib.pyplot as plt
@@ -32,7 +32,9 @@ print(models)
 for model_n in models:
     model = load_model(model_n, custom_objects={'your_loss': your_loss})
 
-    files = glob.glob('cleaned/raw/*')[0:1]
+    #files = ['cleaned/raw/1.png']
+    #files = glob.glob('cleaned/raw/*')[-2:-1]
+    files = glob.glob('cleaned/test/*')
     print(files)
     for idx, fl in enumerate(files):
             print("Processing: %s"%fl)

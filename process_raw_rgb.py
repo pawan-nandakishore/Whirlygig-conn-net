@@ -5,18 +5,22 @@ from skimage.io import imsave
 from skimage.transform import rotate
 import matplotlib.pyplot as plt
 import os
+from os.path import basename
 import glob
 import random
 from functions import transforms, raw_to_labels
 
+# This is a comment. Move along people.
 
 height = 1080
 width = 1080
 n_labels = 4
 n_channels = 1
 
-img_names = sorted(glob.glob('cleaned/raw/*'))
-label_names = sorted(glob.glob('cleaned/labeled/*'))
+img_names = sorted(glob.glob('cleaned/greys/*'), key=lambda x: int(filter(str.isdigit, x)))
+label_names = sorted(glob.glob('cleaned/grey_labeled/*'), key=lambda x: int(filter(str.isdigit, x)))
+
+print(img_names, label_names)
 
 imgs = [imread(fl, mode='L') for fl in img_names]
 labels = [imread(fl, mode='RGB') for fl in label_names]
@@ -25,13 +29,18 @@ labels = [imread(fl, mode='RGB') for fl in label_names]
 xs = []
 ys = []
 
+
+count = 1
+
 for img, out in zip(imgs, labels):
     x = img
     #x = np.invert(x)
-    y = raw_to_labels(out)
+    y = raw_to_labels(out, count)
 
     xs.extend(transforms(x))
     ys.extend(transforms(y))
+
+    count += 1
 
 # Shuffle the data
 data = zip(xs, ys)

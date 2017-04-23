@@ -17,6 +17,7 @@ from scipy.misc import imread
 import glob
 import re
 import time
+import random
 
 labels = 4
 channels = 1
@@ -44,8 +45,11 @@ for model_n in models:
     model = load_model(model_n, custom_objects={'your_loss': your_loss})
     print("Loaded :%s", model_n)
 
+    #files_all = glob.glob('cleaned/raw/*.png')
     #files_all = glob.glob('images/single_frames/*.png')
-    files_all = glob.glob('cleaned/raw/*')
+    files_all = glob.glob('images/all_grey/15_jpgs/*.jpg')
+    #files_all = random.sample(files_all)
+    #files_all = glob.glob('cleaned/penta/*')
     #files = files+files+files# + files[-4:-1]
     #print(files)
 
