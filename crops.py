@@ -7,7 +7,7 @@ from skimage.color import gray2rgb
 import glob
 
 img_files = sorted(glob.glob('cleaned/greys/*'))
-label_files = sorted(glob.glob('cleaned/labeled/*.png'))
+label_files = sorted(glob.glob('cleaned/grey_labeled/*.png'))
 
 print(img_files, label_files)
 
@@ -102,8 +102,8 @@ for img_fl, lbl_fl in zip(img_files, label_files):
     
     #print()
     
-plt.hist((weights), bins=20)
-plt.show()
+#plt.hist((weights), bins=20)
+#plt.show()
 [imsave("cleaned/patches/combined/%d.png"%idx, img) for idx, img in enumerate(images)]
 [imsave("cleaned/patches/xs/%d.png"%idx, img) for idx, img in enumerate(xs)]
 [imsave("cleaned/patches/ys/%d.png"%idx, img) for idx, img in enumerate(ys)]

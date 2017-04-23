@@ -23,7 +23,8 @@ import re
 
 labels = 4
 channels = 1
-size = 1080
+size = 56
+ysize = 36
 
 #models = ['']
 models = sorted(glob.glob('models/*'), key=lambda name: int(re.search(r'\d+', name).group()), reverse=True)
@@ -34,7 +35,7 @@ for model_n in models:
 
     #files = ['cleaned/raw/1.png']
     #files = glob.glob('cleaned/raw/*')[-2:-1]
-    files = glob.glob('cleaned/test/*')
+    files = glob.glob('cleaned/patches/xs/*')
     print(files)
     for idx, fl in enumerate(files):
             print("Processing: %s"%fl)
@@ -56,14 +57,14 @@ for model_n in models:
             xs = xs.reshape(1,channels,size,size)
             print(np.unique(xs[0]))
 
-            result = model.predict(xs).reshape(size,size,labels)
+            result = model.predict(xs).reshape(ysize,ysize,labels)
 
             assert(xs.max()<=1.0)
 
-            zeros = np.zeros((size,size,4))
+            zeros = np.zeros((result.shape[0],result.shape[1],4))
 
-            for i in range(img.shape[0]):
-                for j in range(img.shape[1]):
+            for i in range(result.shape[0]):
+                for j in range(result.shape[1]):
                     output = result[i,j]
                     zeros[i,j,np.argmax(output)] = 1
                     #count += 1
