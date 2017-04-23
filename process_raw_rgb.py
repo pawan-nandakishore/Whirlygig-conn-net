@@ -10,13 +10,14 @@ import random
 from functions import transforms, raw_to_labels
 
 
-height = 1080
-width = 1080
+height = 56
+width = 56
+ysize = 36
 n_labels = 4
 n_channels = 1
 
-img_names = sorted(glob.glob('cleaned/raw/*'))
-label_names = sorted(glob.glob('cleaned/labeled/*'))
+img_names = sorted(glob.glob('cleaned/patches/xs/*'))
+label_names = sorted(glob.glob('cleaned/patches/ys/*'))
 
 imgs = [imread(fl, mode='L') for fl in img_names]
 labels = [imread(fl, mode='RGB') for fl in label_names]
@@ -44,7 +45,7 @@ ys = np.array(ys)
 
 # Reshape: xs: num, labels, size, size,  ys: num, size*size, labels
 xs = xs.reshape(xs.shape[0], n_channels, height, width).astype(float)/255 # Convert to float between 0-1
-ys = ys.reshape(xs.shape[0], height*width, n_labels).astype(float) # Convert to one hot float between 0-1
+ys = ys.reshape(xs.shape[0], ysize*ysize, n_labels).astype(float) # Convert to one hot float between 0-1
 
 # Some descriptive statistics
 print(xs.shape, ys.shape, np.unique(xs), np.unique(ys))
