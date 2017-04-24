@@ -1,5 +1,4 @@
 import os
-from os.path import basename
 
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
@@ -7,7 +6,7 @@ from keras.models import load_model
 import matplotlib.pyplot as plt
 from skimage import io
 import numpy as np
-from skimage.color import gray2rgb, label2rgb
+from skimage.color import gray2rgb
 from skimage.io import imsave
 from datetime import datetime
 from functions import your_loss
@@ -16,66 +15,87 @@ from scipy.misc import imread
 #from skimage.io import imread
 import glob
 import re
-import time
-import random
+
+#img = io.imread('images/fucked.png')
+#gray = io.imread('images/fucked.png', as_grey=True)
+
+# Shelf to sync up
 
 labels = 4
 channels = 1
-size = 1080
-batch_size = 12
+size = 56
+inner_size = 36
+overlap = 10
 
-def output_to_colors(result, x):
-    #zeros = np.zeros((rows,cols,4))
-    #zeros[:,:,:-1]=gray2rgb(x.copy())
-    zeros = gray2rgb(x.copy())
-    output = result.argmax(axis=-1)
-    zeros[output==2]=[0,0,1]
-    return zeros
+def get_tiles(img, inner_size, overlap):
+    img_padded = np.pad(img, ((overlap,overlap), (overlap,overlap)), mode='reflect')
+    
+    xs = []
+    
+    for i in xrange(0, img.shape[0], inner_size):
+        for j in xrange(0, img.shape[1], inner_size):
+            #print(i-overlap+overlap,i+inner_size+overlap+overlap,j-overlap+overlap, j+inner_size+overlap+overlap)
+            img_overlapped = img_padded[i:i+inner_size+overlap+overlap,j:j+inner_size+overlap+overlap]
+            xs.append(img_overlapped)
+            
+    return xs
 
-def chunks(l, n):
-    """Yield successive n-sized chunks from l."""
-    for i in range(0, len(l), n):
-        yield l[i:i + n]
-
-
-models = sorted(glob.glob('models/*'), key=lambda name: int(re.search(r'\d+', name).group()), reverse=True)[0:1]
+#models = ['']
+models = sorted(glob.glob('models/*'), key=lambda name: int(re.search(r'\d+', name).group()), reverse=True)
 print(models)
 
 for model_n in models:
     model = load_model(model_n, custom_objects={'your_loss': your_loss})
-    print("Loaded :%s", model_n)
 
-    #files_all = glob.glob('cleaned/raw/*.png')
-    #files_all = glob.glob('images/single_frames/*.png')
-    files_all = glob.glob('images/all_grey/15_jpgs/*.jpg')
-    #files_all = random.sample(files_all)
-    #files_all = glob.glob('cleaned/penta/*')
-    #files = files+files+files# + files[-4:-1]
-    #print(files)
+    #files = ['cleaned/raw/1.png']
+    #files = glob.glob('cleaned/raw/*')[-2:-1]
+    #files = glob.glob('cleaned/patches/xs/*')
+    files = glob.glob('cleaned/grey_test/*')
+    print(files)
+    for idx, fl in enumerate(files):
+            print("Processing: %s"%fl)
 
-    file_chunks = chunks(files_all, batch_size)
+            #img = imread(fl, as_grey=True)
+            img = imread(fl, mode='L').astype(float)/255
+            tiles = get_tiles(img, inner_size, overlap)
+            
+            #img = np.invert(imread(fl, mode='L')).astype(float)/255
+            #img = imread('images/raw_image_cropped.png', as_grey=True)
+            #labels = np.load('labels.npy')
+            #labels_432 = np.zeros((432,432,4))
+            #labels_432[:-1,:-1,:]=labels
+            #print(labels_432.shape)
 
-    for idx, files in enumerate(file_chunks):
-        file_names = [basename(path) for path in files]
-        print(file_names)
-        imgs = np.array([imread(fl, mode='L').astype(float)/255 for fl in files])
-        #print(file_chunks)
-        #print("Processing: %s"%(fl))
-        print("Imgs shape: %s", imgs.shape)
+            # Add the extra row
+            #xs = np.zeros((size,size))
+            #xs[:-1,:-1] = img
+            xs = np.array(tiles)
+            count = 0
 
-        #Create input tensor
-        xs = imgs.reshape(imgs.shape[0],channels,size,size)
-        print(np.unique(xs[0]))
+            xs = xs.reshape(len(tiles),channels,size,size)
+            print(np.unique(xs[0]))
 
-        start_time = time.time()
+            result = model.predict(xs).reshape(len(tiles),inner_size,inner_size,labels)
 
-        # Predict output
-        ys = model.predict(xs)
-        print("---- %s seconds for size: %d ----"%(time.time()-start_time, xs.shape[0]))
-        ys = ys.reshape(xs.shape[0], size, size, labels)
+            assert(xs.max()<=1.0)
 
-        colors = [output_to_colors(y, imgs[i]) for i,y in enumerate(ys)]
-        #colors = [label2rgb(y.argmax(axis=-1), image=imgs[i], colors=[(1,0,0), (0,1,0), (0,0,1), (0,0,0)], alpha=0.9, bg_label=3) for i,y in enumerate(ys)]
+            zeros = np.zeros((img.shape[0],img.shape[1],4))
 
-        #[plt.imsave('plots/%s_%s'%(model_n, file_names[i]), zeros) for i,zeros in enumerate(colors)]
-        [plt.imsave('plots/results/%s'%(file_names[i]), zeros) for i,zeros in enumerate(colors)]
+            for i in xrange(0, img.shape[0], inner_size):
+                for j in xrange(0, img.shape[1], inner_size):
+                    zeros[i:i+inner_size,j:j+inner_size] = result[count]
+                    count += 1
+            
+            for i in range(img.shape[0]):
+                for j in range(img.shape[1]):
+                    output = zeros[i,j]
+                    zeros[i,j,np.argmax(output)] = 1
+                    #count += 1
+
+            zeros[:,:,3]=1
+
+            #print(count-len(squares2))
+            #plt.imshow(zeros)
+            plt.imsave('plots/%s_%d.png'%(model_n, idx), zeros)
+            #plt.imsave('plots/%s_i_%d.png'%(model_n, idx), img)
+            #plt.show()
