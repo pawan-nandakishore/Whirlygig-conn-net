@@ -21,8 +21,10 @@ import random
 
 labels = 4
 channels = 1
-size = 1080
-batch_size = 12
+size = 56
+inner_size = 36
+ysize = 36
+batch_size = 2
 
 def output_to_colors(result, x):
     #zeros = np.zeros((rows,cols,4))
@@ -37,6 +39,18 @@ def chunks(l, n):
     for i in range(0, len(l), n):
         yield l[i:i + n]
 
+def get_tiles(img, inner_size, overlap):
+    img_padded = np.pad(img, ((overlap,overlap), (overlap,overlap)), mode='reflect')
+    
+    xs = []
+    
+    for i in xrange(0, img.shape[0], inner_size):
+        for j in xrange(0, img.shape[1], inner_size):
+            #print(i-overlap+overlap,i+inner_size+overlap+overlap,j-overlap+overlap, j+inner_size+overlap+overlap)
+            img_overlapped = img_padded[i:i+inner_size+overlap+overlap,j:j+inner_size+overlap+overlap]
+            xs.append(img_overlapped)
+            
+    return xs
 
 models = sorted(glob.glob('models/*'), key=lambda name: int(re.search(r'\d+', name).group()), reverse=True)[0:1]
 print(models)
@@ -59,12 +73,14 @@ for model_n in models:
         file_names = [basename(path) for path in files]
         print(file_names)
         imgs = np.array([imread(fl, mode='L').astype(float)/255 for fl in files])
+        tiles = np.array([get_tiles(img, 36, 10) for img in imgs])
+
         #print(file_chunks)
         #print("Processing: %s"%(fl))
-        print("Imgs shape: %s", imgs.shape)
+        print("Imgs shape: %s", tiles.shape)
 
         #Create input tensor
-        xs = imgs.reshape(imgs.shape[0],channels,size,size)
+        xs = tiles.reshape(imgs.shape[0]*len(tiles[0]),channels,size,size)
         print(np.unique(xs[0]))
 
         start_time = time.time()
@@ -72,10 +88,31 @@ for model_n in models:
         # Predict output
         ys = model.predict(xs)
         print("---- %s seconds for size: %d ----"%(time.time()-start_time, xs.shape[0]))
-        ys = ys.reshape(xs.shape[0], size, size, labels)
+        ys = ys.reshape(imgs.shape[0],len(tiles[0]), ysize, ysize, labels)
 
-        colors = [output_to_colors(y, imgs[i]) for i,y in enumerate(ys)]
-        #colors = [label2rgb(y.argmax(axis=-1), image=imgs[i], colors=[(1,0,0), (0,1,0), (0,0,1), (0,0,0)], alpha=0.9, bg_label=3) for i,y in enumerate(ys)]
+	# Stitch it together
+	for ix,y in enumerate(ys):
+            #imgcount = 0
+            count= 0
+            img = imgs[ix]
+            zeros = np.zeros((img.shape[0],img.shape[1],4))
 
-        #[plt.imsave('plots/%s_%s'%(model_n, file_names[i]), zeros) for i,zeros in enumerate(colors)]
-        [plt.imsave('plots/results/%s'%(file_names[i]), zeros) for i,zeros in enumerate(colors)]
+            for i in xrange(0, img.shape[0], inner_size):
+                for j in xrange(0, img.shape[1], inner_size):
+                    zeros[i:i+inner_size,j:j+inner_size] = y[count]
+                    count += 1
+            
+            for i in range(img.shape[0]):
+                for j in range(img.shape[1]):
+                    output = zeros[i,j]
+                    zeros[i,j,np.argmax(output)] = 1
+                    #count += 1
+
+            zeros[:,:,3]=1
+
+            #colors = [output_to_colors(y, imgs[i]) for i,y in enumerate(ys)]
+            #colors = [label2rgb(y.argmax(axis=-1), image=imgs[i], colors=[(1,0,0), (0,1,0), (0,0,1), (0,0,0)], alpha=0.9, bg_label=3) for i,y in enumerate(ys)]
+
+            #[plt.imsave('plots/%s_%s'%(model_n, file_names[i]), zeros) for i,zeros in enumerate(colors)]
+            print(file_names)
+	    plt.imsave('plots/results/%s'%(file_names[ix]), zeros)

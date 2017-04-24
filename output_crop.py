@@ -1,6 +1,6 @@
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = ''
+#os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 from keras.models import load_model
 import matplotlib.pyplot as plt
@@ -24,7 +24,21 @@ import re
 labels = 4
 channels = 1
 size = 56
-ysize = 36
+inner_size = 36
+overlap = 10
+
+def get_tiles(img, inner_size, overlap):
+    img_padded = np.pad(img, ((overlap,overlap), (overlap,overlap)), mode='reflect')
+    
+    xs = []
+    
+    for i in xrange(0, img.shape[0], inner_size):
+        for j in xrange(0, img.shape[1], inner_size):
+            #print(i-overlap+overlap,i+inner_size+overlap+overlap,j-overlap+overlap, j+inner_size+overlap+overlap)
+            img_overlapped = img_padded[i:i+inner_size+overlap+overlap,j:j+inner_size+overlap+overlap]
+            xs.append(img_overlapped)
+            
+    return xs
 
 #models = ['']
 models = sorted(glob.glob('models/*'), key=lambda name: int(re.search(r'\d+', name).group()), reverse=True)
@@ -35,13 +49,16 @@ for model_n in models:
 
     #files = ['cleaned/raw/1.png']
     #files = glob.glob('cleaned/raw/*')[-2:-1]
-    files = glob.glob('cleaned/patches/xs/*')
+    #files = glob.glob('cleaned/patches/xs/*')
+    files = glob.glob('cleaned/grey_test/*')
     print(files)
     for idx, fl in enumerate(files):
             print("Processing: %s"%fl)
 
             #img = imread(fl, as_grey=True)
             img = imread(fl, mode='L').astype(float)/255
+            tiles = get_tiles(img, inner_size, overlap)
+            
             #img = np.invert(imread(fl, mode='L')).astype(float)/255
             #img = imread('images/raw_image_cropped.png', as_grey=True)
             #labels = np.load('labels.npy')
@@ -52,20 +69,26 @@ for model_n in models:
             # Add the extra row
             #xs = np.zeros((size,size))
             #xs[:-1,:-1] = img
-            xs = img
+            xs = np.array(tiles)
+            count = 0
 
-            xs = xs.reshape(1,channels,size,size)
+            xs = xs.reshape(len(tiles),channels,size,size)
             print(np.unique(xs[0]))
 
-            result = model.predict(xs).reshape(ysize,ysize,labels)
+            result = model.predict(xs).reshape(len(tiles),inner_size,inner_size,labels)
 
             assert(xs.max()<=1.0)
 
-            zeros = np.zeros((result.shape[0],result.shape[1],4))
+            zeros = np.zeros((img.shape[0],img.shape[1],4))
 
-            for i in range(result.shape[0]):
-                for j in range(result.shape[1]):
-                    output = result[i,j]
+            for i in xrange(0, img.shape[0], inner_size):
+                for j in xrange(0, img.shape[1], inner_size):
+                    zeros[i:i+inner_size,j:j+inner_size] = result[count]
+                    count += 1
+            
+            for i in range(img.shape[0]):
+                for j in range(img.shape[1]):
+                    output = zeros[i,j]
                     zeros[i,j,np.argmax(output)] = 1
                     #count += 1
 

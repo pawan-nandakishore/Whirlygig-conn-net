@@ -23,6 +23,7 @@ def transforms(square):
 
 def your_loss(y_true, y_pred):
 	#weights = np.ones(4)
+	#weights = np.array([ 1 ,  1,  1,  1])
 	weights = np.array([ 4.2 ,  0.82,  1.3,  0.06])
         #weights = np.array([0.99524712791495196, 0.98911715534979427, 0.015705375514403319])
         #weights = np.array([ 0.91640706, 0.5022308, 0.1])
@@ -38,13 +39,16 @@ def your_loss(y_true, y_pred):
 	loss =-K.sum(loss,-1)
 	return loss
 
-def raw_to_labels(image):
-    assert(image.max()==255)
+def raw_to_labels(image, count):
+    #assert(image.max()==255)
+    #if count <= 5:
     junctions_bool = (image[:,:,0]>=150) & ( image[:,:,1] <= 120) & (image[:,:,2] <= 120 )
-    boundary_bool = (image[:,:,0] <=120  ) & ( image[:,:,1] >= 150) & (image[:,:,2] <= 120 )
     inside_bool = (image[:,:,0] <= 120 ) & ( image[:,:,1] <= 120) & (image[:,:,2] >= 130 )
+    #else:
+    #    inside_bool = (image[:,:,0]>=150) & ( image[:,:,1] <= 120) & (image[:,:,2] <= 120 )
+    #    junctions_bool = (image[:,:,0] <= 120 ) & ( image[:,:,1] <= 120) & (image[:,:,2] >= 130 )
+    boundary_bool = (image[:,:,0] <=120  ) & ( image[:,:,1] >= 150) & (image[:,:,2] <= 120 )
     exterior_bool = ~inside_bool & ~boundary_bool & ~junctions_bool
-
     softmax_labeled_image = np.zeros((image.shape[0], image.shape[1], 4))
     softmax_labeled_image[junctions_bool] = [1,0,0,0]
     softmax_labeled_image[boundary_bool] = [0,1,0,0]
