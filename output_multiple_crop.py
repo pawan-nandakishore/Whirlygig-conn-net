@@ -90,29 +90,31 @@ for model_n in models:
         print("---- %s seconds for size: %d ----"%(time.time()-start_time, xs.shape[0]))
         ys = ys.reshape(imgs.shape[0],len(tiles[0]), ysize, ysize, labels)
 
-	# Stitch it together
-	for ix,y in enumerate(ys):
-            #imgcount = 0
-            count= 0
-            img = imgs[ix]
-            zeros = np.zeros((img.shape[0],img.shape[1],4))
+        # Stitch it together
+        for ix,y in enumerate(ys):
+                #imgcount = 0
+                count= 0
+                img = imgs[ix]
+                zeros = np.zeros((img.shape[0],img.shape[1],4))
 
-            for i in xrange(0, img.shape[0], inner_size):
-                for j in xrange(0, img.shape[1], inner_size):
-                    zeros[i:i+inner_size,j:j+inner_size] = y[count]
-                    count += 1
-            
-            for i in range(img.shape[0]):
-                for j in range(img.shape[1]):
-                    output = zeros[i,j]
-                    zeros[i,j,np.argmax(output)] = 1
-                    #count += 1
+                for i in xrange(0, img.shape[0], inner_size):
+                    for j in xrange(0, img.shape[1], inner_size):
+                        zeros[i:i+inner_size,j:j+inner_size] = y[count]
+                        count += 1
+                
+                for i in range(img.shape[0]):
+                    for j in range(img.shape[1]):
+                        output = zeros[i,j]
+                        zeros[i,j,np.argmax(output)] = 1
+                        #count += 1
 
-            zeros[:,:,3]=1
+                zeros[:,:,3]=1
 
-            #colors = [output_to_colors(y, imgs[i]) for i,y in enumerate(ys)]
-            #colors = [label2rgb(y.argmax(axis=-1), image=imgs[i], colors=[(1,0,0), (0,1,0), (0,0,1), (0,0,0)], alpha=0.9, bg_label=3) for i,y in enumerate(ys)]
+                color = output_to_colors(zeros, img)
 
-            #[plt.imsave('plots/%s_%s'%(model_n, file_names[i]), zeros) for i,zeros in enumerate(colors)]
-            print(file_names)
-	    plt.imsave('plots/results/%s'%(file_names[ix]), zeros)
+                #colors = [output_to_colors(y, imgs[i]) for i,y in enumerate(ys)]
+                #colors = [label2rgb(y.argmax(axis=-1), image=imgs[i], colors=[(1,0,0), (0,1,0), (0,0,1), (0,0,0)], alpha=0.9, bg_label=3) for i,y in enumerate(ys)]
+
+                #[plt.imsave('plots/%s_%s'%(model_n, file_names[i]), zeros) for i,zeros in enumerate(colors)]
+                print(file_names)
+                plt.imsave('plots/results/%s.png'%(file_names[ix]), color)
