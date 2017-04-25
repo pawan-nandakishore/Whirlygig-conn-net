@@ -1,7 +1,7 @@
 import os
 from os.path import basename
 
-#os.environ['CUDA_VISIBLE_DEVICES'] = ''
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 from keras.models import load_model
 import matplotlib.pyplot as plt
@@ -80,7 +80,7 @@ for model_n in models:
         print("Imgs shape: %s", tiles.shape)
 
         #Create input tensor
-        xs = tiles.reshape(imgs.shape[0]*len(tiles[0]),channels,size,size)
+        xs = tiles.reshape(imgs.shape[0]*len(tiles[0]),size,size,channels)
         print(np.unique(xs[0]))
 
         start_time = time.time()

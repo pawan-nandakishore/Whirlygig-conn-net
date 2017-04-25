@@ -17,15 +17,16 @@ def rmsprop(grads, cache=None, decay_rate=0.95):
 
     return step, cache
 
-def deprocess_img(y):
+def deprocess_img(y, width, height):
     # normalize tensor: center on 0., ensure std is 0.1
-    x = y.copy().reshape(712, 712)
+    x = y.copy().reshape(height, width)
     x -= x.mean()
     x /= (x.std() + 1e-5)
-    x *= 0.1
+
+    #x *= 0.5
 
     # clip to [0, 1]
-    x += 0.5
+    #x += 0.5
     x = np.clip(x, 0, 1)
 
     # convert to RGB array
@@ -36,49 +37,56 @@ def deprocess_img(y):
     return x
 
 
-model = load_model('models/segnet_98.h5',custom_objects={'your_loss': your_loss})
+model = load_model('models/12480.h5')
 model.summary()
 K.set_learning_phase(0)
-img_width=712
-img_height=712
+img_width=56
+img_height=56
 
 layer_dict = dict([(layer.name, layer) for layer in model.layers])
 
+print('Layers are:', layer_dict.keys())
+
 input_img = model.layers[0].input
-filter_index = 1
+filter_index = 0
 
+layer_output = layer_dict['conv2d_3'].output
 
-layer_output = layer_dict['convolution2d_8'].output
-import pdb; pdb.set_trace()
+# Visualize all filters
+for idx, filtr in enumerate(xrange(16)):
 
-loss = K.mean(layer_output[:, filter_index, :, :])
+    #loss = K.mean(layer_output)
+    loss = K.mean(layer_output[:, filter_index, :, :])
 
-grads = K.gradients(loss, input_img)[0]
+    grads = K.gradients(loss, input_img)[0]
 
-grads /= (K.sqrt(K.mean(K.square(grads))) + 1e-5)
+    grads /= (K.sqrt(K.mean(K.square(grads))) + 1e-5)
 
-iterate = K.function([input_img], [loss, grads])
+    iterate = K.function([input_img], [loss, grads])
 
-input_img_data = (np.zeros((1, 1, img_width, img_height)))
-#input_img_data = np.random.random((1, 1, img_width, img_height))
-#plt.imshow(input_img_data.reshape(img_width, img_height), cmap='Greys')
-#plt.show()
-plt.imshow(deprocess_img(input_img_data))
-plt.show()
+    #input_img_data = (np.zeros((1, 1, img_width, img_height)))
+    input_img_data = np.random.random((1, 1, img_width, img_height))
+    #plt.imshow(input_img_data.reshape(img_width, img_height), cmap='Greys')
+    #plt.show()
+    #plt.imshow(deprocess_img(input_img_data))
+    #plt.show()
 
-#step = 0.1
+    step = 1
 
-cache = None
-for i in range(500):
-    loss_value, grads_value = iterate([input_img_data])
-    step, cache = rmsprop(grads_value, cache)
-    input_img_data += step
-    #input_img_data += grads_value * step
-    img2 = deprocess_img(input_img_data)
-    plt.imshow(deprocess_img(input_img_data))
-    plt.savefig('viz.png')
-    #imsave('viz.png', img2)
-    print(i, loss_value, grads_value.mean())
+    cache = None
+    for i in range(100):
+        loss_value, grads_value = iterate([input_img_data])
+        #step, cache = rmsprop(grads_value, cache)
+        #input_img_data += step
+        input_img_data += grads_value * step
+        img2 = deprocess_img(input_img_data, img_width, img_height)
+        #plt.imshow(deprocess_img(input_img_data))
+        #plt.savefig('viz.png')
+        #imsave('viz.png', img2)
+        print(i, loss_value, grads_value.mean())
+        if loss_value>5:
+            imsave('filters/%d.png'%idx, img2)
+            break
 
-plt.imshow(deprocess_img(input_img_data))
-plt.show()
+    #plt.imshow(deprocess_img(input_img_data))
+    #plt.show()

@@ -24,7 +24,7 @@ autoencoder = models.Sequential()
 #autoencoder.add(ZeroPadding2D((1,1), input_shape=(3, img_h, img_w), dim_ordering='th'))
 
 encoding_layers = [
-    Convolution2D(16, kernel, kernel, border_mode='same', input_shape=(channels, img_h, img_w)),
+    Convolution2D(16, kernel, kernel, border_mode='same', input_shape=(img_h, img_w, channels)),
     BatchNormalization(),
     Activation('relu'),
     Convolution2D(16, kernel, kernel, border_mode='same'),
@@ -68,9 +68,12 @@ for l in autoencoder.decoding_layers:
     autoencoder.add(l)
 
 autoencoder.add(Cropping2D(cropping=((crop_size, crop_size), (crop_size, crop_size))))
-autoencoder.add(Reshape((n_labels, ysize * ysize)))
-autoencoder.add(Permute((2, 1)))
+autoencoder.add(Reshape((ysize*ysize, n_labels)))
+#autoencoder.add(Reshape((n_labels,ysize * ysize)))
+#autoencoder.add(Permute((2, 1)))
 autoencoder.add(Activation('softmax'))
+#autoencoder.add(Permute((1, 2)))
+autoencoder.add(Reshape((ysize,ysize,n_labels)))
 
 #sgd = SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)
 #rmsprop = keras.optimizers.RMSprop(lr=1e-5, rho=0.9, epsilon=1e-08, decay=0.0)
