@@ -259,19 +259,17 @@ for channel in xrange(4):
         #plot_row([cam, g_cam])
         #plot_row([grads.sum(axis=2), g_grads.sum(axis=2)])
         
-        saliency_fn = compile_saliency_function(guided_model, lay)
-        output, grads_val = saliency_fn([x])
-        grads_img = deprocess_image(grads_val)
+        #saliency_fn = compile_saliency_function(guided_model, lay)
+        #output, grads_val = saliency_fn([x])
+        #grads_img = deprocess_image(grads_val)
         
         #plot_row([img, grads_img])
         
-        
+        # Guided grad cam
         #grads_img = deprocess_image(grads_val[0,:,:,:] * heatmap[..., np.newaxis])
+        #plot_row([img, grads_img[:,:,0]])
+        
         plot_row([img, heatmap])
-        #plt.figure()
-        #plt.imshow(heatmap)
-        #plt.imshow(grads_img)
-        #plt.imshow(grads_img)
 
 #print('ishmael')
 
