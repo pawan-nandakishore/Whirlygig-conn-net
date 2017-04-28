@@ -115,11 +115,14 @@ def poko():
     print('hi')
     print('o')
     
-def plot_row(imgs):
+def plot_row(fl, imgs):
     f, axarr = plt.subplots(1,len(imgs), sharex=True)
     
     for i,arr in enumerate(axarr):
         arr.imshow(imgs[i])
+        
+    f.savefig('cmaps/junctions/%s'%(os.path.basename(fl)))
+    plt.close(f)
 
 def grad_cam(input_model, image, category_index, layer_name):
     #model = Sequential()
@@ -213,9 +216,7 @@ def grad_cam(input_model, image, category_index, layer_name):
     
 #x = load_image('cat_dog.png')
 #img = np.expand_dims(img, axis=0)
-img = imread('cleaned/patches/xs/0.png', as_grey=True)
 
-x = img.reshape(1,56,56,1)
 
 #img = x[0,:,:,:]
 
@@ -240,7 +241,7 @@ model.summary()
 
 
 
-#register_gradient()
+register_gradient()
 guided_model = modify_backprop(model, 'GuidedBackProp')
 
 
@@ -249,9 +250,21 @@ guided_model = modify_backprop(model, 'GuidedBackProp')
 
 #model = VGG16(weights='imagenet')
 lays = ['reshape_2']#, 'block5_conv2', 'block5_conv1', 'block4_conv3']
+            
+
+#img = imread('cleaned/patches/xs/1.png', as_grey=True)
+
+
 
 #for lay in lays:
-for channel in xrange(4):
+img_files = random.sample(glob.glob('cleaned/patches/xs/*.png'), 100)
+
+for img_fl in img_files:
+    for channel in xrange(1):
+        # Read image
+        img = imread(img_fl, as_grey=True)
+        x = img.reshape(1,56,56,1)
+        
         lay = 'reshape_2'
         heatmap,grads = grad_cam(model, x, channel, lay)
         #g_cam,g_grads = grad_cam(guided_model, x, 0, lay)
@@ -269,7 +282,7 @@ for channel in xrange(4):
         #grads_img = deprocess_image(grads_val[0,:,:,:] * heatmap[..., np.newaxis])
         #plot_row([img, grads_img[:,:,0]])
         
-        plot_row([img, heatmap])
+        plot_row(img_fl, [img, heatmap])
 
 #print('ishmael')
 
