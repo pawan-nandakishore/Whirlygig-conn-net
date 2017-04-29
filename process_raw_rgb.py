@@ -9,6 +9,10 @@ from os.path import basename
 import glob
 import random
 from functions import transforms, raw_to_labels
+import elastic_pawan_ver as elastic 
+import sys 
+
+print("the import works ! ")
 
 # This is a comment. Move along people.
 
@@ -17,17 +21,50 @@ width = 56
 yheight = 36
 ywidth = 36
 n_labels = 4
-n_channels = 1
+n_channels = 3
 
 img_names = sorted(glob.glob('cleaned/patches/xs/*'))
 label_names = sorted(glob.glob('cleaned/patches/ys/*'))
 
-imgs = [imread(fl, mode='L') for fl in img_names]
+imgs = [imread(fl, mode='RGB') for fl in img_names]
 labels = [imread(fl, mode='RGB') for fl in label_names]
+
+raw_deformed_images  = []
+labeled_deformed_images  = []
+print("imgs length/ labels", len(imgs), len(labels))
+for im in range(0,len(imgs)): 
+
+	labeled_aug, raw_aug = elastic.apply_deformation(imgs[im],labels[im] )
+
+	raw_deformed_images.append(raw_aug)
+	labeled_deformed_images.append(labeled_aug)
+	# print('raw aug:', raw_aug[0].shape)
+	
+
+
+raw_deformed_images = [x for y in raw_deformed_images for x in y]
+labeled_deformed_images = [x for y in labeled_deformed_images for x in y]
+
+
+
+# print(len(raw_deformed_images),len(labeled_deformed_images) )
 
 
 xs = []
 ys = []
+
+imgs2 = raw_deformed_images
+labels2  = labeled_deformed_images
+
+
+# plt_indx = 0 
+# f, a = plt.subplots(3,3)
+# for xp in range(0,3):
+# 	for yp in range(0,3):
+# 		a[xp,yp].imshow(imgs[plt_indx])
+# 		plt_indx+=1 
+# plt.show()
+
 
 
 count = 1

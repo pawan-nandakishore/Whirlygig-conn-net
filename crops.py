@@ -5,9 +5,10 @@ from skimage.io import imsave
 from scipy.misc import imread
 from skimage.color import gray2rgb
 import glob
+from functions import sort_by_number
 
-img_files = sorted(glob.glob('cleaned/greys/*'))
-label_files = sorted(glob.glob('cleaned/grey_labeled/*.png'))
+img_files = sort_by_number(glob.glob('cleaned/rgbs/*'))
+label_files = sort_by_number(glob.glob('cleaned/labeled/*.png'))
 
 print(img_files, label_files)
 
@@ -28,7 +29,8 @@ def c_weight(image):
         return (other_count+0.0001)/(exterior_count+other_count)
 
 for img_fl, lbl_fl in zip(img_files, label_files):
-    img = imread(img_fl, mode='L')
+    img = imread(img_fl, mode='RGB')
+    #img = imread(img_fl, mode='L')
     label = imread(lbl_fl, mode='RGB')
     print('Reading: %s'%img_fl)
     #img = np.random.rand(3,3)
@@ -41,7 +43,8 @@ for img_fl, lbl_fl in zip(img_files, label_files):
     
     #plt.imshow(img_padded)
     
-    img_padded = gray2rgb(np.pad(img, ((overlap,overlap), (overlap,overlap)), mode='reflect'))
+    img_padded = np.pad(img, ((overlap,overlap), (overlap,overlap), (0,0)), mode='reflect')
+    #img_padded = gray2rgb(np.pad(img, ((overlap,overlap), (overlap,overlap)), mode='reflect'))
 
     
     

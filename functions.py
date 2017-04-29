@@ -55,3 +55,6 @@ def raw_to_labels(image, count):
     softmax_labeled_image[inside_bool] = [0,0,1,0]
     softmax_labeled_image[exterior_bool] = [0,0,0,1]
     return softmax_labeled_image
+
+def sort_by_number(files):
+    return sorted(files, key=lambda x: int(filter(str.isdigit, x)))

@@ -16,7 +16,7 @@ img_w = 56
 img_h = 56
 ysize=36
 n_labels = 4
-channels = 1
+channels = 3
 kernel = 3
 crop_size = 10
 

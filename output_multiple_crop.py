@@ -1,7 +1,7 @@
 import os
 from os.path import basename
 
-os.environ['CUDA_VISIBLE_DEVICES'] = ''
+#os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 from keras.models import load_model
 import matplotlib.pyplot as plt
@@ -20,7 +20,7 @@ import time
 import random
 
 labels = 4
-channels = 1
+channels = 3
 size = 56
 inner_size = 36
 ysize = 36
@@ -40,7 +40,7 @@ def chunks(l, n):
         yield l[i:i + n]
 
 def get_tiles(img, inner_size, overlap):
-    img_padded = np.pad(img, ((overlap,overlap), (overlap,overlap)), mode='reflect')
+    img_padded = np.pad(img, ((overlap,overlap), (overlap,overlap), (0,0)), mode='reflect')
     
     xs = []
     
@@ -59,9 +59,9 @@ for model_n in models:
     model = load_model(model_n, custom_objects={'your_loss': your_loss})
     print("Loaded :%s", model_n)
 
-    #files_all = glob.glob('cleaned/raw/*.png')
+    files_all = glob.glob('cleaned/rgbs/*.png')
     #files_all = glob.glob('images/single_frames/*.png')
-    files_all = glob.glob('images/all_grey/15_jpgs/*.jpg')
+    #files_all = glob.glob('images/all_grey/15_jpgs/*.jpg')
     #files_all = random.sample(files_all)
     #files_all = glob.glob('cleaned/penta/*')
     #files = files+files+files# + files[-4:-1]
@@ -72,7 +72,7 @@ for model_n in models:
     for idx, files in enumerate(file_chunks):
         file_names = [basename(path) for path in files]
         print(file_names)
-        imgs = np.array([imread(fl, mode='L').astype(float)/255 for fl in files])
+        imgs = np.array([imread(fl, mode='RGB').astype(float)/255 for fl in files])
         tiles = np.array([get_tiles(img, 36, 10) for img in imgs])
 
         #print(file_chunks)

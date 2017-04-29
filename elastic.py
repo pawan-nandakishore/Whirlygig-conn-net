@@ -1,12 +1,13 @@
 import imgaug as ia
 from imgaug import augmenters as iaa
 from imgaug import parameters as iap
-
+import sys 
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage.io import imread, imsave
 #img = imread('6.jpg')
 #label = imread('6.jpg')
+print('hi')
 img = imread('0.png')
 label = imread('lab.png')
 
@@ -21,6 +22,7 @@ overlap = 10
 images = [img]*10
 labels = [label]*10#[img[overlap:img.shape[0]-overlap,overlap:img.shape[1]-overlap]]*100
 
+print('start here')
 
 
 st = lambda aug: iaa.Sometimes(1, aug)
