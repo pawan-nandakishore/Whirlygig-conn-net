@@ -16,8 +16,10 @@ import glob
 import os
 from h5py import h5l
 from keras.layers import Lambda
+from functions import load_image
 #import h5py
 K.set_learning_phase(1)
+from h5py import hl
 #K._LEARNING_PHASE = tf.constant(0)
 
 def target_category_loss(x, category_index, nb_classes):
@@ -83,8 +85,8 @@ def modify_backprop(model, name):
                 layer.activation = tf.nn.relu
 
         # re-instanciate a new model
-        new_model = load_model('models/12480.h5')
-        #new_model = VGG16(weights='imagenet')
+        #new_model = load_model('models/12480.h5')
+        new_model = VGG16(weights='imagenet')
     return new_model
 
 def deprocess_image(x):
@@ -262,8 +264,8 @@ img_files = random.sample(glob.glob('cleaned/patches/xs/*.png'), 100)
 for img_fl in img_files:
     for channel in xrange(1):
         # Read image
-        img = imread(img_fl, as_grey=True)
-        x = img.reshape(1,56,56,1)
+        img =load_image(img_fl)
+        x = img.reshape(1,56,56,3)
         
         lay = 'reshape_2'
         heatmap,grads = grad_cam(model, x, channel, lay)
@@ -272,17 +274,17 @@ for img_fl in img_files:
         #plot_row([cam, g_cam])
         #plot_row([grads.sum(axis=2), g_grads.sum(axis=2)])
         
-        #saliency_fn = compile_saliency_function(guided_model, lay)
-        #output, grads_val = saliency_fn([x])
-        #grads_img = deprocess_image(grads_val)
+        saliency_fn = compile_saliency_function(guided_model, lay)
+        output, grads_val = saliency_fn([x])
+        grads_img = deprocess_image(grads_val)
         
-        #plot_row([img, grads_img])
+        plot_row([img, grads_img])
         
         # Guided grad cam
         #grads_img = deprocess_image(grads_val[0,:,:,:] * heatmap[..., np.newaxis])
         #plot_row([img, grads_img[:,:,0]])
         
-        plot_row(img_fl, [img, heatmap])
+        #plot_row(img_fl, [img, heatmap])
 
 #print('ishmael')
 

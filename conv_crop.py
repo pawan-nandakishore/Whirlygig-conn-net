@@ -81,14 +81,6 @@ autoencoder.compile(loss='categorical_crossentropy', optimizer='adam', metrics=[
 #autoencoder.compile(loss=your_loss, optimizer='adam', metrics=['accuracy'])
 autoencoder.summary()
 
-
-xs = np.load('xs_s.npy')
-ys = np.load('ys_s.npy')
-#xs = np.load('data/xs.npy')
-#ys = np.load('data/ys.npy')
-
-print(xs.shape, ys.shape)
-
 def save_mod(epoch, logs):
     global count
     global autoencoder
@@ -101,7 +93,14 @@ count = 0
 cb = LambdaCallback(on_batch_begin=save_mod)
 
 if __name__=="__main__":
-    print('lol')
+    print('Loading data')
+    xs = np.load('xs_s.npy')
+    ys = np.load('ys_s.npy')
+    #xs = np.load('data/xs.npy')
+    #ys = np.load('data/ys.npy')
+    
+    print(xs.shape, ys.shape)
+
 
     reduce_lr = ReduceLROnPlateau(monitor='your_loss', factor=0.2, patience=5, min_lr=0.0001)
     #autoencoder = load_model('models/3980.h5', custom_objects={'your_loss': your_loss})
