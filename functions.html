@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>functions module &#8212; whirlygig 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-functions">
+<span id="functions-module"></span><h1>functions module<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="functions.deprocess_image">
+<code class="descclassname">functions.</code><code class="descname">deprocess_image</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#deprocess_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.deprocess_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same normalization as in:
+<a class="reference external" href="https://github.com/fchollet/keras/blob/master/examples/conv_filter_visualization.py">https://github.com/fchollet/keras/blob/master/examples/conv_filter_visualization.py</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="functions.grad_cam">
+<code class="descclassname">functions.</code><code class="descname">grad_cam</code><span class="sig-paren">(</span><em>model</em>, <em>image</em>, <em>category_index</em>, <em>layer_outer</em>, <em>layer_inner</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#grad_cam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.grad_cam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes an input model and returns attention heatmap for a particular class.
+Basically allows you to understand wtf is going on in layer_inner. Where is it looking?</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>model (keras.model): Keras model object
+image (ndarray): Numpy rgb image
+category_index (int): Category index of the final output layer
+layer_outer (str): The layer whose activation is maximized
+layer_inner (str): Which layer w.rt. gradient is taken</dd>
+<dt>Returns:</dt>
+<dd>heatmap (ndarray): Grad image (preprocessed)
+grads_val (ndarray): Grads</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="functions.guided_backprop_cam">
+<code class="descclassname">functions.</code><code class="descname">guided_backprop_cam</code><span class="sig-paren">(</span><em>model</em>, <em>guided_model</em>, <em>image</em>, <em>category_index</em>, <em>layer_outer</em>, <em>layer_inner</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#guided_backprop_cam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.guided_backprop_cam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes an input model and returns the backprop image multiplied by the activation. Tells you where the inner layer volume is looking and what features is it picking up.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>model (keras.model): Keras model object
+model (keras.model): Keras model with backprop activated
+image (tensor): Numpy rgb image tensor
+category_index (int): Category index of the final output layer
+layer_outer (str): The layer whose activation is maximized
+layer_inner (str): Which layer w.rt. gradient is taken</dd>
+<dt>Returns:</dt>
+<dd><p class="first">backprop_cam (ndarray): rgb backprop image</p>
+<p>grad_img, grad_val = guided_backprop_image(guided_model, x, layer_inner)
+plot_row(&#8216;o.png&#8217;, [img, grad_img])</p>
+<p class="last">heatmap_img, heatmap_val = grad_cam(model, x, pred_class, layer_outer, layer_inner)
+plot_row(&#8216;heat.png&#8217;, [img, heatmap_img])</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="functions.guided_backprop_image">
+<code class="descclassname">functions.</code><code class="descname">guided_backprop_image</code><span class="sig-paren">(</span><em>model</em>, <em>x</em>, <em>layer='reshape_2'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#guided_backprop_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.guided_backprop_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get guided backpropogated gradient image for layer. Objective is maximum activation of layer volume</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>model (keras.models.Model): Input model
+image (tensor): RGB image tensor to propogate gradients to
+layer (str): Layer whose activation to maximize</dd>
+<dt>Returns:</dt>
+<dd>backprop_img (ndarray): Backpropogated image gradient(preprocessed)
+grads_val (ndaray): Grad values</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="functions.load_image">
+<code class="descclassname">functions.</code><code class="descname">load_image</code><span class="sig-paren">(</span><em>path</em>, <em>mode='RGB'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#load_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.load_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Summary line.</p>
+<p>Extended description of function.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (int): Read image from path
+mode (str): RGB or L, colored or greyscale</dd>
+<dt>Returns:</dt>
+<dd>bool: Description of return value</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="functions.modify_backprop">
+<code class="descclassname">functions.</code><code class="descname">modify_backprop</code><span class="sig-paren">(</span><em>model</em>, <em>name</em>, <em>modelInitFunc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#modify_backprop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.modify_backprop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify default model graph with guided backprop</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>model (keras.models.Model): Input keras model
+name (str): Which gradient type to override with
+modelInitFunc (func): Function which will be called to initialize a new model here</dd>
+<dt>Return:</dt>
+<dd>new_model (keras.models.Model): Model with overrided gradient operation</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="functions.normalize">
+<code class="descclassname">functions.</code><code class="descname">normalize</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes a tensor</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="functions.plot_row">
+<code class="descclassname">functions.</code><code class="descname">plot_row</code><span class="sig-paren">(</span><em>fl</em>, <em>imgs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#plot_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.plot_row" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="functions.raw_to_labels">
+<code class="descclassname">functions.</code><code class="descname">raw_to_labels</code><span class="sig-paren">(</span><em>image</em>, <em>count</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#raw_to_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.raw_to_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="functions.register_gradient">
+<code class="descclassname">functions.</code><code class="descname">register_gradient</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#register_gradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.register_gradient" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="functions.rotate_thrice">
+<code class="descclassname">functions.</code><code class="descname">rotate_thrice</code><span class="sig-paren">(</span><em>square</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#rotate_thrice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.rotate_thrice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate a square thrice</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>square (ndarray): RGB image to be rotated around</dd>
+<dt>Returns:</dt>
+<dd>Array of 4 rotated squares</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="functions.sort_by_number">
+<code class="descclassname">functions.</code><code class="descname">sort_by_number</code><span class="sig-paren">(</span><em>files</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#sort_by_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.sort_by_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sort by the digit of the filename</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>files (list(str)): List of filename to be read in ascending order/</dd>
+<dt>Returns:</dt>
+<dd>list(str): Sorted filename</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="functions.target_category_loss">
+<code class="descclassname">functions.</code><code class="descname">target_category_loss</code><span class="sig-paren">(</span><em>x</em>, <em>category_index</em>, <em>nb_classes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#target_category_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.target_category_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Suppress activation of all neurons except category_index</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>x (layer): Keras output layer&#8217;s activation
+category_index (int): Index of category to keep
+nb_classes (int); Total no of classes</dd>
+<dt>Return:</dt>
+<dd>functional tensorflow expression which sets all other activations to zero.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="functions.target_category_loss_output_shape">
+<code class="descclassname">functions.</code><code class="descname">target_category_loss_output_shape</code><span class="sig-paren">(</span><em>input_shape</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#target_category_loss_output_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.target_category_loss_output_shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="functions.transforms">
+<code class="descclassname">functions.</code><code class="descname">transforms</code><span class="sig-paren">(</span><em>square</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#transforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.transforms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symmetry group of square</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>square (ndarray): RGB image to transform</dd>
+<dt>Returns:</dt>
+<dd>Array of 8 rotated squares (4 normal, 4 flipped left right)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="functions.your_loss">
+<code class="descclassname">functions.</code><code class="descname">your_loss</code><span class="sig-paren">(</span><em>y_true</em>, <em>y_pred</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#your_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.your_loss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/functions.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, sha.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/functions.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

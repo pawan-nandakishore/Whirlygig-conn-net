@@ -1,0 +1,7 @@
+process\_patches module
+=======================
+
+.. automodule:: process_patches
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,7 @@
+output\_multiple\_crop module
+=============================
+
+.. automodule:: output_multiple_crop
+    :members:
+    :undoc-members:
+    :show-inheritance:

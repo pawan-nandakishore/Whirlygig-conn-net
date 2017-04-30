@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>area_extractor &#8212; whirlygig 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for area_extractor</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">skimage.io</span> <span class="k">import</span> <span class="n">imread</span><span class="p">,</span> <span class="n">imsave</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">skimage.measure</span> <span class="k">import</span> <span class="n">label</span><span class="p">,</span> <span class="n">regionprops</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span>
+<span class="kn">import</span> <span class="nn">matplotlib.patches</span> <span class="k">as</span> <span class="nn">mpatches</span>
+<span class="kn">from</span> <span class="nn">skimage.color</span> <span class="k">import</span> <span class="n">label2rgb</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+
+<div class="viewcode-block" id="calculate_stats"><a class="viewcode-back" href="../area_extractor.html#area_extractor.calculate_stats">[docs]</a><span class="k">def</span> <span class="nf">calculate_stats</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">confidence</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">std</span>
+    <span class="n">left</span> <span class="o">=</span> <span class="n">mean</span> <span class="o">-</span> <span class="n">confidence</span>
+    <span class="n">right</span> <span class="o">=</span> <span class="n">mean</span> <span class="o">+</span> <span class="n">confidence</span>
+    <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span></div>
+
+<div class="viewcode-block" id="lies_outside"><a class="viewcode-back" href="../area_extractor.html#area_extractor.lies_outside">[docs]</a><span class="k">def</span> <span class="nf">lies_outside</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">&lt;</span><span class="n">left</span> <span class="ow">or</span> <span class="n">x</span><span class="o">&gt;</span><span class="n">right</span></div>
+
+<div class="viewcode-block" id="get_blue_region"><a class="viewcode-back" href="../area_extractor.html#area_extractor.get_blue_region">[docs]</a><span class="k">def</span> <span class="nf">get_blue_region</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+    <span class="n">inside_bool</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">120</span> <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span> <span class="n">image</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">120</span> <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">image</span><span class="p">[:,:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">130</span> <span class="p">)</span>
+    <span class="n">inside_bool</span> <span class="o">=</span> <span class="n">inside_bool</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">inside_bool</span></div>
+
+<div class="viewcode-block" id="get_regions"><a class="viewcode-back" href="../area_extractor.html#area_extractor.get_regions">[docs]</a><span class="k">def</span> <span class="nf">get_regions</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+    <span class="n">image_bw</span> <span class="o">=</span> <span class="n">get_blue_region</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    <span class="n">label_image</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">image_bw</span><span class="p">)</span>
+    <span class="n">regions</span> <span class="o">=</span> <span class="n">regionprops</span><span class="p">(</span><span class="n">label_image</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">regions</span></div>
+    <span class="c1">#regions_g.extend(region)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># Read files</span>
+    <span class="c1">#output_files = sorted(glob.glob(&#39;comparison/joint+u+weighted/*.png&#39;))</span>
+    <span class="c1">#output_files = sorted(glob.glob(&#39;/home/pavan/Dropbox/Whirlygig/*.png&#39;))</span>
+    <span class="c1">#print(output_files)</span>
+    <span class="n">output_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;plots/results/*.png&#39;</span><span class="p">))</span>
+    <span class="c1">#raw_files = sorted(glob.glob(&#39;cleaned/raw/*.png&#39;))</span>
+    <span class="n">output_files</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">output_files</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+    <span class="n">raw_files</span> <span class="o">=</span>  <span class="p">[</span><span class="s1">&#39;images/all_grey/15_jpgs/&#39;</span><span class="o">+</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fl</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">fl</span> <span class="ow">in</span> <span class="n">output_files</span><span class="p">]</span>
+    <span class="c1">#raw_files =  [&#39;images/single_frames/&#39;+fl.split(&#39;/&#39;)[-1] for fl in output_files]</span>
+    <span class="c1">#raw_files =  [&#39;cleaned/all/&#39;+&#39;_&#39;.join(fl.split(&#39;_&#39;)[1:]) for fl in output_files]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output files: </span><span class="si">%s</span><span class="s2">, raw files: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">output_files</span><span class="p">,</span> <span class="n">raw_files</span><span class="p">))</span>
+
+    <span class="n">raw_images</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">output_images</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">attributes_g</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">regions_g</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">square_size</span> <span class="o">=</span> <span class="mi">36</span>
+
+    <span class="c1"># Read all regions</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">fl</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">output_files</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reading: </span><span class="si">%s</span><span class="s2">, </span><span class="si">%d</span><span class="s2">/</span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span> <span class="p">(</span><span class="n">fl</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">output_files</span><span class="p">)))</span>
+        <span class="n">image_out</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">fl</span><span class="p">)</span>
+        <span class="n">image_in</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">raw_files</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">regions</span> <span class="o">=</span> <span class="n">get_regions</span><span class="p">(</span><span class="n">image_out</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">regions</span><span class="p">:</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">input</span> <span class="o">=</span> <span class="n">image_in</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">image_out</span>
+            <span class="n">regions_g</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+    <span class="c1"># Histogram of solidity</span>
+    <span class="n">attributes_g</span> <span class="o">=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="s1">&#39;solidity&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">regions_g</span><span class="p">]</span>
+    <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">calculate_stats</span><span class="p">(</span><span class="n">attributes_g</span><span class="p">)</span>
+    <span class="c1">#plt.hist(attributes_g, bins=20)</span>
+    <span class="c1">#plt.show()</span>
+
+    <span class="c1"># Caclulate bounding box stats</span>
+    <span class="n">box_h</span><span class="p">,</span> <span class="n">box_w</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[(</span><span class="n">r</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">r</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">-</span><span class="n">r</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">regions_g</span><span class="p">])</span>
+    <span class="n">box_h_mean</span><span class="p">,</span> <span class="n">box_h_std</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">calculate_stats</span><span class="p">(</span><span class="n">box_h</span><span class="p">)</span>
+    <span class="n">box_w_mean</span><span class="p">,</span> <span class="n">box_w_std</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">calculate_stats</span><span class="p">(</span><span class="n">box_w</span><span class="p">)</span>
+    <span class="n">box_h_conf</span> <span class="o">=</span> <span class="n">box_h_mean</span> <span class="o">+</span> <span class="mf">1.5</span><span class="o">*</span><span class="n">box_h_std</span>
+    <span class="n">box_w_conf</span> <span class="o">=</span> <span class="n">box_w_mean</span> <span class="o">+</span> <span class="mf">1.5</span><span class="o">*</span><span class="n">box_w_std</span>
+    <span class="c1">#box_dim = int(max(box_h_conf, box_w_conf))</span>
+    <span class="n">box_dim</span> <span class="o">=</span> <span class="mi">34</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">square_size</span> <span class="o">-</span> <span class="n">box_dim</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">box_h_mean</span><span class="p">,</span> <span class="n">box_w_mean</span><span class="p">,</span> <span class="n">box_h_conf</span><span class="p">,</span> <span class="n">box_w_conf</span><span class="p">,</span> <span class="n">box_dim</span><span class="p">)</span>
+    <span class="c1">#plt.hist(box_h, bins=30)</span>
+    <span class="c1">#plt.hist(box_w, bins=30)</span>
+    <span class="c1">#plt.imshow(regions_g[0].output)</span>
+    <span class="c1">#plt.show()</span>
+    <span class="n">images_g</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">images_o</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">huge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1080</span><span class="p">,</span> <span class="mi">1080</span><span class="p">))</span><span class="o">*</span><span class="mi">255</span>
+    <span class="n">huge_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1080</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span><span class="o">*</span><span class="mi">255</span>
+
+    <span class="c1"># Find outlier</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">regions_g</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">lies_outside</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">solidity</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+            <span class="n">row</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">centroid</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">box_dim</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">img_cropped</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="n">row</span><span class="o">-</span><span class="n">box_dim</span><span class="o">/</span><span class="mi">2</span><span class="p">:</span><span class="n">row</span><span class="o">+</span><span class="n">box_dim</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">col</span><span class="o">-</span><span class="n">box_dim</span><span class="o">/</span><span class="mi">2</span><span class="p">:</span><span class="n">col</span><span class="o">+</span><span class="n">box_dim</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">img_cropped_o</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="n">row</span><span class="o">-</span><span class="n">box_dim</span><span class="o">/</span><span class="mi">2</span><span class="p">:</span><span class="n">row</span><span class="o">+</span><span class="n">box_dim</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">col</span><span class="o">-</span><span class="n">box_dim</span><span class="o">/</span><span class="mi">2</span><span class="p">:</span><span class="n">col</span><span class="o">+</span><span class="n">box_dim</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">images_g</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">img_cropped</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+            <span class="n">images_o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">img_cropped_o</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+            <span class="c1">#plt.imshow(img_cropped)</span>
+            <span class="c1">#plt.show()</span>
+
+
+    <span class="n">num_squares</span> <span class="o">=</span> <span class="mi">1080</span><span class="o">/</span><span class="n">square_size</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">images_g</span><span class="p">,</span> <span class="n">images_o</span><span class="p">)</span>
+    <span class="n">errors_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="c1">#data = random.sample(data, min(len(images_g),num_squares**2))</span>
+    <span class="c1"># Sample the top 400 contours, assume that you have more</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">images_g</span><span class="p">),</span><span class="mi">400</span><span class="p">))</span>
+    <span class="n">images_g</span><span class="p">,</span> <span class="n">images_o</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">)</span>
+    <span class="c1">#images_g = random.sample(images_g, min(len(images_g),num_squares**2))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Erroneous contours: </span><span class="si">%d</span><span class="s2">/</span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">errors_length</span><span class="p">,</span> <span class="mi">200</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">output_files</span><span class="p">)))</span>
+    <span class="p">[</span><span class="n">imsave</span><span class="p">(</span><span class="s1">&#39;comparisons/errors_i/</span><span class="si">%d</span><span class="s1">.png&#39;</span><span class="o">%</span><span class="n">i</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">img</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">images_g</span><span class="p">)]</span>
+    <span class="p">[</span><span class="n">imsave</span><span class="p">(</span><span class="s1">&#39;comparisons/errors_o/</span><span class="si">%d</span><span class="s1">.png&#39;</span><span class="o">%</span><span class="n">i</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">img</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">images_o</span><span class="p">)]</span>
+    <span class="c1">#print(&quot;Num squares: %d&quot;, num_squares)</span>
+
+    <span class="c1">#y = len(images_g)/num_squares</span>
+    <span class="c1">#print(y)</span>
+    <span class="c1">#x = len(images_g)%num_squares</span>
+
+    <span class="c1">#if y==0:</span>
+    <span class="c1">#    y=1</span>
+
+    <span class="c1">#print(len(images_g))</span>
+    <span class="c1">#for i in xrange(y):</span>
+    <span class="c1">#    for j in xrange(num_squares):</span>
+            <span class="c1">#print(images_g[i*16+j].shape)</span>
+            <span class="c1">#print(square_size*i+diff,square_size*(i+1)-diff,square_size*j+diff,square_size*(j+1)-diff)</span>
+    <span class="c1">#        huge[square_size*i+diff:square_size*(i+1)-diff,square_size*j+diff:square_size*(j+1)-diff] = images_g[i*box_dim+j]</span>
+    <span class="c1">#        huge_out[square_size*i+diff:square_size*(i+1)-diff,square_size*j+diff:square_size*(j+1)-diff] = images_o[i*box_dim+j]</span>
+            <span class="c1">#huge[i+2:i+square_size,j+2:j+square_size,:] = images_g[i*16+j]</span>
+    <span class="c1">#plt.imshow(huge)</span>
+    <span class="c1">#plt.show()</span>
+
+    <span class="c1">#imsave(&#39;output_i.png&#39;, huge/255)</span>
+    <span class="c1">#imsave(&#39;output_o.png&#39;, huge_out/255)</span>
+    <span class="c1">#plt.imshow(huge/255, cmap=&#39;Greys&#39;)</span>
+    <span class="c1">#plt.show()</span>
+
+    <span class="c1"># Find outliers</span>
+    <span class="sd">&quot;&quot;&quot;for fl in output_files:</span>
+<span class="sd">        fig, ax = plt.subplots(figsize=(10, 6))</span>
+<span class="sd">        image = imread(fl)</span>
+<span class="sd">        print(&quot;Reading: %s&quot;% fl)</span>
+<span class="sd">        image_bw = get_blue_region(image)</span>
+<span class="sd">        #con_hull = convex_hull_object(image_bw)</span>
+<span class="sd">        label_image = label(image_bw)</span>
+<span class="sd">        regions = regionprops(label_image)</span>
+<span class="sd">        #plt.imshow(label_image)</span>
+<span class="sd">        #plt.show()</span>
+<span class="sd">        #print(image.shape, label_image.shape)</span>
+<span class="sd">        #image_label_overlay = label2rgb(label_image, image)</span>
+<span class="sd">        ax.imshow(image_bw, cmap=&#39;Greys&#39;)</span>
+<span class="sd">        #plt.show()</span>
+<span class="sd">        #regions, attributes = get_regions(image_bw)</span>
+
+<span class="sd">        for r in regions:</span>
+<span class="sd">            if lies_outside(r.solidity, mean, std, left, right):</span>
+<span class="sd">                minr, minc, maxr, maxc = r.bbox</span>
+<span class="sd">                rect = mpatches.Rectangle((minc, minr), maxc - minc, maxr - minr, fill=False, edgecolor=&#39;red&#39;, linewidth=2)</span>
+<span class="sd">                ax.add_patch(rect)</span>
+<span class="sd">                img2 = r.image</span>
+<span class="sd">                plt.imshow(img2, cmap=&#39;Greys&#39;)</span>
+<span class="sd">                plt.show()</span>
+
+<span class="sd">        ax.set_axis_off()</span>
+<span class="sd">        plt.tight_layout()</span>
+<span class="sd">        plt.show()</span>
+
+<span class="sd">    #ax.set_axis_off()</span>
+<span class="sd">    #plt.tight_layout()</span>
+<span class="sd">    #plt.show()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># print(mean, std, left, right)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, sha.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

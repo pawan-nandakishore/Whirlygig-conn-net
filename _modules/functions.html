@@ -1,0 +1,416 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>functions &#8212; whirlygig 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for functions</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">skimage.io</span> <span class="k">import</span> <span class="n">imread</span>
+<span class="kn">from</span> <span class="nn">keras</span> <span class="k">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="k">import</span> <span class="n">imread</span>
+<span class="kn">from</span> <span class="nn">keras.models</span> <span class="k">import</span> <span class="n">Sequential</span><span class="p">,</span> <span class="n">load_model</span>
+<span class="kn">from</span> <span class="nn">keras.applications.vgg16</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">VGG16</span><span class="p">,</span> <span class="n">preprocess_input</span><span class="p">,</span> <span class="n">decode_predictions</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">keras.backend</span> <span class="k">as</span> <span class="nn">K</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">keras</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">from</span> <span class="nn">skimage.io</span> <span class="k">import</span> <span class="n">imread</span><span class="p">,</span> <span class="n">imsave</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">h5py</span> <span class="k">import</span> <span class="n">h5l</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="n">Lambda</span>
+<span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="k">import</span> <span class="n">imread</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">ops</span>
+
+
+<div class="viewcode-block" id="load_image"><a class="viewcode-back" href="../functions.html#functions.load_image">[docs]</a><span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Summary line.</span>
+
+<span class="sd">    Extended description of function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (int): Read image from path</span>
+<span class="sd">        mode (str): RGB or L, colored or greyscale</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: Description of return value</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">/</span><span class="mi">255</span>
+    <span class="k">return</span> <span class="n">img</span></div>
+
+<div class="viewcode-block" id="rotate_thrice"><a class="viewcode-back" href="../functions.html#functions.rotate_thrice">[docs]</a><span class="k">def</span> <span class="nf">rotate_thrice</span><span class="p">(</span><span class="n">square</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Rotate a square thrice</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        square (ndarray): RGB image to be rotated around</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Array of 4 rotated squares</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">square</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">square</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">square</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">square</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="transforms"><a class="viewcode-back" href="../functions.html#functions.transforms">[docs]</a><span class="k">def</span> <span class="nf">transforms</span><span class="p">(</span><span class="n">square</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Symmetry group of square</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        square (ndarray): RGB image to transform</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Array of 8 rotated squares (4 normal, 4 flipped left right)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">rotate_thrice</span><span class="p">(</span><span class="n">square</span><span class="p">)</span> <span class="o">+</span> <span class="n">rotate_thrice</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">square</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="your_loss"><a class="viewcode-back" href="../functions.html#functions.your_loss">[docs]</a><span class="k">def</span> <span class="nf">your_loss</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+	<span class="c1">#weights = np.ones(4)</span>
+	<span class="c1">#weights = np.array([ 1 ,  1,  1,  1])</span>
+	<span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mf">4.2</span> <span class="p">,</span>  <span class="mf">0.82</span><span class="p">,</span>  <span class="mf">1.3</span><span class="p">,</span>  <span class="mf">0.06</span><span class="p">])</span>
+        <span class="c1">#weights = np.array([0.99524712791495196, 0.98911715534979427, 0.015705375514403319])</span>
+        <span class="c1">#weights = np.array([ 0.91640706, 0.5022308, 0.1])</span>
+	<span class="c1">#weights = np.array([ 0.05 ,  1.3,  0.55,  4.2])</span>
+	<span class="c1">#weights = np.array([0.00713773, 0.20517703, 0.15813273, 0.62955252])</span>
+	<span class="c1">#weights = np.array([1,,0.1,0.001])</span>
+	<span class="c1"># scale preds so that the class probas of each sample sum to 1</span>
+	<span class="n">y_pred</span> <span class="o">/=</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+	<span class="c1"># clip</span>
+	<span class="n">y_pred</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">K</span><span class="o">.</span><span class="n">epsilon</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+	<span class="c1"># calc</span>
+	<span class="n">loss</span> <span class="o">=</span> <span class="n">y_true</span><span class="o">*</span><span class="n">K</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span><span class="o">*</span><span class="n">weights</span>
+	<span class="n">loss</span> <span class="o">=-</span><span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">loss</span></div>
+
+<div class="viewcode-block" id="raw_to_labels"><a class="viewcode-back" href="../functions.html#functions.raw_to_labels">[docs]</a><span class="k">def</span> <span class="nf">raw_to_labels</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+    <span class="c1">#assert(image.max()==255)</span>
+    <span class="c1">#if count &lt;= 5:</span>
+    <span class="n">junctions_bool</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span><span class="o">&gt;=</span><span class="mi">150</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span> <span class="n">image</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">120</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">image</span><span class="p">[:,:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">120</span> <span class="p">)</span>
+    <span class="n">inside_bool</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">120</span> <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span> <span class="n">image</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">120</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">image</span><span class="p">[:,:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">130</span> <span class="p">)</span>
+    <span class="c1">#else:</span>
+    <span class="c1">#    inside_bool = (image[:,:,0]&gt;=150) &amp; ( image[:,:,1] &lt;= 120) &amp; (image[:,:,2] &lt;= 120 )</span>
+    <span class="c1">#    junctions_bool = (image[:,:,0] &lt;= 120 ) &amp; ( image[:,:,1] &lt;= 120) &amp; (image[:,:,2] &gt;= 130 )</span>
+    <span class="n">boundary_bool</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span><span class="mi">120</span>  <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span> <span class="n">image</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">150</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">image</span><span class="p">[:,:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">120</span> <span class="p">)</span>
+    <span class="n">exterior_bool</span> <span class="o">=</span> <span class="o">~</span><span class="n">inside_bool</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">boundary_bool</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">junctions_bool</span>
+    <span class="n">softmax_labeled_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="n">softmax_labeled_image</span><span class="p">[</span><span class="n">junctions_bool</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">softmax_labeled_image</span><span class="p">[</span><span class="n">boundary_bool</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">softmax_labeled_image</span><span class="p">[</span><span class="n">inside_bool</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">softmax_labeled_image</span><span class="p">[</span><span class="n">exterior_bool</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">softmax_labeled_image</span></div>
+
+<div class="viewcode-block" id="sort_by_number"><a class="viewcode-back" href="../functions.html#functions.sort_by_number">[docs]</a><span class="k">def</span> <span class="nf">sort_by_number</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Sort by the digit of the filename</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        files (list(str)): List of filename to be read in ascending order/</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        list(str): Sorted filename</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span> <span class="n">x</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="deprocess_image"><a class="viewcode-back" href="../functions.html#functions.deprocess_image">[docs]</a><span class="k">def</span> <span class="nf">deprocess_image</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Same normalization as in:</span>
+<span class="sd">    https://github.com/fchollet/keras/blob/master/examples/conv_filter_visualization.py</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="c1"># normalize tensor: center on 0., ensure std is 0.1</span>
+    <span class="n">x</span> <span class="o">-=</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">x</span> <span class="o">/=</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">+</span> <span class="mf">1e-5</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">*=</span> <span class="mf">0.1</span>
+
+    <span class="c1"># clip to [0, 1]</span>
+    <span class="n">x</span> <span class="o">+=</span> <span class="mf">0.5</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># convert to RGB array</span>
+    <span class="n">x</span> <span class="o">*=</span> <span class="mi">255</span>
+    <span class="k">if</span> <span class="n">K</span><span class="o">.</span><span class="n">image_dim_ordering</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;th&#39;</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="register_gradient"><a class="viewcode-back" href="../functions.html#functions.register_gradient">[docs]</a><span class="k">def</span> <span class="nf">register_gradient</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">tf</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot; Register a custom gradient type</span>
+<span class="sd">    </span>
+<span class="sd">    Return:</span>
+<span class="sd">        tensorflow function to set all inhibitor connections to zero and non involved inputs to zero.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;GuidedBackProp&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ops</span><span class="o">.</span><span class="n">_gradient_registry</span><span class="o">.</span><span class="n">_registry</span><span class="p">:</span>
+        <span class="nd">@ops</span><span class="o">.</span><span class="n">RegisterGradient</span><span class="p">(</span><span class="s2">&quot;GuidedBackProp&quot;</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">_GuidedBackProp</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">grad</span><span class="p">):</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="k">return</span> <span class="n">grad</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">grad</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span> <span class="o">*</span> \
+                <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="plot_row"><a class="viewcode-back" href="../functions.html#functions.plot_row">[docs]</a><span class="k">def</span> <span class="nf">plot_row</span><span class="p">(</span><span class="n">fl</span><span class="p">,</span> <span class="n">imgs</span><span class="p">):</span>
+    <span class="n">f</span><span class="p">,</span> <span class="n">axarr</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">imgs</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">arr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">axarr</span><span class="p">):</span>
+        <span class="n">arr</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">imgs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        
+    <span class="n">f</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;../plots/cmaps/junctions/</span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fl</span><span class="p">)))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="target_category_loss"><a class="viewcode-back" href="../functions.html#functions.target_category_loss">[docs]</a><span class="k">def</span> <span class="nf">target_category_loss</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">category_index</span><span class="p">,</span> <span class="n">nb_classes</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Suppress activation of all neurons except category_index</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        x (layer): Keras output layer&#39;s activation</span>
+<span class="sd">        category_index (int): Index of category to keep</span>
+<span class="sd">        nb_classes (int); Total no of classes</span>
+<span class="sd">        </span>
+<span class="sd">    Return:</span>
+<span class="sd">        functional tensorflow expression which sets all other activations to zero.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">K</span><span class="o">.</span><span class="n">one_hot</span><span class="p">([</span><span class="n">category_index</span><span class="p">],</span> <span class="n">nb_classes</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="target_category_loss_output_shape"><a class="viewcode-back" href="../functions.html#functions.target_category_loss_output_shape">[docs]</a><span class="k">def</span> <span class="nf">target_category_loss_output_shape</span><span class="p">(</span><span class="n">input_shape</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">input_shape</span></div>
+
+<div class="viewcode-block" id="normalize"><a class="viewcode-back" href="../functions.html#functions.normalize">[docs]</a><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Normalizes a tensor &quot;&quot;&quot;</span>
+    <span class="c1"># utility function to normalize a tensor by its L2 norm</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span> <span class="o">+</span> <span class="mf">1e-5</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="modify_backprop"><a class="viewcode-back" href="../functions.html#functions.modify_backprop">[docs]</a><span class="k">def</span> <span class="nf">modify_backprop</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">modelInitFunc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Modify default model graph with guided backprop</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        model (keras.models.Model): Input keras model</span>
+<span class="sd">        name (str): Which gradient type to override with</span>
+<span class="sd">        modelInitFunc (func): Function which will be called to initialize a new model here</span>
+<span class="sd">        </span>
+<span class="sd">    Return:</span>
+<span class="sd">        new_model (keras.models.Model): Model with overrided gradient operation</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_default_graph</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">g</span><span class="o">.</span><span class="n">gradient_override_map</span><span class="p">({</span><span class="s1">&#39;Relu&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">}):</span>
+
+        <span class="c1"># get layers that have an activation</span>
+        <span class="n">layer_dict</span> <span class="o">=</span> <span class="p">[</span><span class="n">layer</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                      <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s1">&#39;activation&#39;</span><span class="p">)]</span>
+
+        <span class="c1"># replace relu activation</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layer_dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">activation</span> <span class="o">==</span> <span class="n">keras</span><span class="o">.</span><span class="n">activations</span><span class="o">.</span><span class="n">relu</span><span class="p">:</span>
+                <span class="n">layer</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span>
+
+        <span class="c1"># re-instanciate a new model</span>
+        <span class="n">new_model</span> <span class="o">=</span> <span class="n">modelInitFunc</span><span class="p">()</span>
+        <span class="c1">#new_model = VGG16(weights=&#39;imagenet&#39;)</span>
+    <span class="k">return</span> <span class="n">new_model</span></div>
+        
+<div class="viewcode-block" id="guided_backprop_image"><a class="viewcode-back" href="../functions.html#functions.guided_backprop_image">[docs]</a><span class="k">def</span> <span class="nf">guided_backprop_image</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="s1">&#39;reshape_2&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Get guided backpropogated gradient image for layer. Objective is maximum activation of layer volume</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        model (keras.models.Model): Input model</span>
+<span class="sd">        image (tensor): RGB image tensor to propogate gradients to</span>
+<span class="sd">        layer (str): Layer whose activation to maximize</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        backprop_img (ndarray): Backpropogated image gradient(preprocessed)</span>
+<span class="sd">        grads_val (ndaray): Grad values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">layer_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">lr</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">lr</span><span class="p">)</span> <span class="k">for</span> <span class="n">lr</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">])</span>
+    <span class="n">layer_output</span> <span class="o">=</span> <span class="n">layer_dict</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">output</span>
+    
+    <span class="n">objective</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">layer_output</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+    <span class="n">grads</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">input</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="n">gradient_function</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">function</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">input</span><span class="p">],</span> <span class="p">[</span><span class="n">grads</span><span class="p">])</span>
+    
+    <span class="n">grads_val</span> <span class="o">=</span> <span class="n">gradient_function</span><span class="p">([</span><span class="n">x</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">grads_img</span> <span class="o">=</span> <span class="n">deprocess_image</span><span class="p">(</span><span class="n">grads_val</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+    
+    <span class="k">return</span> <span class="n">grads_img</span><span class="p">,</span> <span class="n">grads_val</span></div>
+
+<div class="viewcode-block" id="grad_cam"><a class="viewcode-back" href="../functions.html#functions.grad_cam">[docs]</a><span class="k">def</span> <span class="nf">grad_cam</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">category_index</span><span class="p">,</span> <span class="n">layer_outer</span><span class="p">,</span> <span class="n">layer_inner</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Takes an input model and returns attention heatmap for a particular class.</span>
+<span class="sd">    Basically allows you to understand wtf is going on in layer_inner. Where is it looking?</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (keras.model): Keras model object</span>
+<span class="sd">        image (ndarray): Numpy rgb image</span>
+<span class="sd">        category_index (int): Category index of the final output layer</span>
+<span class="sd">        layer_outer (str): The layer whose activation is maximized</span>
+<span class="sd">        layer_inner (str): Which layer w.rt. gradient is taken</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        heatmap (ndarray): Grad image (preprocessed)</span>
+<span class="sd">        grads_val (ndarray): Grads</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#model = Sequential()</span>
+    <span class="c1">#model.add(input_model)</span>
+    
+
+    <span class="c1">#nb_classes = 4</span>
+    <span class="c1">#target_layer = lambda x: target_category_loss(x, category_index, nb_classes)</span>
+    <span class="c1">#model.add(Lambda(target_layer, output_shape=target_category_loss_output_shape))</span>
+    
+    <span class="c1">#loss = K.sum(model.layers[-1].output)</span>
+    
+    <span class="n">layer_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">layer</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
+    <span class="c1">#print(layer_dict)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;assasas&#39;</span><span class="p">)</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">layer_dict</span><span class="p">[</span><span class="n">layer_outer</span><span class="p">]</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">category_index</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;assasas&#39;</span><span class="p">)</span>
+    
+    <span class="n">conv_output</span> <span class="o">=</span> <span class="n">layer_dict</span><span class="p">[</span><span class="n">layer_inner</span><span class="p">]</span><span class="o">.</span><span class="n">output</span>
+    
+    <span class="n">grads</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">conv_output</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">grads</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">grads</span><span class="p">)</span>
+    
+    <span class="n">gradient_function</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">function</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">input</span><span class="p">],</span> <span class="p">[</span><span class="n">conv_output</span><span class="p">,</span> <span class="n">grads</span><span class="p">])</span>
+    
+    <span class="n">output</span><span class="p">,</span> <span class="n">grads_val</span> <span class="o">=</span> <span class="n">gradient_function</span><span class="p">([</span><span class="n">image</span><span class="p">])</span>
+    <span class="c1">#print(grads_val)</span>
+    <span class="n">output</span><span class="p">,</span> <span class="n">grads_val</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">grads_val</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
+    
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">grads_val</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">cam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span> <span class="p">:</span> <span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    
+    <span class="c1">#plt.imshow(cam)</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">weights</span><span class="p">):</span>
+        <span class="n">cam</span> <span class="o">+=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">output</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span>
+
+    <span class="n">cam</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">cam</span><span class="p">,</span> <span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+    <span class="n">cam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">cam</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">heatmap</span> <span class="o">=</span> <span class="n">cam</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">cam</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">heatmap</span><span class="p">,</span> <span class="n">grads_val</span></div>
+    <span class="c1">#return heatmap, grads_val#heatmap</span>
+    <span class="c1">#Return to BGR [0..255] from the preprocessed image</span>
+    <span class="c1">#image = image[0, :]</span>
+    <span class="c1">#image -= np.min(image)</span>
+    <span class="c1">#image = np.minimum(image, 255)</span>
+
+    <span class="c1">#cam = cv2.applyColorMap(np.uint8(255*heatmap), cv2.COLORMAP_JET)</span>
+    <span class="c1">#cam = np.float32(cam) + np.float32(image)</span>
+    <span class="c1">#cam = 255 * cam / np.max(cam)</span>
+    <span class="c1">#return np.uint8(cam), grads_val</span>
+    
+<div class="viewcode-block" id="guided_backprop_cam"><a class="viewcode-back" href="../functions.html#functions.guided_backprop_cam">[docs]</a><span class="k">def</span> <span class="nf">guided_backprop_cam</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">guided_model</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">category_index</span><span class="p">,</span> <span class="n">layer_outer</span><span class="p">,</span> <span class="n">layer_inner</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Takes an input model and returns the backprop image multiplied by the activation. Tells you where the inner layer volume is looking and what features is it picking up. </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (keras.model): Keras model object</span>
+<span class="sd">        model (keras.model): Keras model with backprop activated</span>
+<span class="sd">        image (tensor): Numpy rgb image tensor</span>
+<span class="sd">        category_index (int): Category index of the final output layer</span>
+<span class="sd">        layer_outer (str): The layer whose activation is maximized</span>
+<span class="sd">        layer_inner (str): Which layer w.rt. gradient is taken</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        backprop_cam (ndarray): rgb backprop image</span>
+<span class="sd">                </span>
+<span class="sd">        grad_img, grad_val = guided_backprop_image(guided_model, x, layer_inner)</span>
+<span class="sd">        plot_row(&#39;o.png&#39;, [img, grad_img])</span>
+<span class="sd">        </span>
+<span class="sd">        heatmap_img, heatmap_val = grad_cam(model, x, pred_class, layer_outer, layer_inner)</span>
+<span class="sd">        plot_row(&#39;heat.png&#39;, [img, heatmap_img])</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">grads_val</span> <span class="o">=</span> <span class="n">guided_backprop_image</span><span class="p">(</span><span class="n">guided_model</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">layer_inner</span><span class="p">)</span>
+    
+    <span class="n">heatmap</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">grad_cam</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">category_index</span><span class="p">,</span> <span class="n">layer_outer</span><span class="p">,</span> <span class="n">layer_inner</span><span class="p">)</span>
+    
+    <span class="n">backprop_cam</span> <span class="o">=</span> <span class="n">deprocess_image</span><span class="p">(</span><span class="n">grads_val</span> <span class="o">*</span> <span class="n">heatmap</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">backprop_cam</span></div>
+    
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, sha.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,15 @@
+Whirlygig-conn-net
+==================
+
+.. toctree::
+   :maxdepth: 4
+
+   area_extractor
+   conv_crop
+   crops
+   elastic
+   functions
+   output_multiple_crop
+   process_patches
+   visualize
+   visualize_output

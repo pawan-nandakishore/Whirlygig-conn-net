@@ -1,0 +1,7 @@
+elastic module
+==============
+
+.. automodule:: elastic
+    :members:
+    :undoc-members:
+    :show-inheritance:

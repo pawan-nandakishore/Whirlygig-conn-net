@@ -1,0 +1,7 @@
+conv\_crop module
+=================
+
+.. automodule:: conv_crop
+    :members:
+    :undoc-members:
+    :show-inheritance:

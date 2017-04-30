@@ -1,0 +1,7 @@
+area\_extractor module
+======================
+
+.. automodule:: area_extractor
+    :members:
+    :undoc-members:
+    :show-inheritance:
