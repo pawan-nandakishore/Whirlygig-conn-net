@@ -3,17 +3,30 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to whirlygig's documentation!
-=====================================
+Deep-Swarm-Tracker
+^^^^^^^^^^^^^^^^^^
+A neural network based per frame tracker to segment small moving objects. Temporal tracker coming soon.
+
+Running
+^^^^^^^
+1. Run crops.py. This generates patches in images/patches folder.
+2. Run process_patches.py. This reads image patches and convert them into xs_s.npy and ys_s.npy, which are then read by the neural network.
+3. Run visualize_output.py. This generates images from the numpy array and saves them in the plots/outs folder. A sanity check of sorts.
+4. Run conv_crop.py. This runs the neural network on the xs and ys numpy arrays. The intermediate models are saved in models folder.
+5. Run output_multiple_crop.py. This breaks down images into tiles, runs the neural network on them and saves the results in plots/results folder.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-
+Todos
+^^^^^
+1. Add elastic transformations functions and run the neural net on them. Generate the cmaps and compare the one to pure rgb.
+2. Try more data augmentation. See how that affects cmaps and output.
+3. Add guided backprop gif constructed with each layer to show how each layer transforms from beginning to the end.
 
 Indices and tables
-==================
+^^^^^^^^^^^^^^^^^^
 
 * :ref:`genindex`
 * :ref:`modindex`
