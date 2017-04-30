@@ -23,7 +23,7 @@ from scipy.misc import imread
 from tensorflow.python.framework import ops
 
 
-def load_image(path, mode):
+def load_image(path, mode='RGB'):
     """Summary line.
 
     Extended description of function.
@@ -36,7 +36,7 @@ def load_image(path, mode):
         bool: Description of return value
 
     """
-    img = imread(path, mode).astype(float)/255
+    img = imread(path, mode=mode).astype(float)/255
     return img
 
 def rotate_thrice(square):
@@ -152,7 +152,7 @@ def plot_row(fl, imgs):
     for i,arr in enumerate(axarr):
         arr.imshow(imgs[i])
         
-    f.savefig('../cmaps/junctions/%s'%(os.path.basename(fl)))
+    f.savefig('../plots/cmaps/junctions/%s'%(os.path.basename(fl)))
     plt.close(f)
     
 def target_category_loss(x, category_index, nb_classes):
@@ -225,9 +225,9 @@ def guided_backprop_image(model, x, layer='reshape_2'):
     objective = K.sum(K.max(layer_output, axis=3))
     grads = K.gradients(objective, model.input)[0]
     
-    gradient_function = K.function([model.input, K.learning_phase()], [grads])
+    gradient_function = K.function([model.input], [grads])
     
-    grads_val = gradient_function([x, 0])[0]
+    grads_val = gradient_function([x])[0]
     grads_img = deprocess_image(grads_val.copy())
     
     return grads_img, grads_val

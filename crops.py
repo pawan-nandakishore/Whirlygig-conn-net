@@ -9,8 +9,8 @@ from functions import sort_by_number
 
 if __name__ == "__main__":
 
-    img_files = sort_by_number(glob.glob('cleaned/rgbs/*'))
-    label_files = sort_by_number(glob.glob('cleaned/labeled/*.png'))
+    img_files = sort_by_number(glob.glob('images/rgbs/*'))
+    label_files = sort_by_number(glob.glob('images/labeled/*.png'))
     
     print(img_files, label_files)
     
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         
     #plt.hist((weights), bins=20)
     #plt.show()
-    [imsave("cleaned/patches/combined/%d.png"%idx, img) for idx, img in enumerate(images)]
-    [imsave("cleaned/patches/xs/%d.png"%idx, img) for idx, img in enumerate(xs)]
-    [imsave("cleaned/patches/ys/%d.png"%idx, img) for idx, img in enumerate(ys)]
+    [imsave("images/patches/combined/%d.png"%idx, img) for idx, img in enumerate(images)]
+    [imsave("images/patches/xs/%d.png"%idx, img) for idx, img in enumerate(xs)]
+    [imsave("images/patches/ys/%d.png"%idx, img) for idx, img in enumerate(ys)]
 

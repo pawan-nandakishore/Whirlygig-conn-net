@@ -21,8 +21,8 @@ if __name__ == "__main__":
     n_labels = 4
     n_channels = 3
     
-    img_names = sort_by_number(glob.glob('cleaned/patches/xs/*'))
-    label_names = sort_by_number(glob.glob('cleaned/patches/ys/*'))
+    img_names = sort_by_number(glob.glob('images/patches/xs/*'))
+    label_names = sort_by_number(glob.glob('images/patches/ys/*'))
     
     print(img_names, label_names)
     
