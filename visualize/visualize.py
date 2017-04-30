@@ -19,7 +19,8 @@ from tqdm import tqdm
 K.set_learning_phase(0)
 
 def visualize2():
-    """ Have to come up with a better name for this
+    """ Have to come up with a better name for this.
+        Generate attention gifs. Temporal dynamics will be much more powerful
     """
     img_files = glob.glob('../images/patches/xs/*.png')
     img_files = random.sample(img_files, 500)
