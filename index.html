@@ -87,6 +87,7 @@
 <li><a class="reference internal" href="#">Deep-Swarm-Tracker</a></li>
 <li><a class="reference internal" href="#running">Running</a></li>
 <li><a class="reference internal" href="#todos">Todos</a></li>
+<li><a class="reference internal" href="#style-guide">Style guide</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 </div>
@@ -154,6 +155,15 @@
 <li>Add elastic transformations functions and run the neural net on them. Generate the cmaps and compare the one to pure rgb.</li>
 <li>Try more data augmentation. See how that affects cmaps and output.</li>
 <li>Add guided backprop gif constructed with each layer to show how each layer transforms from beginning to the end.</li>
+</ol>
+</div>
+<div class="section" id="style-guide">
+<h1>Style guide<a class="headerlink" href="#style-guide" title="Permalink to this headline">¶</a></h1>
+<ol class="arabic simple">
+<li>Write tests first. Always introduce new functionality (for example a visualizer) in a controlled environment like a VGGnet model and check that it works there. Then hot swap.</li>
+<li>Docstrings are not optional</li>
+<li>Write everything as functions.</li>
+<li>Do filterwise layerwise visualization. Make it like darknet visualization.</li>
 </ol>
 </div>
 <div class="section" id="indices-and-tables">

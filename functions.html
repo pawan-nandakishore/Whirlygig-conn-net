@@ -132,10 +132,35 @@
   <div class="section" id="module-functions">
 <span id="functions-module"></span><h1>functions module<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
+<dt id="functions.conv_squares">
+<code class="descclassname">functions.</code><code class="descname">conv_squares</code><span class="sig-paren">(</span><em>arr</em>, <em>sq_size</em>, <em>stride</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#conv_squares"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.conv_squares" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return squares with stride from parent square</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="functions.conv_stride">
+<code class="descclassname">functions.</code><code class="descname">conv_stride</code><span class="sig-paren">(</span><em>arr</em>, <em>sq_size</em>, <em>stride</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#conv_stride"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.conv_stride" title="Permalink to this definition">¶</a></dt>
+<dd><p>Genertes iterator to get squares with stride from parent square</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="functions.deprocess_image">
 <code class="descclassname">functions.</code><code class="descname">deprocess_image</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#deprocess_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.deprocess_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same normalization as in:
 <a class="reference external" href="https://github.com/fchollet/keras/blob/master/examples/conv_filter_visualization.py">https://github.com/fchollet/keras/blob/master/examples/conv_filter_visualization.py</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="functions.get_data_tensor">
+<code class="descclassname">functions.</code><code class="descname">get_data_tensor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#get_data_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.get_data_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets batch of images and labels and returns a tensor by shuffling them</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>imgs(list(ndarray)): List of 3 channel rgb images
+labels(list(ndarray)): List of 4 channel rgb images</dd>
+<dt>Returns:</dt>
+<dd>xs(tensor)</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -152,7 +177,7 @@ layer_outer (str): The layer whose activation is maximized
 layer_inner (str): Which layer w.rt. gradient is taken</dd>
 <dt>Returns:</dt>
 <dd>heatmap (ndarray): Grad image (preprocessed)
-grads_val (ndarray): Grads</dd>
+cam (ndarray): Grads</dd>
 </dl>
 </dd></dl>
 
@@ -169,12 +194,7 @@ category_index (int): Category index of the final output layer
 layer_outer (str): The layer whose activation is maximized
 layer_inner (str): Which layer w.rt. gradient is taken</dd>
 <dt>Returns:</dt>
-<dd><p class="first">backprop_cam (ndarray): rgb backprop image</p>
-<p>grad_img, grad_val = guided_backprop_image(guided_model, x, layer_inner)
-plot_row(&#8216;o.png&#8217;, [img, grad_img])</p>
-<p class="last">heatmap_img, heatmap_val = grad_cam(model, x, pred_class, layer_outer, layer_inner)
-plot_row(&#8216;heat.png&#8217;, [img, heatmap_img])</p>
-</dd>
+<dd>backprop_cam (ndarray): rgb backprop image</dd>
 </dl>
 </dd></dl>
 
@@ -191,6 +211,32 @@ layer (str): Layer whose activation to maximize</dd>
 <dd>backprop_img (ndarray): Backpropogated image gradient(preprocessed)
 grads_val (ndaray): Grad values</dd>
 </dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="functions.guided_cam_evolution">
+<code class="descclassname">functions.</code><code class="descname">guided_cam_evolution</code><span class="sig-paren">(</span><em>model</em>, <em>x</em>, <em>category_index</em>, <em>lambdaFunc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#guided_cam_evolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.guided_cam_evolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a model and shows the layerwise evolution of guided backprop representation</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>model (keras.model): Keras model object
+lamdaFunc (func): Function to instantiate a new model</dd>
+<dt>Returns:</dt>
+<dd>grad_cams: List of grad cam images for all convolutional layers
+cams: List of all activation maps for each layer</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="functions.img_to_tensor">
+<code class="descclassname">functions.</code><code class="descname">img_to_tensor</code><span class="sig-paren">(</span><em>img_path</em>, <em>target_size</em>, <em>preprocess=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#img_to_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.img_to_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a tensor from img_path, optionally preprocesses</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>img_path (str): Image string to load image from
+target_size (tuple): Size incase image can be larger</dd>
+</dl>
+<p>Returns:</p>
 </dd></dl>
 
 <dl class="function">
@@ -228,14 +274,36 @@ modelInitFunc (func): Function which will be called to initialize a new model he
 </dd></dl>
 
 <dl class="function">
+<dt id="functions.onehot_to_label">
+<code class="descclassname">functions.</code><code class="descname">onehot_to_label</code><span class="sig-paren">(</span><em>onehot</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#onehot_to_label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.onehot_to_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts onehot encoding back to 0,1,2 labels</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="functions.plot_row">
-<code class="descclassname">functions.</code><code class="descname">plot_row</code><span class="sig-paren">(</span><em>fl</em>, <em>imgs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#plot_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.plot_row" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descclassname">functions.</code><code class="descname">plot_row</code><span class="sig-paren">(</span><em>fl</em>, <em>imgs</em>, <em>title=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#plot_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.plot_row" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots multiple images in the same row and saves them to cmaps/junctions folder</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>imgs (list(ndarray)): List of images
+fl (str); File path to save to
+title (str): Title of plot</dd>
+<dt>Return:</dt>
+<dd>functional tensorflow expression which sets all other activations to zero.</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="functions.raw_to_labels">
-<code class="descclassname">functions.</code><code class="descname">raw_to_labels</code><span class="sig-paren">(</span><em>image</em>, <em>count</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#raw_to_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.raw_to_labels" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descclassname">functions.</code><code class="descname">raw_to_labels</code><span class="sig-paren">(</span><em>image</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/functions.html#raw_to_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#functions.raw_to_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert image to labels</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>image(ndarray): Input rgb 3 channel labeled image</dd>
+<dt>Returns:</dt>
+<dd>softmax_labeled_image(ndarray): Labeled one hot image with 4 channels</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="functions.register_gradient">

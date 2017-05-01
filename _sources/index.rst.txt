@@ -25,6 +25,13 @@ Todos
 2. Try more data augmentation. See how that affects cmaps and output.
 3. Add guided backprop gif constructed with each layer to show how each layer transforms from beginning to the end.
 
+Style guide
+^^^^^^^^^^^
+1. Write tests first. Always introduce new functionality (for example a visualizer) in a controlled environment like a VGGnet model and check that it works there. Then hot swap.
+2. Docstrings are not optional
+3. Write everything as functions.
+4. Do filterwise layerwise visualization. Make it like darknet visualization.
+
 Indices and tables
 ^^^^^^^^^^^^^^^^^^
 

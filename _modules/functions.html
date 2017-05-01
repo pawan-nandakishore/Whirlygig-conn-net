@@ -150,8 +150,11 @@
 <span class="kn">from</span> <span class="nn">h5py</span> <span class="k">import</span> <span class="n">h5l</span>
 <span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="n">Lambda</span>
 <span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="k">import</span> <span class="n">imread</span>
+<span class="kn">from</span> <span class="nn">skimage.io</span> <span class="k">import</span> <span class="n">imsave</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">ops</span>
-
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">keras.preprocessing</span> <span class="k">import</span> <span class="n">image</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
 
 <div class="viewcode-block" id="load_image"><a class="viewcode-back" href="../functions.html#functions.load_image">[docs]</a><span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Summary line.</span>
@@ -210,7 +213,16 @@
 	<span class="n">loss</span> <span class="o">=-</span><span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 	<span class="k">return</span> <span class="n">loss</span></div>
 
-<div class="viewcode-block" id="raw_to_labels"><a class="viewcode-back" href="../functions.html#functions.raw_to_labels">[docs]</a><span class="k">def</span> <span class="nf">raw_to_labels</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+<div class="viewcode-block" id="raw_to_labels"><a class="viewcode-back" href="../functions.html#functions.raw_to_labels">[docs]</a><span class="k">def</span> <span class="nf">raw_to_labels</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Convert image to labels</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        image(ndarray): Input rgb 3 channel labeled image</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        softmax_labeled_image(ndarray): Labeled one hot image with 4 channels</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+        
     <span class="c1">#assert(image.max()==255)</span>
     <span class="c1">#if count &lt;= 5:</span>
     <span class="n">junctions_bool</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span><span class="o">&gt;=</span><span class="mi">150</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span> <span class="n">image</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">120</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">image</span><span class="p">[:,:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">120</span> <span class="p">)</span>
@@ -276,8 +288,21 @@
             <span class="k">return</span> <span class="n">grad</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">grad</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span> <span class="o">*</span> \
                 <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
         
-<div class="viewcode-block" id="plot_row"><a class="viewcode-back" href="../functions.html#functions.plot_row">[docs]</a><span class="k">def</span> <span class="nf">plot_row</span><span class="p">(</span><span class="n">fl</span><span class="p">,</span> <span class="n">imgs</span><span class="p">):</span>
+<div class="viewcode-block" id="plot_row"><a class="viewcode-back" href="../functions.html#functions.plot_row">[docs]</a><span class="k">def</span> <span class="nf">plot_row</span><span class="p">(</span><span class="n">fl</span><span class="p">,</span> <span class="n">imgs</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Plots multiple images in the same row and saves them to cmaps/junctions folder</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        imgs (list(ndarray)): List of images</span>
+<span class="sd">        fl (str); File path to save to</span>
+<span class="sd">        title (str): Title of plot</span>
+<span class="sd">        </span>
+<span class="sd">    Return:</span>
+<span class="sd">        functional tensorflow expression which sets all other activations to zero.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">f</span><span class="p">,</span> <span class="n">axarr</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">imgs</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1">#fig = plt.figure()</span>
+    <span class="n">axarr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
     
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">arr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">axarr</span><span class="p">):</span>
         <span class="n">arr</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">imgs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
@@ -375,7 +400,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        heatmap (ndarray): Grad image (preprocessed)</span>
-<span class="sd">        grads_val (ndarray): Grads</span>
+<span class="sd">        cam (ndarray): Grads</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1">#model = Sequential()</span>
@@ -417,7 +442,15 @@
     <span class="n">cam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">cam</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">heatmap</span> <span class="o">=</span> <span class="n">cam</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">cam</span><span class="p">)</span>
     
-    <span class="k">return</span> <span class="n">heatmap</span><span class="p">,</span> <span class="n">grads_val</span></div>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">image</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+    
+    <span class="n">cam</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">applyColorMap</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">(</span><span class="mi">255</span><span class="o">*</span><span class="n">heatmap</span><span class="p">),</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLORMAP_JET</span><span class="p">)</span>
+    <span class="n">cam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">cam</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    <span class="n">cam</span> <span class="o">=</span> <span class="mi">255</span> <span class="o">*</span> <span class="n">cam</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">cam</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">heatmap</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">(</span><span class="n">cam</span><span class="p">)</span></div>
     <span class="c1">#return heatmap, grads_val#heatmap</span>
     <span class="c1">#Return to BGR [0..255] from the preprocessed image</span>
     <span class="c1">#image = image[0, :]</span>
@@ -442,20 +475,93 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        backprop_cam (ndarray): rgb backprop image</span>
-<span class="sd">                </span>
-<span class="sd">        grad_img, grad_val = guided_backprop_image(guided_model, x, layer_inner)</span>
-<span class="sd">        plot_row(&#39;o.png&#39;, [img, grad_img])</span>
-<span class="sd">        </span>
-<span class="sd">        heatmap_img, heatmap_val = grad_cam(model, x, pred_class, layer_outer, layer_inner)</span>
-<span class="sd">        plot_row(&#39;heat.png&#39;, [img, heatmap_img])</span>
 <span class="sd">        </span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">layer_inner</span><span class="p">)</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">grads_val</span> <span class="o">=</span> <span class="n">guided_backprop_image</span><span class="p">(</span><span class="n">guided_model</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">layer_inner</span><span class="p">)</span>
     
     <span class="n">heatmap</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">grad_cam</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">category_index</span><span class="p">,</span> <span class="n">layer_outer</span><span class="p">,</span> <span class="n">layer_inner</span><span class="p">)</span>
     
     <span class="n">backprop_cam</span> <span class="o">=</span> <span class="n">deprocess_image</span><span class="p">(</span><span class="n">grads_val</span> <span class="o">*</span> <span class="n">heatmap</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">backprop_cam</span></div>
+
+<div class="viewcode-block" id="guided_cam_evolution"><a class="viewcode-back" href="../functions.html#functions.guided_cam_evolution">[docs]</a><span class="k">def</span> <span class="nf">guided_cam_evolution</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">category_index</span><span class="p">,</span> <span class="n">lambdaFunc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Takes a model and shows the layerwise evolution of guided backprop representation</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        model (keras.model): Keras model object</span>
+<span class="sd">        lamdaFunc (func): Function to instantiate a new model</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        grad_cams: List of grad cam images for all convolutional layers</span>
+<span class="sd">        cams: List of all activation maps for each layer</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">register_gradient</span><span class="p">()</span>
+    <span class="n">guided_model</span> <span class="o">=</span> <span class="n">modify_backprop</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;GuidedBackProp&#39;</span><span class="p">,</span> <span class="n">lambdaFunc</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">check_layer_2d</span><span class="p">(</span><span class="n">layer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Checks if a layer is 2d shaped &quot;&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">return</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;Conv2D&#39;</span> <span class="ow">or</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;MaxPooling2D&#39;</span>
+        
+    <span class="n">layers</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="n">check_layer_2d</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">layer_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">]</span>
+        
+    <span class="n">cams</span> <span class="o">=</span> <span class="p">[</span><span class="n">grad_cam</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">category_index</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">l_name</span><span class="p">)</span> <span class="k">for</span> <span class="n">l_name</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">layer_names</span><span class="p">)]</span>
+    <span class="n">grad_cams</span> <span class="o">=</span> <span class="p">[</span><span class="n">guided_backprop_cam</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">guided_model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">category_index</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">l_name</span><span class="p">)</span> <span class="k">for</span> <span class="n">l_name</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">layer_names</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="n">grad_cams</span><span class="p">,</span> <span class="n">cams</span><span class="p">,</span> <span class="n">layer_names</span></div>
+
+<div class="viewcode-block" id="img_to_tensor"><a class="viewcode-back" href="../functions.html#functions.img_to_tensor">[docs]</a><span class="k">def</span> <span class="nf">img_to_tensor</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="n">target_size</span><span class="p">,</span> <span class="n">preprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Loads a tensor from img_path, optionally preprocesses </span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        img_path (str): Image string to load image from</span>
+<span class="sd">        target_size (tuple): Size incase image can be larger</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">load_img</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="n">target_size</span><span class="p">)</span>
+    <span class="c1">#label = imread(label_path)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">img_to_array</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">preprocess</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">preprocess_input</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">x</span></div>
+    
+
+<div class="viewcode-block" id="get_data_tensor"><a class="viewcode-back" href="../functions.html#functions.get_data_tensor">[docs]</a><span class="k">def</span> <span class="nf">get_data_tensor</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; Gets batch of images and labels and returns a tensor by shuffling them</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        imgs(list(ndarray)): List of 3 channel rgb images</span>
+<span class="sd">        labels(list(ndarray)): List of 4 channel rgb images</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        xs(tensor)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+    
+<div class="viewcode-block" id="onehot_to_label"><a class="viewcode-back" href="../functions.html#functions.onehot_to_label">[docs]</a><span class="k">def</span> <span class="nf">onehot_to_label</span><span class="p">(</span><span class="n">onehot</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Converts onehot encoding back to 0,1,2 labels&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;lol not implemented&quot;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="conv_stride"><a class="viewcode-back" href="../functions.html#functions.conv_stride">[docs]</a><span class="k">def</span> <span class="nf">conv_stride</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">sq_size</span><span class="p">,</span> <span class="n">stride</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Genertes iterator to get squares with stride from parent square &quot;&quot;&quot;</span>
+    <span class="n">get_tile_indices</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">sq_size</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">stride</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">prods</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="n">get_tile_indices</span><span class="p">,</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sq_size</span><span class="p">))))</span>
+     
+    <span class="k">return</span> <span class="n">prods</span></div>
+
+<div class="viewcode-block" id="conv_squares"><a class="viewcode-back" href="../functions.html#functions.conv_squares">[docs]</a><span class="k">def</span> <span class="nf">conv_squares</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">sq_size</span><span class="p">,</span> <span class="n">stride</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Return squares with stride from parent square &quot;&quot;&quot;</span></div>
+    
+    
     
 </pre></div>
 
