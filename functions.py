@@ -26,6 +26,7 @@ from tqdm import tqdm
 from keras.preprocessing import image
 import itertools
 import operator
+from scipy.signal import convolve
 
 def load_image(path, mode='RGB'):
     """Summary line.
@@ -489,6 +490,46 @@ def tiles_to_square(squares, arr_shape, sq_size, stride):
         weights[inds] += weight_square
         
     return arr/weights
+
+def sample_squares(img, num, kernel):
+    """ Samples an array of squares from a zstack of images
+    
+    Args:
+        img(ndarray): Image to sample squares from
+        num(int): No of images to sample
+        kernel(ndarray): Kernel to convolve the image and calculate weights with. Same dimension as img.
+        avg_balance(bool): If balancing is needed
+        
+    Returns:
+        squares(ndarray): Stack of rgb images
+    
+    """
+    weighted_kernel = kernel
+    print(weighted_kernel.shape, img.shape)
+    
+    img_weighted = convolve(img, weighted_kernel, mode='valid')
+    img_weighted = img_weighted.reshape(img_weighted.shape[:-1])
+    #print(img_weighted.shape)
+    
+    img_flat = img_weighted.flatten()
+    img_flat /= img_flat.sum()
+    img_flat_indices = np.arange(img_flat.shape[0])
+    #print(img_flat_indices)
+    
+    choices = np.random.choice(img_flat_indices, num, p=img_flat)
+    #import pdb; pdb.set_trace()
+    #print(choices)
+    
+    def getIndex(choice):
+        """ Bring back flattened index to ndarray """
+        return np.unravel_index(choice, img_weighted.shape)
+    
+    def extractSquare(index):
+        """ Extract square patch """
+        return img[index[-3],index[-2]:index[-2]+kernel.shape[-3], index[-1]:index[-1]+kernel.shape[-2],:]
+    
+    squares = [extractSquare(getIndex(choice)) for choice in choices]
+    return np.array(squares)
 
 def augment_tensor(x,y):
     """ Performs on the fly augmentation on a batch of x, y values and returns augmented tensor """
