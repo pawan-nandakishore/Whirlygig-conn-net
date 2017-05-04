@@ -20,8 +20,12 @@ import os
 from h5py import h5l
 from keras.layers import Lambda
 from scipy.misc import imread
+from skimage.io import imsave
 from tensorflow.python.framework import ops
-
+from tqdm import tqdm
+from keras.preprocessing import image
+import itertools
+import operator
 
 def load_image(path, mode='RGB'):
     """Summary line.
@@ -80,7 +84,16 @@ def your_loss(y_true, y_pred):
 	loss =-K.sum(loss,-1)
 	return loss
 
-def raw_to_labels(image, count):
+def raw_to_labels(image):
+    """ Convert image to labels
+    
+    Args:
+        image(ndarray): Input rgb 3 channel labeled image
+    
+    Returns:
+        softmax_labeled_image(ndarray): Labeled one hot image with 4 channels
+    """
+        
     #assert(image.max()==255)
     #if count <= 5:
     junctions_bool = (image[:,:,0]>=150) & ( image[:,:,1] <= 120) & (image[:,:,2] <= 120 )
@@ -146,8 +159,21 @@ def register_gradient():
             return grad * tf.cast(grad > 0., dtype) * \
                 tf.cast(op.inputs[0] > 0., dtype)
         
-def plot_row(fl, imgs):
+def plot_row(fl, imgs, title=''):
+    """ Plots multiple images in the same row and saves them to cmaps/junctions folder
+    
+    Args:
+        imgs (list(ndarray)): List of images
+        fl (str); File path to save to
+        title (str): Title of plot
+        
+    Return:
+        functional tensorflow expression which sets all other activations to zero.
+    
+    """
     f, axarr = plt.subplots(1,len(imgs), sharex=True)
+    #fig = plt.figure()
+    axarr[0].set_title(title)
     
     for i,arr in enumerate(axarr):
         arr.imshow(imgs[i])
@@ -245,7 +271,7 @@ def grad_cam(model, image, category_index, layer_outer, layer_inner):
 
     Returns:
         heatmap (ndarray): Grad image (preprocessed)
-        grads_val (ndarray): Grads
+        cam (ndarray): Grads
 
     """
     #model = Sequential()
@@ -287,7 +313,15 @@ def grad_cam(model, image, category_index, layer_outer, layer_inner):
     cam = np.maximum(cam, 0)
     heatmap = cam / np.max(cam)
     
-    return heatmap, grads_val
+    image = image[0, ...]
+    image -= np.min(image)
+    image = np.minimum(image, 255)
+    
+    cam = cv2.applyColorMap(np.uint8(255*heatmap), cv2.COLORMAP_JET)
+    cam = np.float32(cam) + np.float32(image)
+    cam = 255 * cam / np.max(cam)
+    
+    return heatmap, np.uint8(cam)
     #return heatmap, grads_val#heatmap
     #Return to BGR [0..255] from the preprocessed image
     #image = image[0, :]
@@ -312,18 +346,151 @@ def guided_backprop_cam(model, guided_model, image, category_index, layer_outer,
 
     Returns:
         backprop_cam (ndarray): rgb backprop image
-                
-        grad_img, grad_val = guided_backprop_image(guided_model, x, layer_inner)
-        plot_row('o.png', [img, grad_img])
-        
-        heatmap_img, heatmap_val = grad_cam(model, x, pred_class, layer_outer, layer_inner)
-        plot_row('heat.png', [img, heatmap_img])
         
     """
+    print(layer_inner)
     _, grads_val = guided_backprop_image(guided_model, image, layer_inner)
     
     heatmap, _ = grad_cam(model, image, category_index, layer_outer, layer_inner)
     
     backprop_cam = deprocess_image(grads_val * heatmap[..., np.newaxis])
     return backprop_cam
+
+def guided_cam_evolution(model, x, category_index, lambdaFunc):
+    """ Takes a model and shows the layerwise evolution of guided backprop representation
+    
+    Args:
+        model (keras.model): Keras model object
+        lamdaFunc (func): Function to instantiate a new model
+        
+    Returns:
+        grad_cams: List of grad cam images for all convolutional layers
+        cams: List of all activation maps for each layer
+    
+    """
+    
+    register_gradient()
+    guided_model = modify_backprop(model, 'GuidedBackProp', lambdaFunc)
+        
+    def check_layer_2d(layer):
+        """ Checks if a layer is 2d shaped """
+        name = layer.__class__.__name__
+        return name == 'Conv2D' or name == 'MaxPooling2D'
+        
+    layers = filter(check_layer_2d, model.layers[:-1])
+    layer_names = [l.name for l in layers]
+        
+    cams = [grad_cam(model, x, category_index, model.layers[-1].name, l_name) for l_name in tqdm(layer_names)]
+    grad_cams = [guided_backprop_cam(model, guided_model, x, category_index, model.layers[-1].name, l_name) for l_name in tqdm(layer_names)]
+
+    return grad_cams, cams, layer_names
+
+def img_to_tensor(img_path, target_size, preprocess=False):
+    """ Loads a tensor from img_path, optionally preprocesses 
+    
+    Args:
+        img_path (str): Image string to load image from
+        target_size (tuple): Size incase image can be larger
+        
+    Returns:
+        
+    """
+    img = image.load_img(img_path, target_size)
+    #label = imread(label_path)
+    x = image.img_to_array(img)
+    x = np.expand_dims(x, axis=0)
+    
+    if preprocess:
+        x = preprocess_input(x)
+        
+    return x
+    
+
+def get_data_tensor():
+    """ Gets batch of images and labels and returns a tensor by shuffling them
+    
+    Args:
+        imgs(list(ndarray)): List of 3 channel rgb images
+        labels(list(ndarray)): List of 4 channel rgb images
+        
+    Returns:
+        xs(tensor)
+    
+    """
+    
+def onehot_to_label(onehot):
+    """ Converts onehot encoding back to 0,1,2 labels"""
+    print("lol not implemented")
+    
+def tuple_add(a,b):
+    """ Adds two tuples """
+    return tuple(map(operator.add, a, b))
+    
+def stride_indices(arr_shape, sq_size, stride):
+    """ Return square indices with stride from larger parent square.
+    
+    Args:
+        arr_shape(tuple): Shape of n dimensional image
+        sq_size(tuple): What size are the (hyper) squares?
+        stride(tuple): What size is each square shifted by?
+        
+    Returns:
+        square_indices(list(list(slices))): List of list of slices/dimension/square 
+        
+    """
+    get_tile_indices = lambda i: xrange(0, arr_shape[i]-sq_size[i]+1, stride[i])
+    prods = itertools.product(*map(get_tile_indices, xrange(len(sq_size))))
+    
+    slicer = lambda x: slice(*x)
+    list_slices = lambda prod: map(slicer, zip(prod, tuple_add(prod,sq_size)))
+    square_indices = itertools.imap(list_slices, prods)
+     
+    return square_indices
+
+def squares_to_tiles(arr, sq_size, stride):
+    """ Return squares with stride from parent square.
+    
+    Args:
+        arr(ndarray): N dimensional image
+        sq_size(ndarray): What size are the (hyper) squares?
+        stride(ndarray): WHat size is each square shifted by?
+        
+    Returns:
+        squares(list(ndaray))
+        
+    """
+    indices = stride_indices(arr.shape, sq_size, stride)
+    
+    squares = [arr[inds] for inds in indices]
+    return squares
+
+def tiles_to_square(squares, arr_shape, sq_size, stride):
+    """ Converts strided tiles back to an image.
+    
+    Args:
+        squares(list(ndarray)): List of squares to stitch back
+        arr_shape(tuple): Shape pf large image to be converted to
+        sq_size(ndarray): Size of each square
+        stride(ndaray): Stride to shift each square by
+        
+    Returns:
+        arr(ndarray): Large image tiled from all the strided squares
+        
+    """
+    indices = stride_indices(arr_shape, sq_size, stride)
+    
+    arr = np.zeros(arr_shape)
+    weight_square = np.ones(tuple(sq_size))
+    
+    weights = np.zeros(arr_shape)
+    
+    for i, inds in enumerate(indices):
+        arr[inds] += squares[i]
+        weights[inds] += weight_square
+        
+    return arr/weights
+
+def augment_tensor(x,y):
+    """ Performs on the fly augmentation on a batch of x, y values and returns augmented tensor """
+    print('lol')
     

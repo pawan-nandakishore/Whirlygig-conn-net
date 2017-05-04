@@ -23,7 +23,7 @@ def visualize2():
         Generate attention gifs. Temporal dynamics will be much more powerful
     """
     img_files = glob.glob('../images/patches/xs/*.png')
-    img_files = random.sample(img_files, 500)
+    img_files = random.sample(img_files, 3)
     
     modelGen = lambda : load_model('../models/12480_rgb.h5')
     model = modelGen()
