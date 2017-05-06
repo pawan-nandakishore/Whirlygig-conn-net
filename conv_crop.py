@@ -11,6 +11,7 @@ from keras.callbacks import ModelCheckpoint, LambdaCallback, ReduceLROnPlateau
 import numpy as np
 from keras.models import load_model
 from functions import your_loss
+from process_patches import gen_batch
 
 img_w = 56
 img_h = 56
@@ -93,17 +94,17 @@ count = 0
 cb = LambdaCallback(on_batch_begin=save_mod)
 
 if __name__=="__main__":
-    print('Loading data')
-    xs = np.load('xs_s.npy')
-    ys = np.load('ys_s.npy')
+    #print('Loading data')
+    #xs = np.load('xs_s.npy')
+    #ys = np.load('ys_s.npy')
     #xs = np.load('data/xs.npy')
     #ys = np.load('data/ys.npy')
     
-    print(xs.shape, ys.shape)
+    #print(xs.shape, ys.shape)
 
 
     reduce_lr = ReduceLROnPlateau(monitor='your_loss', factor=0.2, patience=5, min_lr=0.0001)
     #autoencoder = load_model('models/3980.h5', custom_objects={'your_loss': your_loss})
     #checkpointer = ModelCheckpoint(filepath="weights.hdf5", verbose=1, save_best_only=False)
-    autoencoder.fit(xs, ys, nb_epoch=20, batch_size=64, callbacks=[cb, reduce_lr])
-
+    #autoencoder.fit(xs, ys, nb_epoch=20, batch_size=64, callbacks=[cb, reduce_lr])
+    autoencoder.fit_generator(gen_batch(64), samples_per_epoch = 600, nb_epoch = 2, callbacks=[cb, reduce_lr])

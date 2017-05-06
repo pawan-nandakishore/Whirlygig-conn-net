@@ -160,13 +160,14 @@ def register_gradient():
             return grad * tf.cast(grad > 0., dtype) * \
                 tf.cast(op.inputs[0] > 0., dtype)
         
-def plot_row(fl, imgs, title=''):
+def plot_row(fl, imgs, title='', write=False):
     """ Plots multiple images in the same row and saves them to cmaps/junctions folder
     
     Args:
         imgs (list(ndarray)): List of images
         fl (str); File path to save to
         title (str): Title of plot
+        write (bool): Whether to write the plot to a file
         
     Return:
         functional tensorflow expression which sets all other activations to zero.
@@ -178,8 +179,10 @@ def plot_row(fl, imgs, title=''):
     
     for i,arr in enumerate(axarr):
         arr.imshow(imgs[i])
-        
-    f.savefig('../plots/cmaps/junctions/%s'%(os.path.basename(fl)))
+    
+    if write:
+        f.savefig('../plots/cmaps/junctions/%s'%(os.path.basename(fl)))
+    
     plt.close(f)
     
 def target_category_loss(x, category_index, nb_classes):
@@ -544,8 +547,5 @@ def sample_squares(img, num, kernel, balance=False):
     
     squares = [extractSquare(getIndex(choice)) for choice in choices]
     return np.array(squares)
-
-def augment_tensor(x,y):
-    """ Performs on the fly augmentation on a batch of x, y values and returns augmented tensor """
-    print('lol')
+    
     
