@@ -491,7 +491,7 @@ def tiles_to_square(squares, arr_shape, sq_size, stride):
         
     return arr/weights
 
-def sample_squares(img, num, kernel):
+def sample_squares(img, num, kernel, balance=False):
     """ Samples an array of squares from a zstack of images
     
     Args:
@@ -505,20 +505,34 @@ def sample_squares(img, num, kernel):
     
     """
     weighted_kernel = kernel
-    print(weighted_kernel.shape, img.shape)
+    
+    def balance_kernel(k):
+        kernel = k#.copy()
+        kernel2 = np.ones((1,kernel.shape[1],kernel.shape[2],1))
+        freq = convolve(img, kernel2, mode='valid')
+        
+        channel_weights = [np.sum(freq[...,c]) for c in xrange(img.shape[-1])]
+        #channel_weights = [1,1,1,0.01]
+        #print(kernel2.shape)
+        
+        for c in xrange(img.shape[-1]):
+            kernel[...,c] /= channel_weights[c]
+        
+        #kerne = [np.median(freq[...,c]) ]
+        #print(freq.shape, channel_weights, freq[...,0].shape)
+        return kernel2
+    
+    #balanced_kernel = balance_kernel(img)
     
     img_weighted = convolve(img, weighted_kernel, mode='valid')
     img_weighted = img_weighted.reshape(img_weighted.shape[:-1])
-    #print(img_weighted.shape)
     
     img_flat = img_weighted.flatten()
     img_flat /= img_flat.sum()
     img_flat_indices = np.arange(img_flat.shape[0])
-    #print(img_flat_indices)
     
     choices = np.random.choice(img_flat_indices, num, p=img_flat)
     #import pdb; pdb.set_trace()
-    #print(choices)
     
     def getIndex(choice):
         """ Bring back flattened index to ndarray """
