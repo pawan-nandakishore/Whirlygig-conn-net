@@ -108,4 +108,4 @@ if __name__=="__main__":
     #autoencoder = load_model('models/4160.h5')
     #checkpointer = ModelCheckpoint(filepath="weights.hdf5", verbose=1, save_best_only=False)
     #autoencoder.fit(xs, ys, nb_epoch=20, batch_size=64, callbacks=[cb, reduce_lr])
-    autoencoder.fit_generator(yield_batch(64), samples_per_epoch = 600, nb_epoch = 20, callbacks=[cb, reduce_lr, tbCallBack])
+    autoencoder.fit_generator(yield_batch('images/patches/xs/*', 'images/patches/ys/*', 64), samples_per_epoch = 600, nb_epoch = 30, callbacks=[cb, reduce_lr, tbCallBack])

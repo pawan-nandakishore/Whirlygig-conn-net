@@ -102,22 +102,23 @@ if __name__ == "__main__":
     
                     for i in xrange(0, img.shape[0], inner_size):
                         for j in xrange(0, img.shape[1], inner_size):
-                            outputs[i:i+inner_size,j:j+inner_size] = y[count]
+                            zeros[i:i+inner_size,j:j+inner_size] = y[count]
                             count += 1
                     
                     for i in range(img.shape[0]):
                         for j in range(img.shape[1]):
-                            output = outputs[i,j]
+                            output = zeros[i,j]
+                            #output = outputs[i,j]
                             zeros[i,j,np.argmax(output)] = 1
                             #count += 1
     
                     zeros[:,:,3]=1
     
-                    #color = output_to_colors(zeros, img)
+                    color = output_to_colors(zeros, img)
     
                     #colors = [output_to_colors(y, imgs[i]) for i,y in enumerate(ys)]
                     #colors = [label2rgb(y.argmax(axis=-1), image=imgs[i], colors=[(1,0,0), (0,1,0), (0,0,1), (0,0,0)], alpha=0.9, bg_label=3) for i,y in enumerate(ys)]
     
                     #[plt.imsave('plots/%s_%s'%(model_n, file_names[i]), zeros) for i,zeros in enumerate(colors)]
                     print(file_names)
-                    plt.imsave('plots/results/%s.png'%(file_names[ix]), zeros)
+                    plt.imsave('plots/results/%s.png'%(file_names[ix]), color)

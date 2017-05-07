@@ -87,15 +87,15 @@ def augment_tensor(x_tensor, y_tensor):
 		#st(iaa.Dropout((0.0, 0.1), per_channel=0.5)),
 		#st(iaa.GaussianBlur((0, 1))),
 		#st(iaa.AdditiveGaussianNoise(loc=0, scale=(0, 50), per_channel=0.5))
-		#st(iaa.Affine(
+		st(iaa.Affine(
 		    #scale={"x": (0.8, 1.2), "y": (0.8, 1.2)}, # scale images to 80-120% of their size, individually per axis
 		    #translate_px={"x": (-16, 16), "y": (-16, 16)}, # translate by -16 to +16 pixels (per axis)
-		#    rotate=(-45, 45), # rotate by -45 to +45 degrees
+		    rotate=(-45, 45), # rotate by -45 to +45 degrees
 		    #shear=(-16, 16), # shear by -16 to +16 degrees
 		    #order=ia.ALL, # use any of scikit-image's interpolation methods
 		    #cval=(0, 255), # if mode is constant, use a cval between 0 and 255
 		    #mode="reflect" # use any of scikit-image's warping modes (see 2nd image from the top for examples)
-		#))
+		))
 	    ], random_order=True)
 
     seq_det = seq.to_deterministic()
@@ -106,7 +106,7 @@ def augment_tensor(x_tensor, y_tensor):
 def fetch_batch(xpath, ypath, n):
     """ Fetches batch of size n. Add tests for this method. Really important that this is not wrong """
     x, y = read_data(glob.glob(xpath), glob.glob(ypath), n)
-    #x_aug, y_aug = augment_tensor(x, y)
+    x_aug, y_aug = augment_tensor(x, y)
     x_aug, y_aug = x, y
 
     x_aug = x_aug/255
@@ -117,7 +117,7 @@ def fetch_batch(xpath, ypath, n):
 def yield_batch(xpath, ypath, n=64):
     """ Yields batch of size n infinitely """
     while True:
-        x_aug, y_aug = fetch_batch(n)
+        x_aug, y_aug = fetch_batch(xpath, ypath, n)
         yield (x_aug, y_aug)
     
     #plt.imshow(y_aug[0])

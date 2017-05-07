@@ -41,7 +41,7 @@ class TestDatagen(unittest.TestCase):
         """ Speed test for the datagen method. Datagen should not be slow otherwise it makes training slower """
         execution_time = timeit.timeit("fetch_batch('../images/patches/xs/*', '../images/patches/ys/*', 64)", setup = "from process_patches import fetch_batch", number=1)
         
-        self.assertLess(execution_time, 0.20)
+        self.assertLess(execution_time, 0.6)
         
 if __name__ == "__main__":
     unittest.main()
