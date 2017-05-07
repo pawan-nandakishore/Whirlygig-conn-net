@@ -17,6 +17,8 @@ from skimage.io import imread
 
 class TestCrops(unittest.TestCase):
     """ Numpy slice test """
+    def setUp(self):
+        print self._testMethodName
     
     def _test_sample_square_xy_correspondence(self):
         """ Test that the difference between x and y is less than equal to certain threshold """

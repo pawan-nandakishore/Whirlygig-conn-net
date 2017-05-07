@@ -15,6 +15,8 @@ from functions import squares_to_tiles, tiles_to_square
 
 class TestConvSquare(unittest.TestCase):
     """ Numpy slice test """
+    def setUp(self):
+        print self._testMethodName
 
     def test_squares_to_tiles(self):
         """ Does generating squares tiles work? Tests both conv_stride and conv_squares """

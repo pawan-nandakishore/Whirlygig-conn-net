@@ -15,6 +15,9 @@ from tqdm import tqdm
 
 class VisualizeTestCase(unittest.TestCase):
     
+    def setUp(self):
+        print self._testMethodName
+    
     def _test_cam(self):
         """ Tests that cam works """
         np.testing.assert_almost_equal(1,1)

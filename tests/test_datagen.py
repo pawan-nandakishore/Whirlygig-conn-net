@@ -19,6 +19,8 @@ import timeit
 
 class TestDatagen(unittest.TestCase):
     """ Numpy slice test """
+    def setUp(self):
+        print self._testMethodName
     
     def test_datagen(self):
         """ Some sanity checks on the datagen method """
