@@ -7,7 +7,7 @@ from keras.layers.convolutional import Convolution2D, MaxPooling2D, UpSampling2D
 from keras.layers.normalization import BatchNormalization
 from keras.optimizers import SGD
 from skimage.io import imread
-from keras.callbacks import ModelCheckpoint, LambdaCallback, ReduceLROnPlateau
+from keras.callbacks import ModelCheckpoint, LambdaCallback, ReduceLROnPlateau, TensorBoard
 import numpy as np
 from keras.models import load_model
 from functions import your_loss
@@ -97,14 +97,15 @@ if __name__=="__main__":
     #print('Loading data')
     #xs = np.load('xs_s.npy')
     #ys = np.load('ys_s.npy')
-    #xs = np.load('data/xs.npy')
-    #ys = np.load('data/ys.npy')
+    #xs = np.load('../whirli_back/Whirlygig-conn-net/xs_s.npy')
+    #ys = np.load('../whirli_back/Whirlygig-conn-net/ys_s.npy')
     
     #print(xs.shape, ys.shape)
 
 
     reduce_lr = ReduceLROnPlateau(monitor='your_loss', factor=0.2, patience=5, min_lr=0.0001)
-    #autoencoder = load_model('models/3980.h5', custom_objects={'your_loss': your_loss})
+    tbCallBack = TensorBoard(log_dir='./Graph', histogram_freq=0, write_graph=True, write_images=True)
+    #autoencoder = load_model('models/4160.h5')
     #checkpointer = ModelCheckpoint(filepath="weights.hdf5", verbose=1, save_best_only=False)
     #autoencoder.fit(xs, ys, nb_epoch=20, batch_size=64, callbacks=[cb, reduce_lr])
-    autoencoder.fit_generator(gen_batch(64), samples_per_epoch = 600, nb_epoch = 2, callbacks=[cb, reduce_lr])
+    autoencoder.fit_generator(gen_batch(64), samples_per_epoch = 600, nb_epoch = 20, callbacks=[cb, reduce_lr, tbCallBack])

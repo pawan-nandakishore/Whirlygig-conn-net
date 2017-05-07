@@ -60,7 +60,7 @@ def load_tensor(path):
     
     """
     imgs = [imread(fl, mode='RGB') for fl in path]
-    return np.array(imgs)
+    return np.array(imgs).astype(float)
 
 def augment_tensor(x_tensor, y_tensor):
     """ Performs on the fly augmentation on a batch of x, y values and returns augmented tensor 
@@ -107,7 +107,8 @@ def gen_batch(n=64):
     """ Generates batch of size n. Add tests for this method. Really important that this is not wrong """
     while True:
         x, y = read_data(glob.glob('images/patches/xs/*'), glob.glob('images/patches/ys/*'), n)
-        x_aug, y_aug = augment_tensor(x, y)
+        #x_aug, y_aug = augment_tensor(x, y)
+        x_aug, y_aug = x, y
     
         x_aug = x_aug/255
         y_aug = np.array([raw_to_labels(y) for y in y_aug])

@@ -73,7 +73,7 @@ for img_fl, lbl_fl in zip(img_files, label_files):
             colors_inside = label[i:i+inner_size,j:j+inner_size]
             weight = c_weight(colors_inside)
             
-            if weight>1e-2:
+            if weight>0.3:
                 img2 = img_overlapped.copy()
                 img2[overlap:overlap+inner_size,overlap:overlap+inner_size] = colors_inside
                 
