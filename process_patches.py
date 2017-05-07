@@ -103,16 +103,21 @@ def augment_tensor(x_tensor, y_tensor):
     y_aug_tensor = seq_det.augment_images(y_tensor)
     return x_aug_tensor, y_aug_tensor
 
-def gen_batch(n=64):
-    """ Generates batch of size n. Add tests for this method. Really important that this is not wrong """
-    while True:
-        x, y = read_data(glob.glob('images/patches/xs/*'), glob.glob('images/patches/ys/*'), n)
-        #x_aug, y_aug = augment_tensor(x, y)
-        x_aug, y_aug = x, y
+def fetch_batch(xpath, ypath, n):
+    """ Fetches batch of size n. Add tests for this method. Really important that this is not wrong """
+    x, y = read_data(glob.glob(xpath), glob.glob(ypath), n)
+    #x_aug, y_aug = augment_tensor(x, y)
+    x_aug, y_aug = x, y
+
+    x_aug = x_aug/255
+    y_aug = np.array([raw_to_labels(y) for y in y_aug])
     
-        x_aug = x_aug/255
-        y_aug = np.array([raw_to_labels(y) for y in y_aug])
+    return x_aug, y_aug
         
+def yield_batch(xpath, ypath, n=64):
+    """ Yields batch of size n infinitely """
+    while True:
+        x_aug, y_aug = fetch_batch(n)
         yield (x_aug, y_aug)
     
     #plt.imshow(y_aug[0])
