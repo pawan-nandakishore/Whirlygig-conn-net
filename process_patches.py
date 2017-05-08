@@ -89,7 +89,7 @@ def augment_tensor(x_tensor, y_tensor):
 		#st(iaa.ElasticTransformation(alpha=12, sigma=3)),
 		#st(iaa.ContrastNormalization((0.5, 2.0), per_channel=0.5)),
 		#st(iaa.Invert(0.25, per_channel=True)),
-		st(iaa.Dropout((0.0, 0.1), per_channel=0.5)),
+		#st(iaa.Dropout((0.0, 0.1), per_channel=0.5)),
 		#st(iaa.GaussianBlur((0, 1))),
 		#st(iaa.AdditiveGaussianNoise(loc=0, scale=(0, 50), per_channel=0.5))
 		st(iaa.Affine(
