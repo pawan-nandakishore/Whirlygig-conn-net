@@ -99,7 +99,7 @@ def augment_tensor(x_tensor, y_tensor):
 		    #shear=(-16, 16), # shear by -16 to +16 degrees
 		    #order=ia.ALL, # use any of scikit-image's interpolation methods
 		    #cval=(0, 255), # if mode is constant, use a cval between 0 and 255
-		    #mode="reflect" # use any of scikit-image's warping modes (see 2nd image from the top for examples)
+		    mode="reflect" # use any of scikit-image's warping modes (see 2nd image from the top for examples)
 		))
 	    ], random_order=True)
 
