@@ -124,7 +124,7 @@ def fetch_batch(xpath, ypath, n):
     x_aug_final = x_aug/255
     y_aug_final = np.array([raw_to_labels(yi) for yi in y_aug])
     
-    return x_aug_final, y_aug_final, x_aug, y_aug
+    return x_aug_final, y_aug_final
         
 def yield_batch(xpath, ypath, n=64):
     """ Yields batch of size n infinitely """
