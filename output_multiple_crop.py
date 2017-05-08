@@ -18,6 +18,7 @@ import glob
 import re
 import time
 import random
+import cv2
 
 labels = 4
 channels = 3
@@ -74,9 +75,9 @@ if __name__ == "__main__":
         for idx, files in enumerate(file_chunks):
             file_names = [basename(path) for path in files]
             print(file_names)
-            imgs = np.array([imread(fl, mode='RGB').astype(float)/255 for fl in files])
+            imgs = np.array([cv2.medianBlur(imread(fl, mode='RGB'),3).astype(float)/255 for fl in files])
             tiles = np.array([get_tiles(img, 36, 10) for img in imgs])
-    
+
             #print(file_chunks)
             #print("Processing: %s"%(fl))
             print("Imgs shape: %s", tiles.shape)

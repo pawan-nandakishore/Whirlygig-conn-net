@@ -65,7 +65,7 @@ def load_tensor(path):
 
 def tensor_blur(imgs):
     """ Applys random blur to tensor of images """
-    return np.array([cv2.medianBlur(img, random.choice([3,5])) for img in imgs])
+    return np.array([cv2.medianBlur(img, 3) for img in imgs])
 
 def augment_tensor(x_tensor, y_tensor):
     """ Performs on the fly augmentation on a batch of x, y values and returns augmented tensor 
@@ -92,15 +92,15 @@ def augment_tensor(x_tensor, y_tensor):
 		#st(iaa.Dropout((0.0, 0.1), per_channel=0.5)),
 		#st(iaa.GaussianBlur((0, 1))),
 		#st(iaa.AdditiveGaussianNoise(loc=0, scale=(0, 50), per_channel=0.5))
-		st(iaa.Affine(
+		#st(iaa.Affine(
 		    #scale={"x": (0.8, 1.2), "y": (0.8, 1.2)}, # scale images to 80-120% of their size, individually per axis
 		    #translate_px={"x": (-16, 16), "y": (-16, 16)}, # translate by -16 to +16 pixels (per axis)
-		    rotate=(-45, 45), # rotate by -45 to +45 degrees
+		 #   rotate=(-45, 45), # rotate by -45 to +45 degrees
 		    #shear=(-16, 16), # shear by -16 to +16 degrees
 		    #order=ia.ALL, # use any of scikit-image's interpolation methods
 		    #cval=(0, 255), # if mode is constant, use a cval between 0 and 255
-		    mode="reflect" # use any of scikit-image's warping modes (see 2nd image from the top for examples)
-		))
+		 #   mode="reflect" # use any of scikit-image's warping modes (see 2nd image from the top for examples)
+		#))
 	    ], random_order=True)
 
     seq_det = seq.to_deterministic()
@@ -109,7 +109,7 @@ def augment_tensor(x_tensor, y_tensor):
     y_aug_tensor = seq_det.augment_images(y_tensor)
     
     """ Distort wedges by adding median blur """
-    x_aug_tensor = tensor_blur(x_aug_tensor)
+    #x_aug_tensor = tensor_blur(x_aug_tensor)
     
     """ Destroy structure by adding median blur """
     return x_aug_tensor.astype(float), y_aug_tensor.astype(float)
@@ -122,6 +122,7 @@ def fetch_batch(xpath, ypath, n):
     #x_aug, y_aug = x.copy(), y.copy()
 
     x_aug_final = x_aug/255
+    x_aug_final -= x_aug_final.mean()
     y_aug_final = np.array([raw_to_labels(yi) for yi in y_aug])
     
     return x_aug_final, y_aug_final

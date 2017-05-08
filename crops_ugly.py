@@ -62,7 +62,7 @@ for img_fl, lbl_fl in zip(img_files, label_files):
     # Get overlapping patches
     #for i in xrange(0, img.shape[0], inner_size):
     #    for j in xrange(0, img.shape[1], inner_size):
-    while(count<2000):
+    while(count<1000):
         
             i = np.random.randint(0, img.shape[0]-inner_size)
             j = np.random.randint(0, img.shape[1]-inner_size)
@@ -73,7 +73,7 @@ for img_fl, lbl_fl in zip(img_files, label_files):
             colors_inside = label[i:i+inner_size,j:j+inner_size]
             weight = c_weight(colors_inside)
             
-            if weight>0.3:
+            if weight>1e-2:
                 img2 = img_overlapped.copy()
                 img2[overlap:overlap+inner_size,overlap:overlap+inner_size] = colors_inside
                 
