@@ -75,7 +75,10 @@ if __name__ == "__main__":
         for idx, files in enumerate(file_chunks):
             file_names = [basename(path) for path in files]
             print(file_names)
-            imgs = np.array([cv2.medianBlur(imread(fl, mode='RGB'),3).astype(float)/255 for fl in files])
+            imgs = np.array([imread(fl, mode='RGB').astype(float)/255 for fl in files])
+            imgs -= imgs.mean()
+            print(np.unique(imgs))
+            #imgs = np.array([cv2.medianBlur(imread(fl, mode='RGB'),3).astype(float)/255 for fl in files])
             tiles = np.array([get_tiles(img, 36, 10) for img in imgs])
 
             #print(file_chunks)
@@ -122,4 +125,4 @@ if __name__ == "__main__":
     
                     #[plt.imsave('plots/%s_%s'%(model_n, file_names[i]), zeros) for i,zeros in enumerate(colors)]
                     print(file_names)
-                    plt.imsave('plots/results/%s.png'%(file_names[ix]), color)
+                    plt.imsave('plots/results/%s.png'%(file_names[ix]), zeros)
