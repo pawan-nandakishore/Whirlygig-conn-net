@@ -22,7 +22,7 @@ class VisualizeTestCase(unittest.TestCase):
         """ Tests that cam works """
         np.testing.assert_almost_equal(1,1)
     
-    def _test_guided_backprop(self):
+    def test_guided_backprop(self):
         """Tests that grad cam works """
         model = VGG16(weights='imagenet')
         img_path = '../images/unittest/cat_dog.png'
@@ -40,7 +40,7 @@ class VisualizeTestCase(unittest.TestCase):
         guided_model = modify_backprop(model, 'GuidedBackProp', lambda : VGG16(weights='imagenet'))   
 
         heatmap, cam = grad_cam(model, x, pred_class, 'predictions', 'block5_conv3')
-        plt.imshow(cam)
+        plt.imshow(heatmap)#, cmap='Greys')
         #final = guided_backprop_cam(model, guided_model, x, pred_class, 'predictions', 'block5_conv3')
         #plt.imshow(final)
         #print(final.mean(), label.mean())

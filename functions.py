@@ -160,14 +160,14 @@ def register_gradient():
             return grad * tf.cast(grad > 0., dtype) * \
                 tf.cast(op.inputs[0] > 0., dtype)
         
-def plot_row(fl, imgs, title='', write=False):
+def plot_row(imgs, path='../plots/cmaps/junctions/', fl='def.png', title=''):
     """ Plots multiple images in the same row and saves them to cmaps/junctions folder
     
     Args:
         imgs (list(ndarray)): List of images
         fl (str); File path to save to
+        path (str): Write dir
         title (str): Title of plot
-        write (bool): Whether to write the plot to a file
         
     Return:
         functional tensorflow expression which sets all other activations to zero.
@@ -179,9 +179,8 @@ def plot_row(fl, imgs, title='', write=False):
     
     for i,arr in enumerate(axarr):
         arr.imshow(imgs[i])
-    
-    if write:
-        f.savefig('../plots/cmaps/junctions/%s'%(os.path.basename(fl)))
+        
+    f.savefig(path+'%s'%(fl))
     
     plt.close(f)
     

@@ -14,7 +14,7 @@ import random
 def calculate_stats(data):
     mean = np.mean(data)
     std = np.std(data)
-    confidence = 2*std
+    confidence = 0*std
     left = mean - confidence
     right = mean + confidence
     return mean, std, left, right
@@ -39,10 +39,10 @@ if __name__ == "__main__":
     #output_files = sorted(glob.glob('comparison/joint+u+weighted/*.png'))
     #output_files = sorted(glob.glob('/home/pavan/Dropbox/Whirlygig/*.png'))
     #print(output_files)
-    output_files = sorted(glob.glob('plots/results/*.png'))
+    output_files = sorted(glob.glob('/home/monisha/Downloads/results_elastic/*.png'))
     #raw_files = sorted(glob.glob('cleaned/raw/*.png'))
-    output_files = random.sample(output_files, 300)
-    raw_files =  ['images/all_grey/15_jpgs/'+os.path.basename(fl).replace('.png','') for fl in output_files]
+    #output_files = random.sample(output_files, 300)
+    raw_files =  ['images/rgbs/'+os.path.basename(fl).replace('.png','')+'.png' for fl in output_files]
     #raw_files =  ['images/single_frames/'+fl.split('/')[-1] for fl in output_files]
     #raw_files =  ['cleaned/all/'+'_'.join(fl.split('_')[1:]) for fl in output_files]
     print("Output files: %s, raw files: %s" % (output_files, raw_files))
@@ -117,8 +117,8 @@ if __name__ == "__main__":
     images_g, images_o = zip(*data)
     #images_g = random.sample(images_g, min(len(images_g),num_squares**2))
     print("Erroneous contours: %d/%d"%(errors_length, 200*len(output_files)))
-    [imsave('comparisons/errors_i/%d.png'%i, img) for i, img in enumerate(images_g)]
-    [imsave('comparisons/errors_o/%d.png'%i, img) for i, img in enumerate(images_o)]
+    [imsave('plots/comparisons/errors_i/%d.png'%i, img) for i, img in enumerate(images_g)]
+    [imsave('plots/comparisons/errors_o/%d.png'%i, img) for i, img in enumerate(images_o)]
     #print("Num squares: %d", num_squares)
 
     #y = len(images_g)/num_squares

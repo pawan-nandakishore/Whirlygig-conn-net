@@ -7,6 +7,7 @@ import imgaug as ia
 from imgaug import augmenters as iaa
 from imgaug import parameters as iap
 import matplotlib.pyplot as plt
+import cv2
 
 def zip_and_sample(a,b,n):
     """ Takes two lists of objects a,b and samples n from both while preserving correspondence
@@ -62,6 +63,10 @@ def load_tensor(path):
     imgs = [imread(fl, mode='RGB') for fl in path]
     return np.array(imgs).astype(float)
 
+def tensor_blur(imgs):
+    """ Applys random blur to tensor of images """
+    return np.array([cv2.medianBlur(img, random.choice([3,5])) for img in imgs])
+
 def augment_tensor(x_tensor, y_tensor):
     """ Performs on the fly augmentation on a batch of x, y values and returns augmented tensor 
     
@@ -81,10 +86,10 @@ def augment_tensor(x_tensor, y_tensor):
 		#st(iaa.Multiply((0.5, 1.5), per_channel=0.5))
 		#st(iaa.Add((10, 100)))
 		#st(iaa.Superpixels(p_replace=(0, 1.0), n_segments=(2,5)))
-		st(iaa.ElasticTransformation(alpha=12, sigma=3)),
+		#st(iaa.ElasticTransformation(alpha=12, sigma=3)),
 		#st(iaa.ContrastNormalization((0.5, 2.0), per_channel=0.5)),
 		#st(iaa.Invert(0.25, per_channel=True)),
-		#st(iaa.Dropout((0.0, 0.1), per_channel=0.5)),
+		st(iaa.Dropout((0.0, 0.1), per_channel=0.5)),
 		#st(iaa.GaussianBlur((0, 1))),
 		#st(iaa.AdditiveGaussianNoise(loc=0, scale=(0, 50), per_channel=0.5))
 		st(iaa.Affine(
@@ -99,20 +104,27 @@ def augment_tensor(x_tensor, y_tensor):
 	    ], random_order=True)
 
     seq_det = seq.to_deterministic()
+    
     x_aug_tensor = seq_det.augment_images(x_tensor)
     y_aug_tensor = seq_det.augment_images(y_tensor)
-    return x_aug_tensor, y_aug_tensor
+    
+    """ Distort wedges by adding median blur """
+    x_aug_tensor = tensor_blur(x_aug_tensor)
+    
+    """ Destroy structure by adding median blur """
+    return x_aug_tensor.astype(float), y_aug_tensor.astype(float)
 
 def fetch_batch(xpath, ypath, n):
     """ Fetches batch of size n. Add tests for this method. Really important that this is not wrong """
     x, y = read_data(glob.glob(xpath), glob.glob(ypath), n)
+    #print(x.shape, y.shape)
     x_aug, y_aug = augment_tensor(x, y)
-    x_aug, y_aug = x, y
+    #x_aug, y_aug = x.copy(), y.copy()
 
-    x_aug = x_aug/255
-    y_aug = np.array([raw_to_labels(y) for y in y_aug])
+    x_aug_final = x_aug/255
+    y_aug_final = np.array([raw_to_labels(yi) for yi in y_aug])
     
-    return x_aug, y_aug
+    return x_aug_final, y_aug_final, x_aug, y_aug
         
 def yield_batch(xpath, ypath, n=64):
     """ Yields batch of size n infinitely """

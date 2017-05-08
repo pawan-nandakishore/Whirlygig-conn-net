@@ -23,9 +23,9 @@ def visualize2():
         Generate attention gifs. Temporal dynamics will be much more powerful
     """
     img_files = glob.glob('../images/patches/xs/*.png')
-    img_files = random.sample(img_files, 3)
+    img_files = random.sample(img_files, 100)
     
-    modelGen = lambda : load_model('../models/12480_rgb.h5')
+    modelGen = lambda : load_model('../models/6520.h5')
     model = modelGen()
     
     register_gradient()
@@ -51,9 +51,10 @@ def visualize(img_fl, model, guided_model):
     pred_class = 0
     
     final = guided_backprop_cam(model, guided_model, x, pred_class, 'reshape_2', 'conv2d_8')
+    heatmap, cam = grad_cam(model, x, pred_class, 'reshape_2', 'conv2d_8')
     #plt.imshow(final)
     
-    plot_row(img_fl, [img, final])
+    plot_row(img_fl, [img, heatmap])
     #print(final.mean(), label.mean())
 
     #np.testing.assert_array_equal(final, label)
