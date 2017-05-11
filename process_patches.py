@@ -136,11 +136,11 @@ def fetch_batch(x, y, n=64, patch_size=56, augment=True, crop_size=None):
     
     return x_patches, y_patches  
 
-def yield_batch(x, y, n=64):
+def yield_batch(x, y, n=64, patch_size=56, augment=True, crop_size=20):
     """ Yields batch of size n infinitely """
     
     while True:
-        x_aug, y_aug = fetch_batch(x, y, 64, 56, True, 20)
+        x_aug, y_aug = fetch_batch(x, y, n, patch_size, augment, crop_size)
         yield (x_aug, y_aug)
     
     #plt.imshow(y_aug[0])
