@@ -493,58 +493,44 @@ def tiles_to_square(squares, arr_shape, sq_size, stride):
         
     return arr/weights
 
-def sample_squares(img, num, kernel, balance=False):
-    """ Samples an array of squares from a zstack of images
+def sample_patches(x, y, num, patch_shape):
+    """ Samples an array of squares from a zstack of images. Possible extension is to pass lists instead
     
     Args:
-        img(ndarray): Image to sample squares from
-        num(int): No of images to sample
-        kernel(ndarray): Kernel to convolve the image and calculate weights with. Same dimension as img.
-        avg_balance(bool): If balancing is needed
+        x(ndarray): X image to sample squares from
+        y(ndarray): Y image to sample patches from
+        num(int): No of patches to sample from x and y zstack
+        patch_shape(tuple): Shape of patch to extract from zstack
         
     Returns:
-        squares(ndarray): Stack of rgb images
+        x(ndarray): Stack of x patches
+        y(ndarray): Stack of y patches
     
     """
-    weighted_kernel = kernel
+    kernel = np.ones(patch_shape)
     
-    def balance_kernel(k):
-        kernel = k#.copy()
-        kernel2 = np.ones((1,kernel.shape[1],kernel.shape[2],1))
-        freq = convolve(img, kernel2, mode='valid')
-        
-        channel_weights = [np.sum(freq[...,c]) for c in xrange(img.shape[-1])]
-        #channel_weights = [1,1,1,0.01]
-        #print(kernel2.shape)
-        
-        for c in xrange(img.shape[-1]):
-            kernel[...,c] /= channel_weights[c]
-        
-        #kerne = [np.median(freq[...,c]) ]
-        #print(freq.shape, channel_weights, freq[...,0].shape)
-        return kernel2
-    
-    #balanced_kernel = balance_kernel(img)
-    
-    img_weighted = convolve(img, weighted_kernel, mode='valid')
+    img_weighted = convolve(x, kernel, mode='valid')
     img_weighted = img_weighted.reshape(img_weighted.shape[:-1])
     
     img_flat = img_weighted.flatten()
     img_flat /= img_flat.sum()
     img_flat_indices = np.arange(img_flat.shape[0])
     
-    choices = np.random.choice(img_flat_indices, num, p=img_flat)
+    choices = np.random.choice(img_flat_indices, num)#, p=img_flat)
     #import pdb; pdb.set_trace()
     
     def getIndex(choice):
         """ Bring back flattened index to ndarray """
         return np.unravel_index(choice, img_weighted.shape)
     
-    def extractSquare(index):
+    def extractSquare(img, index):
         """ Extract square patch """
         return img[index[-3],index[-2]:index[-2]+kernel.shape[-3], index[-1]:index[-1]+kernel.shape[-2],:]
     
-    squares = [extractSquare(getIndex(choice)) for choice in choices]
-    return np.array(squares)
+    
+    xs = [extractSquare(x, getIndex(choice)) for choice in choices]
+    ys = [extractSquare(y, getIndex(choice)) for choice in choices]
+    
+    return np.array(xs), np.array(ys)
     
     

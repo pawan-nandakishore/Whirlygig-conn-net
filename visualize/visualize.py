@@ -11,41 +11,41 @@ from functions import guided_backprop_cam, guided_backprop_image, register_gradi
 import matplotlib.pyplot as plt
 from keras.models import load_model
 #from scipy.misc import imread
-from functions import load_image
+from functions import load_image, sort_by_number
 from keras import backend as K
 import random
 import glob
 from tqdm import tqdm
+import re
 K.set_learning_phase(0)
+from skimage.io import imread, imsave
 
 def visualize2():
     """ Have to come up with a better name for this.
         Generate attention gifs. Temporal dynamics will be much more powerful
     """
-    img_files = glob.glob('../images/patches/xs/*.png')
-    img_files = random.sample(img_files, 100)
+    img_files = sort_by_number(glob.glob('../plots/comparisons/errors_i/*.png'))
+    img_files = random.sample(img_files, min(64, len(img_files)))
     
-    modelGen = lambda : load_model('../models/6520.h5')
+    modelGen = lambda : load_model(sorted(glob.glob('../models/*'), key=lambda name: int(re.search(r'\d+', name).group()), reverse=True)[0])
     model = modelGen()
     
     register_gradient()
     guided_model = modify_backprop(model, 'GuidedBackProp', modelGen)
     
-    for img_fl in tqdm(img_files):
-        visualize(img_fl, model, guided_model)
-        
+    for i,img_fl in tqdm(enumerate(img_files)):
+        backprop, heatmap, cam = visualize(img_fl, model, guided_model)
+        plt.imsave('../plots/cams/%d.png'%i, cam)
+        plt.imsave('../plots/heatmaps/%d.png'%i, heatmap)
+        plt.imsave('../plots/backprops/%d.png'%i, backprop)
 
 def visualize(img_fl, model, guided_model):
     """ What? What? WHat?
     """
     
     img = load_image(img_fl, mode='RGB')
-    #print(img.shape)
-    #plt.imshow(img)
     
     x = np.expand_dims(img, axis=0)
-    #print(x.shape)
-    #x = preprocess_input(x)
     
     #out = model.predict(x)
     pred_class = 0
@@ -54,8 +54,8 @@ def visualize(img_fl, model, guided_model):
     heatmap, cam = grad_cam(model, x, pred_class, 'reshape_2', 'conv2d_8')
     #plt.imshow(final)
     
-    plot_row(img_fl, [img, heatmap])
     #print(final.mean(), label.mean())
+    return final, heatmap, cam
 
     #np.testing.assert_array_equal(final, label)
 

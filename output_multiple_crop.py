@@ -76,7 +76,7 @@ if __name__ == "__main__":
             file_names = [basename(path) for path in files]
             print(file_names)
             imgs = np.array([imread(fl, mode='RGB').astype(float)/255 for fl in files])
-            imgs -= imgs.mean()
+            #imgs -= imgs.mean()
             print(np.unique(imgs))
             #imgs = np.array([cv2.medianBlur(imread(fl, mode='RGB'),3).astype(float)/255 for fl in files])
             tiles = np.array([get_tiles(img, 36, 10) for img in imgs])

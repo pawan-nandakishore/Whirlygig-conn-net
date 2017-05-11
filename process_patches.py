@@ -2,7 +2,7 @@ import numpy as np
 import glob
 from scipy.misc import imread
 import random
-from functions import sort_by_number, raw_to_labels, plot_row
+from functions import sort_by_number, raw_to_labels, plot_row, sample_patches
 import imgaug as ia
 from imgaug import augmenters as iaa
 from imgaug import parameters as iap
@@ -27,8 +27,8 @@ def zip_and_sample(a,b,n):
     return list(x), list(y)
     
 
-def read_data(x_path, y_path, num):
-    """ Reads input images from x_path and their labels from y_path and returns a sampled subset
+def read_data(x_path, y_path, num=None):
+    """ Reads images from x_path and y_path and creates a zstack of them
     
     Args:
         x_path(list(str)): List of paths of input x
@@ -43,15 +43,16 @@ def read_data(x_path, y_path, num):
     x_names = sort_by_number(x_path)
     y_names = sort_by_number(y_path)
     
-    x_names_sampled, y_names_sampled = zip_and_sample(x_names, y_names, num)
+    if num:
+        x_names, y_names = zip_and_sample(x_names, y_names, num)
     
-    x_tensor = load_tensor(x_names_sampled)
-    y_tensor = load_tensor(y_names_sampled)
+    x_tensor = load_tensor(x_names)
+    y_tensor = load_tensor(y_names)
     
     return x_tensor, y_tensor
     
 def load_tensor(path):
-    """ Loads a list of entities from path, applied lambdaFunc to them and returns the resulting tensor
+    """ Loads a list of images from path returns the resulting tensor
     
     Arguments:
         path(list(str)): Path to read list of images from
@@ -114,23 +115,32 @@ def augment_tensor(x_tensor, y_tensor):
     """ Destroy structure by adding median blur """
     return x_aug_tensor.astype(float), y_aug_tensor.astype(float)
 
-def fetch_batch(xpath, ypath, n):
-    """ Fetches batch of size n. Add tests for this method. Really important that this is not wrong """
-    x, y = read_data(glob.glob(xpath), glob.glob(ypath), n)
-    #print(x.shape, y.shape)
-    x_aug, y_aug = augment_tensor(x, y)
-    #x_aug, y_aug = x.copy(), y.copy()
+def crop_tensor(tensor, crop_size):
+    """ Crops a tensor equally from each side. Assumes 3d volume format """
+    return tensor[:, crop_size/2:tensor.shape[1]-crop_size/2, crop_size/2:tensor.shape[2]-crop_size/2,:]
 
-    x_aug_final = x_aug/255
-    x_aug_final -= x_aug_final.mean()
-    y_aug_final = np.array([raw_to_labels(yi) for yi in y_aug])
+def fetch_batch(x, y, n=64, patch_size=56, augment=True, crop_size=None):
+    """ Samples n patches from zstack and also crops and augments them """
+
+    x_patches, y_patches = sample_patches(x, y, n, (1,patch_size,patch_size,3))
     
-    return x_aug_final, y_aug_final
-        
-def yield_batch(xpath, ypath, n=64):
+    if crop_size:
+        y_patches = crop_tensor(y_patches, crop_size)
+    
+    if augment:
+        x_patches, y_patches = augment_tensor(x_patches, y_patches)
+    
+    # Preprocessing
+    x_patches = x_patches/255
+    y_patches = np.array([raw_to_labels(y) for y in y_patches])
+    
+    return x_patches, y_patches  
+
+def yield_batch(x, y, n=64):
     """ Yields batch of size n infinitely """
+    
     while True:
-        x_aug, y_aug = fetch_batch(xpath, ypath, n)
+        x_aug, y_aug = fetch_batch(x, y, 64, 56, True, 20)
         yield (x_aug, y_aug)
     
     #plt.imshow(y_aug[0])
@@ -143,7 +153,6 @@ def visualize_batch(x,y):
         img[overlap:img.shape[0]-overlap,overlap:img.shape[1]-overlap,:] = j
         #plt.imsave('outs/%d_i.png'%idx, i)
         plt.imsave('outs/%d.png'%idx, img)
-    
 
 #if __name__ == "__main__":
 #x, y = gen_batch(64)

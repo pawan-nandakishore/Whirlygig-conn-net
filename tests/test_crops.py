@@ -11,7 +11,7 @@ sys.path.append('..')
 import numpy as np
 import unittest
 import itertools
-from functions import squares_to_tiles, tiles_to_square, sample_squares, load_image, raw_to_labels
+from functions import squares_to_tiles, tiles_to_square, load_image, raw_to_labels
 import matplotlib.pyplot as plt
 from skimage.io import imread
 
