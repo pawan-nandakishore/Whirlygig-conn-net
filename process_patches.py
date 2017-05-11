@@ -87,11 +87,11 @@ def augment_tensor(x_tensor, y_tensor):
 		#st(iaa.Multiply((0.5, 1.5), per_channel=0.5))
 		#st(iaa.Add((10, 100)))
 		#st(iaa.Superpixels(p_replace=(0, 1.0), n_segments=(2,5)))
-		st(iaa.ElasticTransformation(alpha=12, sigma=3)),
+		#st(iaa.ElasticTransformation(alpha=12, sigma=3)),
 		#st(iaa.ContrastNormalization((0.5, 2.0), per_channel=0.5)),
 		#st(iaa.Invert(0.25, per_channel=True)),
 		#st(iaa.Dropout((0.0, 0.1), per_channel=0.5)),
-		st(iaa.GaussianBlur((0, 1))),
+		#st(iaa.GaussianBlur((0, 1))),
 		#st(iaa.AdditiveGaussianNoise(loc=0, scale=(0, 50), per_channel=0.5))
 		#st(iaa.Affine(
 		    #scale={"x": (0.8, 1.2), "y": (0.8, 1.2)}, # scale images to 80-120% of their size, individually per axis

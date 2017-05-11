@@ -39,7 +39,7 @@ if __name__=="__main__":
     #autoencoder = load_model('models/4160.h5')
     #checkpointer = ModelCheckpoint(filepath="weights.hdf5", verbose=1, save_best_only=False)
     #autoencoder.fit(xs, ys, nb_epoch=20, batch_size=64, callbacks=[cb, reduce_lr])
-    x, y = read_data(glob.glob('images/cropped/labeled/*'), glob.glob('images/cropped/labeled/*'))
+    x, y = read_data(glob.glob('images/cropped/rgbs/*'), glob.glob('images/cropped/labeled/*'))
     dataGenerator = yield_batch(x, y, n=64, patch_size=56, augment=True, crop_size=20)
     
     model.fit_generator(dataGenerator, samples_per_epoch = 600, nb_epoch = 30, callbacks=[cb, reduce_lr, tbCallBack])
