@@ -36,7 +36,7 @@ def get_regions(image):
 
 if __name__ == "__main__":
     output_files = sorted(glob.glob('plots/results/*'))
-    raw_files =  ['images/rgbs/'+os.path.basename(fl).replace('.png','')+'.png' for fl in output_files]
+    raw_files =  ['images/cropped/rgbs/'+os.path.basename(fl).replace('.png','')+'.png' for fl in output_files]
     print("Output files: %s, raw files: %s" % (output_files, raw_files))
 
     raw_images = []

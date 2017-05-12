@@ -86,7 +86,7 @@ def your_loss(y_true, y_pred):
 	return loss
 
 def raw_to_labels(image):
-    """ Convert image to labels
+    """ Convert image to labels. Tensorize fast
     
     Args:
         image(ndarray): Input rgb 3 channel labeled image
@@ -110,6 +110,21 @@ def raw_to_labels(image):
     softmax_labeled_image[inside_bool] = [0,0,1,0]
     softmax_labeled_image[exterior_bool] = [0,0,0,1]
     return softmax_labeled_image
+
+def labels_to_raw(labels):
+    """ Convert a one hot image into something.
+    
+    Args:
+        labels(ndarray): Ndarray onehot image
+        
+    Returns:
+        rgb(ndarray): 3 channel onehot image
+    
+    """
+    colors = np.array([[255,0,0], [0,255,0], [0,0,255], [0,0,0]])
+    labels_max = np.argmax(labels, axis=-1)
+    return colors[labels_max]
+    
 
 def sort_by_number(files):
     """ Sort by the digit of the filename
@@ -455,8 +470,8 @@ def squares_to_tiles(arr, sq_size, stride):
     
     Args:
         arr(ndarray): N dimensional image
-        sq_size(ndarray): What size are the (hyper) squares?
-        stride(ndarray): WHat size is each square shifted by?
+        sq_size(tuple): What size are the (hyper) squares?
+        stride(tuple): WHat size is each square shifted by?
         
     Returns:
         squares(list(ndaray))
