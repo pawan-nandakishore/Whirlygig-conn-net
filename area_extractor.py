@@ -36,7 +36,7 @@ def get_regions(image):
 
 if __name__ == "__main__":
     output_files = sorted(glob.glob('plots/results/*'))
-    raw_files =  ['images/cropped/rgbs/'+os.path.basename(fl).replace('.png','')+'.png' for fl in output_files]
+    raw_files =  ['images/cropped/rgbs/'+os.path.basename(fl) for fl in output_files]
     print("Output files: %s, raw files: %s" % (output_files, raw_files))
 
     raw_images = []
@@ -116,5 +116,5 @@ if __name__ == "__main__":
     #for i,(img_g, img_o) in enumerate(zip(images_g, images_o)):
     #    print('plots/comparisons/errors_i/%d.png'%i, img_g.shape)
     #    imsave('plots/comparisons/errors_i/%d.png'%i, img_g)
-    [plt.imsave('plots/comparisons/errors_i/%d.png'%i, img) for i, img in enumerate(images_g)]
-    [plt.imsave('plots/comparisons/errors_o/%d.png'%i, img) for i, img in enumerate(images_o)]
+    [plt.imsave('plots/comparisons/errors_i/%04d.png'%i, img) for i, img in enumerate(images_g)]
+    [plt.imsave('plots/comparisons/errors_o/%04d.png'%i, img) for i, img in enumerate(images_o)]

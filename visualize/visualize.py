@@ -2,6 +2,7 @@
 import sys
 sys.path.append('..')
 
+import os
 from keras.applications.vgg16 import VGG16
 from keras.preprocessing import image
 from keras.applications.vgg16 import preprocess_input
@@ -25,7 +26,7 @@ def visualize2():
         Generate attention gifs. Temporal dynamics will be much more powerful
     """
     img_files = sort_by_number(glob.glob('../plots/comparisons/errors_i/*.png'))
-    img_files = random.sample(img_files, min(64, len(img_files)))
+    #img_files = random.sample(img_files, min(64, len(img_files)))
     
     modelGen = lambda : load_model(sorted(glob.glob('../models/*'), key=lambda name: int(re.search(r'\d+', name).group()), reverse=True)[0])
     model = modelGen()
@@ -34,10 +35,11 @@ def visualize2():
     guided_model = modify_backprop(model, 'GuidedBackProp', modelGen)
     
     for i,img_fl in tqdm(enumerate(img_files)):
+        fl_name = os.path.basename(img_fl)
         backprop, heatmap, cam = visualize(img_fl, model, guided_model)
-        plt.imsave('../plots/cams/%d.png'%i, cam)
-        plt.imsave('../plots/heatmaps/%d.png'%i, heatmap)
-        plt.imsave('../plots/backprops/%d.png'%i, backprop)
+        plt.imsave('../plots/cams/%s'%fl_name, cam)
+        plt.imsave('../plots/heatmaps/%s'%fl_name, heatmap)
+        plt.imsave('../plots/backprops/%s'%fl_name, backprop)
 
 def visualize(img_fl, model, guided_model):
     """ What? What? WHat?
