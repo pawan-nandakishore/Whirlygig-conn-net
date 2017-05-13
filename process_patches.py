@@ -66,6 +66,7 @@ def load_tensor(path):
 
 def tensor_blur(imgs):
     """ Applys random blur to tensor of images """
+    print(imgs[0].shape)
     return np.array([cv2.medianBlur(img, 3) for img in imgs])
 
 def augment_tensor(x_tensor, y_tensor):
@@ -110,7 +111,7 @@ def augment_tensor(x_tensor, y_tensor):
     y_aug_tensor = seq_det.augment_images(y_tensor)
     
     """ Distort wedges by adding median blur """
-    #x_aug_tensor = tensor_blur(x_aug_tensor)
+    x_aug_tensor = tensor_blur(np.uint8(x_aug_tensor))
     
     """ Destroy structure by adding median blur """
     return x_aug_tensor.astype(float), y_aug_tensor.astype(float)

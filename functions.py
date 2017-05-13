@@ -111,17 +111,17 @@ def raw_to_labels(image):
     softmax_labeled_image[exterior_bool] = [0,0,0,1]
     return softmax_labeled_image
 
-def labels_to_raw(labels):
+def labels_to_raw(labels, colors = np.array([[255,0,0], [0,255,0], [0,0,255], [0,0,0]])):
     """ Convert a one hot image into something.
     
     Args:
         labels(ndarray): Ndarray onehot image
+        colors(ndarray): Colors array
         
     Returns:
         rgb(ndarray): 3 channel onehot image
     
     """
-    colors = np.array([[255,0,0], [0,255,0], [0,0,255], [0,0,0]])
     labels_max = np.argmax(labels, axis=-1)
     return colors[labels_max]
     
