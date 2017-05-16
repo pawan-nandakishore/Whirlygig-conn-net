@@ -56,7 +56,7 @@ if __name__ == "__main__":
         for idx, files in enumerate(file_chunks):
             # Read data
             file_names = [basename(path) for path in files]
-            imgs = [imread(fl, mode='RGB').astype(float)/255 for fl in files]
+            imgs = [cv2.medianBlur(imread(fl, mode='RGB'), 3).astype(float)/255 for fl in files]
             imgs = np.array([np.pad(img, ((10,10), (10,10), (0,0)), mode='reflect') for img in imgs])
             
             # Generate tiles
