@@ -14,6 +14,9 @@ import itertools
 from functions import squares_to_tiles, tiles_to_square, load_image, raw_to_labels
 import matplotlib.pyplot as plt
 from skimage.io import imread
+from skimage.draw import ellipse
+from scipy.ndimage.measurements import center_of_mass
+from scipy.ndimage.morphology import distance_transform_edt
 
 class TestCrops(unittest.TestCase):
     """ Numpy slice test """
@@ -33,6 +36,29 @@ class TestCrops(unittest.TestCase):
         """ Test that only one of y is 1 in the whole stack """
         print('haha')
         
+    def test_centroid_crop_binary(self):
+        """ Test that the centroid thing works for both greyscale and binary images """
+        centre = (50.0, 60.0)
+        img = np.zeros((100, 120), dtype=np.uint8)
+        rr, cc = ellipse(50, 60, 30, 50, rotation=np.deg2rad(30))
+        img[rr, cc] = 1
+        
+        fig, axarr = plt.subplots(1,2,sharex=True)
+        
+        centroid = center_of_mass(img)
+        axarr[0].imshow(img)
+        
+        img_dist = distance_transform_edt(img)
+        axarr[1].imshow(img_dist)
+        
+        fig.savefig('compare_ellipses.png')
+        
+        np.testing.assert_equal(centroid, centre)
+        
+        
+    def test_centroid_crop_grey(self):
+        """ Test that centroid crop works on greyscale images. Ahh so beautiful, the minimum reproducible example. """
+        pass
     
 #    def _calculate_ratio(self, squares):
 #        """ Calculates the ratio of squares of each type majorly r, majorly b, majorly g in squares """
