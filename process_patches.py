@@ -66,7 +66,6 @@ def load_tensor(path):
 
 def tensor_blur(imgs):
     """ Applys random blur to tensor of images """
-    print(imgs[0].shape)
     return np.array([cv2.medianBlur(img, 3) for img in imgs])
 
 def augment_tensor(x_tensor, y_tensor):
@@ -120,7 +119,7 @@ def crop_tensor(tensor, crop_size):
     """ Crops a tensor equally from each side. Assumes 3d volume format """
     return tensor[:, crop_size/2:tensor.shape[1]-crop_size/2, crop_size/2:tensor.shape[2]-crop_size/2,:]
 
-def fetch_batch(x, y, n=64, patch_size=56, augment=True, crop_size=None):
+def fetch_batch(x, y, n=64, patch_size=56, preprocess=True, augment=True, crop_size=None):
     """ Samples n patches from zstack and also crops and augments them """
 
     x_patches, y_patches = sample_patches(x, y, n, (1,patch_size,patch_size,3))
@@ -132,8 +131,9 @@ def fetch_batch(x, y, n=64, patch_size=56, augment=True, crop_size=None):
         x_patches, y_patches = augment_tensor(x_patches, y_patches)
     
     # Preprocessing
-    x_patches = x_patches/255
-    y_patches = np.array([raw_to_labels(y) for y in y_patches])
+    if preprocess:
+        x_patches = x_patches/255
+        y_patches = np.array([raw_to_labels(y) for y in y_patches])
     
     return x_patches, y_patches  
 

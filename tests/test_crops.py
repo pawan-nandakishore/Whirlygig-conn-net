@@ -13,10 +13,11 @@ import unittest
 import itertools
 from functions import squares_to_tiles, tiles_to_square, load_image, raw_to_labels
 import matplotlib.pyplot as plt
-from skimage.io import imread
-from skimage.draw import ellipse
+from skimage.io import imread, imsave
+from skimage.draw import ellipse, ellipse_perimeter
 from scipy.ndimage.measurements import center_of_mass
 from scipy.ndimage.morphology import distance_transform_edt
+from skimage.measure import label, regionprops
 
 class TestCrops(unittest.TestCase):
     """ Numpy slice test """
@@ -36,7 +37,7 @@ class TestCrops(unittest.TestCase):
         """ Test that only one of y is 1 in the whole stack """
         print('haha')
         
-    def test_centroid_crop_binary(self):
+    def _test_centroid_crop_binary(self):
         """ Test that the centroid thing works for both greyscale and binary images """
         centre = (50.0, 60.0)
         img = np.zeros((100, 120), dtype=np.uint8)
@@ -49,6 +50,7 @@ class TestCrops(unittest.TestCase):
         axarr[0].imshow(img)
         
         img_dist = distance_transform_edt(img)
+        imsave('ellipse.png', img_dist/255)
         axarr[1].imshow(img_dist)
         
         fig.savefig('compare_ellipses.png')
@@ -149,3 +151,49 @@ if __name__ == "__main__":
 ##indices = np.indices(img.shape)
 #
 ##print(rez, indices)"""
+
+#centre = (50.0, 60.0)
+#img = np.zeros((100, 120), dtype=np.uint8)
+#rr, cc = ellipse(50, 60, 30, 50, rotation=np.deg2rad(30))
+#img[rr, cc] = 1
+#
+#fig, axarr = plt.subplots(1,2,sharex=True)
+#
+#
+#
+#centroid = center_of_mass(img)
+##axarr[0].imshow(img)
+#
+#img_dist = distance_transform_edt(img).astype(int)
+##imsave('ellipse.png', img_dist)
+##axarr[1].imshow(img_dist)
+#
+##fig.savefig('compare_ellipses.png')
+#
+##np.testing.assert_equal(centroid, centre)
+#img_dist_2 = contourf(np.linspace(-60,60,120),np.linspace(-50,50,100), img_dist, cmap='Greys')
+#ellipse_points_1 = (img_dist_2==25)*1
+#ellipse_points_2 = (img_dist_2==5)*1
+#
+#def get_eccentricity(img):
+#    lbl_image = label(img)
+#    return regionprops(lbl_image)[0].eccentricity
+#
+#axarr[0].imshow(ellipse_points_1)
+#axarr[1].imshow(ellipse_points_2)
+#
+#print(get_eccentricity(ellipse_points_1), get_eccentricity(ellipse_points_2))
+#plt.imshow(ellipse_points.astype(int))
+
+
+
+#centre = (50.0, 60.0)
+img = np.zeros((500, 500), dtype=np.uint8)
+
+for i,r in enumerate(xrange(100,-1,-5)):
+    rr, cc = ellipse(250, 250, r, int(1.66*r))
+    print(i, 20-i)
+    img[rr, cc] = i
+    
+imsave('ellipse_preserve.png', img)
+#plt.imshow(img)

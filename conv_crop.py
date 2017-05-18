@@ -33,6 +33,9 @@ cb = LambdaCallback(on_batch_begin=save_mod)
 if __name__=="__main__":
     #model = pawannet(img)
     model = pawannet((56,56,3), (36,36,4), 10, kernel=3)
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.summary()
+    
     
     reduce_lr = ReduceLROnPlateau(monitor='your_loss', factor=0.2, patience=5, min_lr=0.0001)
     tbCallBack = TensorBoard(log_dir='./Graph', histogram_freq=0, write_graph=True, write_images=True)
@@ -40,6 +43,6 @@ if __name__=="__main__":
     #checkpointer = ModelCheckpoint(filepath="weights.hdf5", verbose=1, save_best_only=False)
     #autoencoder.fit(xs, ys, nb_epoch=20, batch_size=64, callbacks=[cb, reduce_lr])
     x, y = read_data(glob.glob('images/cropped/rgbs/*'), glob.glob('images/cropped/labeled/*'))
-    dataGenerator = yield_batch(x, y, n=64, patch_size=56, augment=True, crop_size=20)
+    dataGenerator = yield_batch(x, y, n=64, patch_size=56, preprocess=True, augment=True, crop_size=20)
     
     model.fit_generator(dataGenerator, samples_per_epoch = 600, nb_epoch = 30, callbacks=[cb, reduce_lr, tbCallBack])
