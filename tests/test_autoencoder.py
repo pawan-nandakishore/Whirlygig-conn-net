@@ -83,11 +83,11 @@ class TestAutoencoder(unittest.TestCase):
         """ Check that pawannet is able to learn fast on the mnist dataset to a reasonable accuracy """
         self.run_experiment(pawannet((28,28,1), (28,28,1), 0, kernel=3))
         
-    def _test_kerasnet_mnist(self):
+    def test_kerasnet_mnist(self):
         """ Test that keras convnet is able to learn fast on the mnist dataset to a reasonable accuracy """
         self.run_experiment(keras_mnist_autoencoder((28,28,1)))
     
-    def test_autoencoder_mnist_visualize(self):
+    def _test_autoencoder_mnist_visualize(self):
         """ Generate output on mnist """
         x_train, x_test = self.load_mnist_data()
         model = load_model('mnist_auto.h5')
