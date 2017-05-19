@@ -22,32 +22,33 @@ from process_patches import fetch_batch, read_data
 import glob
 from models import pawannet
 from keras.callbacks import LambdaCallback
+from keras.datasets import mnist
 
-def autoencoder_yield_batch(x, y, n=64, patch_size=56, preprocess=False, augment=False, crop_size=20):  
-    """ Yields batch of size n infinitely """
-    
-    while True:
-        x_aug, y_aug = fetch_batch(x, y, n, patch_size, preprocess, augment, crop_size)
-        x_aug = x_aug/255
-        y_aug = y_aug/255
-        yield (x_aug, y_aug)
-
-def save_mod(epoch, logs):
-    global count
-    global autoencoder
-    if count%40==0:
-        print('Saving model, count: %d'%count)
-        model.save('../models/%d.h5'%count)
-    count+=1
-
-count = 0
-cb = LambdaCallback(on_batch_begin=save_mod)
-
-model = pawannet((56,56,3), (36,36,3), 10, kernel=3)
-model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
-x, y = read_data(glob.glob('../images/cropped/rgbs/*'), glob.glob('../images/cropped/rgbs/*'))
-dataGenerator = autoencoder_yield_batch(x, y, n=64, patch_size=56, preprocess=False, augment=False, crop_size=20)
-model.fit_generator(dataGenerator, samples_per_epoch = 600, nb_epoch = 30, callbacks=[cb])
+#def autoencoder_yield_batch(x, y, n=64, patch_size=56, preprocess=False, augment=False, crop_size=20):  
+#    """ Yields batch of size n infinitely """
+#    
+#    while True:
+#        x_aug, y_aug = fetch_batch(x, y, n, patch_size, preprocess, augment, crop_size)
+#        x_aug = x_aug/255
+#        y_aug = y_aug/255
+#        yield (x_aug, y_aug)
+#
+#def save_mod(epoch, logs):
+#    global count
+#    global autoencoder
+#    if count%40==0:
+#        print('Saving model, count: %d'%count)
+#        model.save('../models/%d.h5'%count)
+#    count+=1
+#
+#count = 0
+#cb = LambdaCallback(on_batch_begin=save_mod)
+#
+#model = pawannet((56,56,3), (36,36,3), 10, kernel=3)
+#model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
+#x, y = read_data(glob.glob('../images/cropped/rgbs/*'), glob.glob('../images/cropped/rgbs/*'))
+#dataGenerator = autoencoder_yield_batch(x, y, n=64, patch_size=56, preprocess=False, augment=False, crop_size=20)
+#model.fit_generator(dataGenerator, samples_per_epoch = 600, nb_epoch = 30, callbacks=[cb])
 
 class TestAutoencoder(unittest.TestCase):
     """ Numpy slice test """
@@ -57,11 +58,29 @@ class TestAutoencoder(unittest.TestCase):
     def test_autoencoder(self):
         """ Test that pawannet is able to reconstruct the patches from input image. This is always the task to be done first to check that everything first. """
         pass
-       
         
     def test_autoencoder_mnist(self):
-        """ Check that pawannet is able to autoencode on the mnist dataset """
-        pass
+        """ Check that pawannet is able to autoencode on the mnist dataset to a reasonable accuracy """
+        # Load mnist and train
+        (x_train, _), (x_test, _) = mnist.load_data()
+        x_train = np.expand_dims(x_train, axis=-1)
+        x_test = np.expand_dims(x_test, axis=-1)
+        
+        # Save the resultant model
+        model = pawannet((28,28,1), (28,28,1), 0, kernel=3)
+        model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
+        model.fit(x_train, x_train, epochs=20, batch_size=64, shuffle=True, validation_data=(x_test, x_test))
+        model.save('mnist_auto.h5')
+    
+    def _test_autoencoder_mnist_visualize(self):
+        """ Generate output on mnist """
+        (x_train, _), (x_test, _) = mnist.load_data()
+        
+        # Generate batch of images 10
+        
+        # Generate output
+        
+        # Run loop and save output on all of these
         
         #self.assertEqual(data, data2, 'Identity is not preserved')
         
