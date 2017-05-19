@@ -20,7 +20,7 @@ from scipy.ndimage.morphology import distance_transform_edt
 from skimage.measure import label, regionprops
 from process_patches import fetch_batch, read_data
 import glob
-from models import pawannet, keras_mnist_autoencoder
+from models import pawannet, keras_mnist_autoencoder, keras_mnist_autoencoder_loaded
 from keras.callbacks import LambdaCallback
 from keras.datasets import mnist
 from keras.models import load_model
@@ -51,10 +51,20 @@ from keras.models import load_model
 #dataGenerator = autoencoder_yield_batch(x, y, n=64, patch_size=56, preprocess=False, augment=False, crop_size=20)
 #model.fit_generator(dataGenerator, samples_per_epoch = 600, nb_epoch = 30, callbacks=[cb])
 
+def yield_batch(x, y):  
+    """ Yields batch of size n infinitely """
+    
+    while True:
+        idx = np.random.choice(np.arange(len(x)), 128, replace=False)
+        x_sample = x[idx]
+        y_sample = y[idx]
+        yield (x_sample, y_sample)
+
 class TestAutoencoder(unittest.TestCase):
     """ Numpy slice test """
     def setUp(self):
         print self._testMethodName
+        
         
     def load_mnist_data(self):
         """ Helper to preprocess and load mnist data """
@@ -71,8 +81,10 @@ class TestAutoencoder(unittest.TestCase):
     def run_experiment(self, model):
         """ Common helper for both """
         x_train, x_test = self.load_mnist_data()
+        dataGenerator = yield_batch(x_train, x_train)
         model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
-        model.fit(x_train, x_train, epochs=10, batch_size=64, shuffle=True, validation_data=(x_test, x_test))
+        #model.fit_generator(dataGenerator, samples_per_epoch = 600, nb_epoch = 30, callbacks=[])
+        model.fit(x_train, x_train, epochs=3, batch_size=128, shuffle=True, validation_data=(x_test, x_test))
         model.save('mnist_auto.h5')
     
     def _test_autoencoder(self):
@@ -87,7 +99,7 @@ class TestAutoencoder(unittest.TestCase):
         """ Test that keras convnet is able to learn fast on the mnist dataset to a reasonable accuracy """
         self.run_experiment(keras_mnist_autoencoder((28,28,1)))
     
-    def _test_autoencoder_mnist_visualize(self):
+    def test_zautoencoder_mnist_visualize(self):
         """ Generate output on mnist """
         x_train, x_test = self.load_mnist_data()
         model = load_model('mnist_auto.h5')
@@ -95,7 +107,7 @@ class TestAutoencoder(unittest.TestCase):
         x_out = model.predict(x_test)
         x_out = x_out.reshape((x_test.shape[0], 28,28))
         
-        for i,img in enumerate(x_out[0:100]):
+        for i,img in enumerate(x_out[0:10]):
             imsave('outs/%d.png'%i, img)
         # Generate batch of images 10
         

@@ -124,7 +124,7 @@ def pawannet_autoencoder(input_shape, output_shape, crop_size, kernel=3):
     for l in autoencoder.decoding_layers:
         autoencoder.add(l)
     
-    autoencoder.add(Cropping2D(cropping=((crop_size, crop_size), (crop_size, crop_size))))
+    #autoencoder.add(Cropping2D(cropping=((crop_size, crop_size), (crop_size, crop_size))))
     #autoencoder.add(Reshape((output_shape[0]*output_shape[1], output_shape[-1])))
     #autoencoder.add(Reshape((n_labels,ysize * ysize)))
     #autoencoder.add(Permute((2, 1)))
@@ -193,24 +193,34 @@ def keras_mnist_autoencoder(img_shape=(28, 28, 1)):
     """ Copy pasted autoencoder from keras to use as a benchmark. """
     input_img = Input(img_shape)
     x = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
+    x = BatchNormalization()(x)
     x = MaxPooling2D((2, 2), padding='same')(x)
-    x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
+    x = Conv2D(16, (3, 3), activation='relu', padding='same')(x)
+    x = BatchNormalization()(x)
     x = MaxPooling2D((2, 2), padding='same')(x)
-    x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
+    x = Conv2D(32, (3, 3), activation='relu', padding='same')(x)
+    x = BatchNormalization()(x)
     encoded = MaxPooling2D((2, 2), padding='same')(x)
     
     # at this point the representation is (4, 4, 8) i.e. 128-dimensional
     
-    x = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
+    x = Conv2D(32, (3, 3), activation='relu', padding='same')(encoded)
+    x = BatchNormalization()(x)
     x = UpSampling2D((2, 2))(x)
-    x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
+    x = Conv2D(16, (3, 3), activation='relu', padding='same')(x)
+    x = BatchNormalization()(x)
     x = UpSampling2D((2, 2))(x)
     x = Conv2D(16, (3, 3), activation='relu')(x)
+    x = BatchNormalization()(x)
     x = UpSampling2D((2, 2))(x)
     decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x)
     
     autoencoder = Model(input_img, decoded)
     return autoencoder
+
+def residual_network(img_shape):
+    """ Test residual network with skip connections """
+    pass
 
 def keras_mnist_autoencoder_loaded(img_shape=(28, 28, 1)):
     """ Copy pasted autoencoder from keras to use as a benchmark. """
