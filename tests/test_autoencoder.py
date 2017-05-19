@@ -20,7 +20,7 @@ from scipy.ndimage.morphology import distance_transform_edt
 from skimage.measure import label, regionprops
 from process_patches import fetch_batch, read_data
 import glob
-from models import pawannet
+from models import pawannet, keras_mnist_autoencoder
 from keras.callbacks import LambdaCallback
 from keras.datasets import mnist
 
@@ -54,27 +54,37 @@ class TestAutoencoder(unittest.TestCase):
     """ Numpy slice test """
     def setUp(self):
         print self._testMethodName
-    
-    def test_autoencoder(self):
-        """ Test that pawannet is able to reconstruct the patches from input image. This is always the task to be done first to check that everything first. """
-        pass
         
-    def test_autoencoder_mnist(self):
-        """ Check that pawannet is able to autoencode on the mnist dataset to a reasonable accuracy """
-        # Load mnist and train
+    def load_mnist_data(self):
+        """ Helper to preprocess and load mnist data """
         (x_train, _), (x_test, _) = mnist.load_data()
         x_train = np.expand_dims(x_train, axis=-1)
         x_test = np.expand_dims(x_test, axis=-1)
         
-        # Convert to float
+        # Convert to floatdd
         x_train = x_train.astype('float32') / 255.
         x_test = x_test.astype('float32') / 255.
         
-        # Save the resultant model
-        model = pawannet((28,28,1), (28,28,1), 0, kernel=3)
+        return x_train, x_test
+    
+    def run_experiment(self, model):
+        """ Common helper for both """
+        x_train, x_test = self.load_mnist_data()
         model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
         model.fit(x_train, x_train, epochs=20, batch_size=64, shuffle=True, validation_data=(x_test, x_test))
         model.save('mnist_auto.h5')
+    
+    def _test_autoencoder(self):
+        """ Test that pawannet is able to reconstruct the patches from input image. This is always the task to be done first to check that everything first. """
+        pass
+        
+    def _test_pawannet_mnist(self):
+        """ Check that pawannet is able to autoencode on the mnist dataset to a reasonable accuracy """
+        self.run_experiment(pawannet((28,28,1), (28,28,1), 0, kernel=3))
+        
+    def test_kerasnet_mnist(self):
+        """ Test that keras convnet on mnist works and the learning is sufficiently fast. """
+        self.run_experiment(keras_mnist_autoencoder((28,28,1)))
     
     def _test_autoencoder_mnist_visualize(self):
         """ Generate output on mnist """

@@ -1,8 +1,10 @@
 from keras import models
-from keras.layers import ZeroPadding2D
+from keras.layers import ZeroPadding2D, Input
 from keras.layers.core import Activation, Reshape, Permute
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, UpSampling2D, Cropping2D
 from keras.layers.normalization import BatchNormalization
+from keras.layers.convolutional import Convolution2D as Conv2D
+from keras.models import Model
 
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
@@ -186,3 +188,26 @@ def unet(input_shape, output_shape, crop_size):
     #model.compile(optimizer=Adam(lr=1e-5), loss=dice_coef_loss, metrics=[dice_coef])
 
     return model
+
+def keras_mnist_autoencoder(img_shape=(28, 28, 1)):
+    """ Copy pasted autoencoder from keras to use as a benchmark. """
+    input_img = Input(img_shape)
+    x = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
+    x = MaxPooling2D((2, 2), padding='same')(x)
+    x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
+    x = MaxPooling2D((2, 2), padding='same')(x)
+    x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
+    encoded = MaxPooling2D((2, 2), padding='same')(x)
+    
+    # at this point the representation is (4, 4, 8) i.e. 128-dimensional
+    
+    x = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
+    x = UpSampling2D((2, 2))(x)
+    x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
+    x = UpSampling2D((2, 2))(x)
+    x = Conv2D(16, (3, 3), activation='relu')(x)
+    x = UpSampling2D((2, 2))(x)
+    decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x)
+    
+    autoencoder = Model(input_img, decoded)
+    return autoencoder
