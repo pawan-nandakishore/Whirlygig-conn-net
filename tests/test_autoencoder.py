@@ -23,6 +23,7 @@ import glob
 from models import pawannet, keras_mnist_autoencoder
 from keras.callbacks import LambdaCallback
 from keras.datasets import mnist
+from keras.models import load_model
 
 #def autoencoder_yield_batch(x, y, n=64, patch_size=56, preprocess=False, augment=False, crop_size=20):  
 #    """ Yields batch of size n infinitely """
@@ -71,7 +72,7 @@ class TestAutoencoder(unittest.TestCase):
         """ Common helper for both """
         x_train, x_test = self.load_mnist_data()
         model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
-        model.fit(x_train, x_train, epochs=20, batch_size=64, shuffle=True, validation_data=(x_test, x_test))
+        model.fit(x_train, x_train, epochs=10, batch_size=64, shuffle=True, validation_data=(x_test, x_test))
         model.save('mnist_auto.h5')
     
     def _test_autoencoder(self):
@@ -79,17 +80,23 @@ class TestAutoencoder(unittest.TestCase):
         pass
         
     def _test_pawannet_mnist(self):
-        """ Check that pawannet is able to autoencode on the mnist dataset to a reasonable accuracy """
+        """ Check that pawannet is able to learn fast on the mnist dataset to a reasonable accuracy """
         self.run_experiment(pawannet((28,28,1), (28,28,1), 0, kernel=3))
         
-    def test_kerasnet_mnist(self):
-        """ Test that keras convnet on mnist works and the learning is sufficiently fast. """
+    def _test_kerasnet_mnist(self):
+        """ Test that keras convnet is able to learn fast on the mnist dataset to a reasonable accuracy """
         self.run_experiment(keras_mnist_autoencoder((28,28,1)))
     
-    def _test_autoencoder_mnist_visualize(self):
+    def test_autoencoder_mnist_visualize(self):
         """ Generate output on mnist """
-        (x_train, _), (x_test, _) = mnist.load_data()
+        x_train, x_test = self.load_mnist_data()
+        model = load_model('mnist_auto.h5')
         
+        x_out = model.predict(x_test)
+        x_out = x_out.reshape((x_test.shape[0], 28,28))
+        
+        for i,img in enumerate(x_out[0:100]):
+            imsave('outs/%d.png'%i, img)
         # Generate batch of images 10
         
         # Generate output
