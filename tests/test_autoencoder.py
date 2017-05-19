@@ -66,6 +66,10 @@ class TestAutoencoder(unittest.TestCase):
         x_train = np.expand_dims(x_train, axis=-1)
         x_test = np.expand_dims(x_test, axis=-1)
         
+        # Convert to float
+        x_train = x_train.astype('float32') / 255.
+        x_test = x_test.astype('float32') / 255.
+        
         # Save the resultant model
         model = pawannet((28,28,1), (28,28,1), 0, kernel=3)
         model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
