@@ -15,7 +15,7 @@ Created on Tue May  9 04:40:42 2017
 """
 
 def pawannet(input_shape, output_shape, crop_size, kernel=3):
-    """ Modified segnet with lesser filters. How to add tests for these? Can we add performance tests? """
+    """ Does not work with autoencoding task. Modified segnet with lesser filters. How to add tests for these? Can we add performance tests? """
     autoencoder = models.Sequential()
     #autoencoder.add(ZeroPadding2D((1,1), input_shape=(3, img_h, img_w), dim_ordering='th'))
     
@@ -89,10 +89,10 @@ def pawannet_autoencoder(input_shape, output_shape, crop_size, kernel=3):
         Activation('relu'),
         MaxPooling2D(),
     
-        Convolution2D(32, kernel, kernel, border_mode='same'),
+        Convolution2D(16, kernel, kernel, border_mode='same'),
         BatchNormalization(),
         Activation('relu'),
-        Convolution2D(32, kernel, kernel, border_mode='same'),
+        Convolution2D(16, kernel, kernel, border_mode='same'),
         BatchNormalization(),
         Activation('relu'),
         MaxPooling2D(),
@@ -106,10 +106,10 @@ def pawannet_autoencoder(input_shape, output_shape, crop_size, kernel=3):
     decoding_layers = [
     
         UpSampling2D(),
-        Convolution2D(32, kernel, kernel, border_mode='same'),
+        Convolution2D(16, kernel, kernel, border_mode='same'),
         BatchNormalization(),
         Activation('relu'),
-        Convolution2D(32, kernel, kernel, border_mode='same'),
+        Convolution2D(16, kernel, kernel, border_mode='same'),
         BatchNormalization(),
         Activation('relu'),
     
@@ -118,26 +118,21 @@ def pawannet_autoencoder(input_shape, output_shape, crop_size, kernel=3):
         BatchNormalization(),
         Activation('relu'),
         Convolution2D(output_shape[-1], 1, 1, border_mode='valid'),
-        BatchNormalization(),
+        #BatchNormalization(),
     ]
     autoencoder.decoding_layers = decoding_layers
     for l in autoencoder.decoding_layers:
         autoencoder.add(l)
     
-    #autoencoder.add(Cropping2D(cropping=((crop_size, crop_size), (crop_size, crop_size))))
-    #autoencoder.add(Reshape((output_shape[0]*output_shape[1], output_shape[-1])))
-    #autoencoder.add(Reshape((n_labels,ysize * ysize)))
-    #autoencoder.add(Permute((2, 1)))
+    autoencoder.add(Cropping2D(cropping=((crop_size, crop_size), (crop_size, crop_size))))
+    autoencoder.add(Reshape((output_shape[0]*output_shape[1], output_shape[-1])))
     autoencoder.add(Activation('sigmoid'))
-    #autoencoder.add(Permute((1, 2)))
-    #autoencoder.add(Reshape(output_shape))
+    autoencoder.add(Reshape(output_shape))
     
-    #sgd = SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)
-    #rmsprop = keras.optimizers.RMSprop(lr=1e-5, rho=0.9, epsilon=1e-08, decay=0.0)
     return autoencoder
 
 def unet(input_shape, output_shape, crop_size):
-    """ Unet implementation """
+    """ Unet implementation. Test performance on mnist autoencoding task. """
     inputs = Input(input_shape)
     conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(inputs)
     conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv1)
@@ -189,6 +184,10 @@ def unet(input_shape, output_shape, crop_size):
 
     return model
 
+def residual_network(img_shape):
+    """ Test residual network with skip connections """
+    pass
+
 def keras_mnist_autoencoder(img_shape=(28, 28, 1)):
     """ Copy pasted autoencoder from keras to use as a benchmark. """
     input_img = Input(img_shape)
@@ -212,33 +211,6 @@ def keras_mnist_autoencoder(img_shape=(28, 28, 1)):
     x = UpSampling2D((2, 2))(x)
     x = Conv2D(16, (3, 3), activation='relu')(x)
     x = BatchNormalization()(x)
-    x = UpSampling2D((2, 2))(x)
-    decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x)
-    
-    autoencoder = Model(input_img, decoded)
-    return autoencoder
-
-def residual_network(img_shape):
-    """ Test residual network with skip connections """
-    pass
-
-def keras_mnist_autoencoder_loaded(img_shape=(28, 28, 1)):
-    """ Copy pasted autoencoder from keras to use as a benchmark. """
-    input_img = Input(img_shape)
-    x = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
-    x = MaxPooling2D((2, 2), padding='same')(x)
-    x = Conv2D(16, (3, 3), activation='relu', padding='same')(x)
-    x = MaxPooling2D((2, 2), padding='same')(x)
-    x = Conv2D(16, (3, 3), activation='relu', padding='same')(x)
-    encoded = MaxPooling2D((2, 2), padding='same')(x)
-    
-    # at this point the representation is (4, 4, 8) i.e. 128-dimensional
-    
-    x = Conv2D(16, (3, 3), activation='relu', padding='same')(encoded)
-    x = UpSampling2D((2, 2))(x)
-    x = Conv2D(16, (3, 3), activation='relu', padding='same')(x)
-    x = UpSampling2D((2, 2))(x)
-    x = Conv2D(16, (3, 3), activation='relu')(x)
     x = UpSampling2D((2, 2))(x)
     decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x)
     
