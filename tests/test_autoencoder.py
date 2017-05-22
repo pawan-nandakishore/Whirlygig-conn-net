@@ -18,7 +18,7 @@ from skimage.draw import ellipse, ellipse_perimeter
 from scipy.ndimage.measurements import center_of_mass
 from scipy.ndimage.morphology import distance_transform_edt
 from skimage.measure import label, regionprops
-from process_patches import fetch_batch, read_data
+from process_patches import fetch_batch, read_data, tensor_blur
 import glob
 from models import pawannet_autoencoder, keras_mnist_autoencoder
 from keras.callbacks import LambdaCallback
@@ -33,9 +33,11 @@ def autoencoder_yield_batch(x, y, n=64, patch_size=56, preprocess=False, augment
     
     while True:
         x_aug, y_aug = fetch_batch(x, y, n, patch_size, preprocess, augment, crop_size)
+        
         x_aug = x_aug/255
         y_aug = y_aug/255
         yield (x_aug, y_aug)
+        
 
 def save_mod(epoch, logs):
     global count
@@ -51,8 +53,17 @@ cb = LambdaCallback(on_batch_begin=save_mod)
 model = pawannet_autoencoder((56,56,3), (36,36,3), 10, kernel=3)
 model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
 x, y = read_data(glob.glob('../images/cropped/rgbs/*'), glob.glob('../images/cropped/rgbs/*'))
-dataGenerator = autoencoder_yield_batch(x, y, n=64, patch_size=56, preprocess=False, augment=False, crop_size=20)
+
+# Testing by visualizing
+x_test,y_test = fetch_batch(x, y, n=10, patch_size=56, preprocess=False, augment=True, crop_size=20)
+[imsave('%d_i.png'%i, img.astype(float)/255) for i,img in enumerate(x_test)]
+[imsave('%d_o.png'%i, img.astype(float)/255) for i,img in enumerate(y_test)]
+
+# Run the network
+dataGenerator = autoencoder_yield_batch(x, y, n=64, patch_size=56, preprocess=False, augment=True, crop_size=20)
 model.fit_generator(dataGenerator, samples_per_epoch = 600, nb_epoch = 30, callbacks=[cb])
+
+# Visualize batch just for fun
 
 def yield_batch(x, y):  
     """ Yields batch of size n infinitely """

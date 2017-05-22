@@ -89,10 +89,10 @@ def pawannet_autoencoder(input_shape, output_shape, crop_size, kernel=3):
         Activation('relu'),
         MaxPooling2D(),
     
-        Convolution2D(16, kernel, kernel, border_mode='same'),
+        Convolution2D(8, kernel, kernel, border_mode='same'),
         BatchNormalization(),
         Activation('relu'),
-        Convolution2D(16, kernel, kernel, border_mode='same'),
+        Convolution2D(8, kernel, kernel, border_mode='same'),
         BatchNormalization(),
         Activation('relu'),
         MaxPooling2D(),
@@ -106,10 +106,10 @@ def pawannet_autoencoder(input_shape, output_shape, crop_size, kernel=3):
     decoding_layers = [
     
         UpSampling2D(),
-        Convolution2D(16, kernel, kernel, border_mode='same'),
+        Convolution2D(8, kernel, kernel, border_mode='same'),
         BatchNormalization(),
         Activation('relu'),
-        Convolution2D(16, kernel, kernel, border_mode='same'),
+        Convolution2D(8, kernel, kernel, border_mode='same'),
         BatchNormalization(),
         Activation('relu'),
     

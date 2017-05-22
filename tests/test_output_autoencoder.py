@@ -16,11 +16,13 @@ from functions import your_loss, squares_to_tiles, labels_to_raw, tiles_to_squar
 import glob
 from scipy.misc import imread
 #from skimage.io import imread
+from process_patches import augment_tensor
 import glob
 import re
 import time
 import random
 import cv2
+from imgaug import augmenters as iaa
 
 labels = 3
 channels = 3
@@ -58,7 +60,7 @@ if __name__ == "__main__":
         for idx, files in enumerate(file_chunks):
             # Read data
             file_names = [basename(path) for path in files]
-            imgs = [imread(fl, mode='RGB').astype(float)/255 for fl in files]
+            imgs = [imread(fl, mode='RGB') for fl in files]
             imgs = np.array([np.pad(img, ((10,10), (10,10), (0,0)), mode='reflect') for img in imgs])
             
             # Generate tiles
@@ -67,14 +69,24 @@ if __name__ == "__main__":
     
             # Input and output calculation
             xs = tiles.reshape(imgs.shape[0]*len(tiles[0]),size,size,channels)
+            
+            # Augment tensor
+            xs,_ = augment_tensor(xs, xs)
+            xs = xs.astype(float)/255
+            
             ys = timeit(lambda: model.predict(xs))
             
             # Reshape and convert patches to rgbs
             ys = ys.reshape(imgs.shape[0],len(tiles[0]), ysize, ysize, labels)
-            #ys = np.array([labels_to_raw(y) for y in ys])            
+            #ys = np.array([labels_to_raw(y) for y in ys])
+
+            dropout = iaa.Dropout(0.3)
+            x_images = dropout.augment_images(imgs)            
             
             # Patches to bigger image and save
             y_images = [tiles_to_square(patches, (288,288,3), (36,36,3), (36,36,3)) for patches in ys]
+            
+            [imsave('../plots/results_i/%s'%(file_name), x_img) for file_name, x_img in zip(file_names, x_images)]
             [imsave('../plots/results/%s'%(file_name), y_img) for file_name, y_img in zip(file_names, y_images)]
             
             
