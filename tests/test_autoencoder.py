@@ -10,7 +10,7 @@ sys.path.append('..')
 
 import numpy as np
 import unittest
-import itertools
+from unittest2 import TestCase
 from functions import squares_to_tiles, tiles_to_square, load_image, raw_to_labels
 import matplotlib.pyplot as plt
 from skimage.io import imread, imsave
@@ -27,58 +27,61 @@ from keras.models import load_model
 from scipy.stats import entropy
 from keras.callbacks import History 
 
-
-def autoencoder_yield_batch(x, y, n=64, patch_size=56, preprocess=False, augment=False, crop_size=20):  
-    """ Yields batch of size n infinitely """
+class TestPawannetWhirlygig(TestCase):
+    """ Testing pawannet autoencoder on whirlygig images """
     
-    while True:
-        x_aug, y_aug = fetch_batch(x, y, n, patch_size, preprocess, augment, crop_size)
-        
-        x_aug = x_aug/255
-        y_aug = y_aug/255
-        yield (x_aug, y_aug)
-        
-
-def save_mod(epoch, logs):
-    global count
-    global autoencoder
-    if count%40==0:
-        print('Saving model, count: %d'%count)
-        model.save('../models/%d.h5'%count)
-    count+=1
-
-count = 0
-cb = LambdaCallback(on_batch_begin=save_mod)
-
-model = pawannet_autoencoder((56,56,3), (36,36,3), 10, kernel=3)
-model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
-x, y = read_data(glob.glob('../images/cropped/rgbs/*'), glob.glob('../images/cropped/rgbs/*'))
-
-# Testing by visualizing
-x_test,y_test = fetch_batch(x, y, n=10, patch_size=56, preprocess=False, augment=True, crop_size=20)
-[imsave('%d_i.png'%i, img.astype(float)/255) for i,img in enumerate(x_test)]
-[imsave('%d_o.png'%i, img.astype(float)/255) for i,img in enumerate(y_test)]
-
-# Run the network
-dataGenerator = autoencoder_yield_batch(x, y, n=64, patch_size=56, preprocess=False, augment=True, crop_size=20)
-model.fit_generator(dataGenerator, samples_per_epoch = 600, nb_epoch = 30, callbacks=[cb])
-
-# Visualize batch just for fun
-
-def yield_batch(x, y):  
-    """ Yields batch of size n infinitely """
+    def setUp(self):
+        self.count = 0
+        self.model = pawannet_autoencoder((56,56,3), (36,36,3), 10, kernel=3)
+        self.model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
+        self.cb = LambdaCallback(on_batch_begin=self.save_mod)
     
-    while True:
-        idx = np.random.choice(np.arange(len(x)), 128, replace=False)
-        x_sample = x[idx]
-        y_sample = y[idx]
-        yield (x_sample, y_sample)
+    def yield_batch(self, x, y, n=64, patch_size=56, preprocess=False, augment=False, crop_size=20):  
+        """ Yields batch of size n infinitely """
+        
+        while True:
+            x_aug, y_aug = fetch_batch(x, y, n, patch_size, preprocess, augment, crop_size)
+            
+            x_aug = x_aug/255
+            y_aug = y_aug/255
+            yield (x_aug, y_aug)
+            
+    def save_mod(self, epoch, logs):
+        if self.count%40==0:
+            print('Saving model, count: %d'%self.count)
+            self.model.save('../models/%d.h5'%self.count)
+        self.count+=1
+        
+    def test_whirlygig_loss(self):
+        """ Train network on whirlygig images and check that the training loss converges """
+        history = History()
+        x, y = read_data(glob.glob('../images/cropped/rgbs/*'), glob.glob('../images/cropped/rgbs/*'))
+        
+        # Testing by visualizing
+        x_test,y_test = fetch_batch(x, y, n=10, patch_size=56, preprocess=False, augment=True, crop_size=20)
+        [imsave('%d_i.png'%i, img.astype(float)/255) for i,img in enumerate(x_test)]
+        [imsave('%d_o.png'%i, img.astype(float)/255) for i,img in enumerate(y_test)]
+        
+        # Run the network
+        dataGenerator = self.yield_batch(x, y, n=64, patch_size=56, preprocess=False, augment=True, crop_size=20)
+        self.model.fit_generator(dataGenerator, samples_per_epoch = 600, nb_epoch = 1, callbacks=[self.cb, history])
+        
+        self.assertGreater(history.history['val_acc'][0], 0.4)
 
-class TestAutoencoder(unittest.TestCase):
-    """ Numpy slice test """
+class TestAutoencoder(TestCase):
+    """ Testing pawannet autoencoder on mnist images """
+    
+    def yield_batch(x, y):  
+        """ Yields batch of size n infinitely """
+    
+        while True:
+            idx = np.random.choice(np.arange(len(x)), 128, replace=False)
+            x_sample = x[idx]
+            y_sample = y[idx]
+            yield (x_sample, y_sample)
+    
     def setUp(self):
         print self._testMethodName
-        
         
     def load_mnist_data(self):
         """ Helper to preprocess and load mnist data """
