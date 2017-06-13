@@ -52,7 +52,7 @@ class PawannetDistTransform():
     def run(self):
         """ Train network on whirlygig images and check that the training loss converges """
         history = History()
-        x, y = read_data(glob.glob('images/cropped/rgbs/*'), glob.glob('images/cropped/rgbs/*'))
+        x, y = read_data(glob.glob('images/cropped/rgbs/*'), glob.glob('images/cropped/labeled/*'))
         
         # Testing by visualizing
         #x_test,y_test = fetch_batch(x, y, n=10, patch_size=56, preprocess=False, augment=True, crop_size=20)
