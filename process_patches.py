@@ -114,8 +114,8 @@ def augment_tensor(x_tensor, y_tensor):
     y_aug_tensor = seq_det.augment_images(y_tensor)
     
     # Dropout augmenter
-    dropout = iaa.Dropout(0.3)
-    x_aug_tensor = dropout.augment_images(x_aug_tensor)
+    #dropout = iaa.Dropout(0.3)
+    #x_aug_tensor = dropout.augment_images(x_aug_tensor)
     
     """ Destroy structure by adding median blur """
     return x_aug_tensor.astype(float), y_aug_tensor.astype(float)

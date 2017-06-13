@@ -4,6 +4,7 @@ sys.path.append('..')
 import unittest
 from unittest2 import TestCase
 from skimage.io import imread, imsave
+from scipy.misc import imread
 import matplotlib.pyplot as plt
 from scipy.stats.kde import gaussian_kde
 from scipy.signal import argrelmax
@@ -17,7 +18,7 @@ class TestDistanceTransform(TestCase):
     def setUp(self):
         print self._testMethodName
         
-    def test_distance_transform(self):
+    def _test_distance_transform(self):
         """ Unit test for pawan's code """
         img = imread('images/0.png')
         plt.imshow(img)
@@ -57,7 +58,7 @@ class TestDistanceTransform(TestCase):
         
         imsave('images/blue.png', img_field)
         
-    def test_performance(self):
+    def _test_performance(self):
         """ Test on the fly distance transform speed for a batch """
         img = imread('images/0.png')
         
@@ -68,5 +69,18 @@ class TestDistanceTransform(TestCase):
         execution_time = timeit.timeit(lambda: [field_transform(img) for img in x_patches], number=1)
         self.assertLess(execution_time, 1, "Execution time/batch greater than one second")
         
+    #def do_field_transform():
+        
+        
 if __name__ == "__main__":
     unittest.main()
+
+img_files = glob.glob('../images/cropped/labeled/*')
+
+for img_fl in img_files:
+    img = imread(img_fl, mode='RGB')
+    img_dist = field_transform(img)
+    plt.figure()
+    plt.imshow(img_dist)
+    
+    imsave(img_fl, img_dist)
