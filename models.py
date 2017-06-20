@@ -4,6 +4,7 @@ from keras.layers.core import Activation, Reshape, Permute
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, UpSampling2D, Cropping2D
 from keras.layers.normalization import BatchNormalization
 from keras.layers.convolutional import Convolution2D as Conv2D
+from keras.layers import concatenate
 from keras.models import Model
 
 #!/usr/bin/env python2
@@ -131,55 +132,55 @@ def pawannet_autoencoder(input_shape, output_shape, crop_size, kernel=3):
     
     return autoencoder
 
-def unet(input_shape, output_shape, crop_size):
+def unet(input_shape, output_shape, crop_size, kernel=3):
     """ Unet implementation. Test performance on mnist autoencoding task. """
     inputs = Input(input_shape)
-    conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(inputs)
-    conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv1)
+    conv1 = Conv2D(32, (kernel, kernel), activation='relu', padding='same')(inputs)
+    conv1 = Conv2D(32, (kernel, kernel), activation='relu', padding='same')(conv1)
     pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
 
-    conv2 = Conv2D(64, (3, 3), activation='relu', padding='same')(pool1)
-    conv2 = Conv2D(64, (3, 3), activation='relu', padding='same')(conv2)
+    conv2 = Conv2D(64, (kernel, kernel), activation='relu', padding='same')(pool1)
+    conv2 = Conv2D(64, (kernel, kernel), activation='relu', padding='same')(conv2)
     pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
 
-    conv3 = Conv2D(128, (3, 3), activation='relu', padding='same')(pool2)
-    conv3 = Conv2D(128, (3, 3), activation='relu', padding='same')(conv3)
+    conv3 = Conv2D(128, (kernel, kernel), activation='relu', padding='same')(pool2)
+    conv3 = Conv2D(128, (kernel, kernel), activation='relu', padding='same')(conv3)
     pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
 
-    conv4 = Conv2D(256, (3, 3), activation='relu', padding='same')(pool3)
-    conv4 = Conv2D(256, (3, 3), activation='relu', padding='same')(conv4)
+    conv4 = Conv2D(256, (kernel, kernel), activation='relu', padding='same')(pool3)
+    conv4 = Conv2D(256, (kernel, kernel), activation='relu', padding='same')(conv4)
     pool4 = MaxPooling2D(pool_size=(2, 2))(conv4)
 
-    conv5 = Conv2D(512, (3, 3), activation='relu', padding='same')(pool4)
-    conv5 = Conv2D(512, (3, 3), activation='relu', padding='same')(conv5)
+    conv5 = Conv2D(512, (kernel, kernel), activation='relu', padding='same')(pool4)
+    conv5 = Conv2D(512, (kernel, kernel), activation='relu', padding='same')(conv5)
 
     up6 = concatenate([UpSampling2D(size=(2, 2))(conv5), conv4], axis=3)
-    conv6 = Conv2D(256, (3, 3), activation='relu', padding='same')(up6)
-    conv6 = Conv2D(256, (3, 3), activation='relu', padding='same')(conv6)
+    conv6 = Conv2D(256, (kernel, kernel), activation='relu', padding='same')(up6)
+    conv6 = Conv2D(256, (kernel, kernel), activation='relu', padding='same')(conv6)
 
     up7 = concatenate([UpSampling2D(size=(2, 2))(conv6), conv3], axis=3)
-    conv7 = Conv2D(128, (3, 3), activation='relu', padding='same')(up7)
-    conv7 = Conv2D(128, (3, 3), activation='relu', padding='same')(conv7)
+    conv7 = Conv2D(128, (kernel, kernel), activation='relu', padding='same')(up7)
+    conv7 = Conv2D(128, (kernel, kernel), activation='relu', padding='same')(conv7)
 
     up8 = concatenate([UpSampling2D(size=(2, 2))(conv7), conv2], axis=3)
-    conv8 = Conv2D(64, (3, 3), activation='relu', padding='same')(up8)
-    conv8 = Conv2D(64, (3, 3), activation='relu', padding='same')(conv8)
+    conv8 = Conv2D(64, (kernel, kernel), activation='relu', padding='same')(up8)
+    conv8 = Conv2D(64, (kernel, kernel), activation='relu', padding='same')(conv8)
 
     up9 = concatenate([UpSampling2D(size=(2, 2))(conv8), conv1], axis=3)
-    conv9 = Conv2D(32, (3, 3), activation='relu', padding='same')(up9)
-    conv9 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv9)
+    conv9 = Conv2D(32, (kernel, kernel), activation='relu', padding='same')(up9)
+    conv9 = Conv2D(32, (kernel, kernel), activation='relu', padding='same')(conv9)
 
     conv10 = Conv2D(output_shape[-1], (1, 1), activation='sigmoid')(conv9)
     
     crop1 = Cropping2D(cropping=((crop_size, crop_size), (crop_size, crop_size)))(conv10)
     reshape1 = Reshape((output_shape[0]*output_shape[1], output_shape[-1]))(crop1)
     
-    softmax1 = Activation('softmax')(reshape1)
-    reshape2 = Reshape(output_shape)
+    sigmoid1 = Activation('sigmoid')(reshape1)
+    #reshape2 = Reshape(output_shape)
     
-    model = Model(inputs=[inputs], outputs=[reshape2])
+    model = Model(inputs=[inputs], outputs=[sigmoid1])
 
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    #model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     #model.compile(optimizer=Adam(lr=1e-5), loss=dice_coef_loss, metrics=[dice_coef])
 
     return model
@@ -188,31 +189,37 @@ def residual_network(img_shape):
     """ Test residual network with skip connections """
     pass
 
-def keras_mnist_autoencoder(img_shape=(28, 28, 1)):
+def keras_mnist_autoencoder(img_shape, output_shape, crop_size, kernel=3):
     """ Copy pasted autoencoder from keras to use as a benchmark. """
     input_img = Input(img_shape)
-    x = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
+    x = Conv2D(16, (kernel, kernel), activation='relu', padding='same')(input_img)
     x = BatchNormalization()(x)
     x = MaxPooling2D((2, 2), padding='same')(x)
-    x = Conv2D(16, (3, 3), activation='relu', padding='same')(x)
+    x = Conv2D(16, (kernel, kernel), activation='relu', padding='same')(x)
     x = BatchNormalization()(x)
     x = MaxPooling2D((2, 2), padding='same')(x)
-    x = Conv2D(32, (3, 3), activation='relu', padding='same')(x)
+    x = Conv2D(32, (kernel, kernel), activation='relu', padding='same')(x)
     x = BatchNormalization()(x)
     encoded = MaxPooling2D((2, 2), padding='same')(x)
     
     # at this point the representation is (4, 4, 8) i.e. 128-dimensional
     
-    x = Conv2D(32, (3, 3), activation='relu', padding='same')(encoded)
+    x = Conv2D(32, (kernel, kernel), activation='relu', padding='same')(encoded)
     x = BatchNormalization()(x)
     x = UpSampling2D((2, 2))(x)
-    x = Conv2D(16, (3, 3), activation='relu', padding='same')(x)
+    x = Conv2D(16, (kernel, kernel), activation='relu', padding='same')(x)
     x = BatchNormalization()(x)
     x = UpSampling2D((2, 2))(x)
-    x = Conv2D(16, (3, 3), activation='relu')(x)
+    x = Conv2D(16, (kernel, kernel), activation='relu')(x)
     x = BatchNormalization()(x)
     x = UpSampling2D((2, 2))(x)
-    decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x)
+    decoded = Conv2D(1, (kernel, kernel), activation='sigmoid', padding='same')(x)
     
     autoencoder = Model(input_img, decoded)
+    print('lol')
     return autoencoder
+
+def dilated_convolution(input_shape, output_shape, crop_size, kernel=3):
+    """ Fixed image resolution but exponentially increasing receptive field size """
+    print('lol2')
+    pass

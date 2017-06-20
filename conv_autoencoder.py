@@ -9,11 +9,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage.io import imread, imsave
 import glob
-from models import pawannet_autoencoder
+from models import pawannet_autoencoder, unet
 from keras.callbacks import LambdaCallback
 from keras.models import load_model
 from keras.callbacks import History
 from process_patches import tensor_blur, crop_tensor, sample_patches, read_data
+import imgaug as ia
+from imgaug import augmenters as iaa
+from imgaug import parameters as iap
 
 class PawannetDistTransform():
     """ Testing pawannet autoencoder on whirlygig images """
@@ -21,8 +24,9 @@ class PawannetDistTransform():
     
     def __init__(self):
         self.count = 0
-        self.model = pawannet_autoencoder((56,56,3), (36,36,3), 10, kernel=3)
-        self.model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
+        #self.model = pawannet_autoencoder((56,56,3), (36,36,3), 10, kernel=3)
+        self.model = unet((56,56,3), (36,36,3), 10, kernel=3)
+        self.model.compile(loss='mean_squared_error', optimizer='adam')
         self.cb = LambdaCallback(on_batch_begin=self.save_mod)
         
     def preprocess(self, x_patches, y_patches, crop_size):
@@ -30,6 +34,22 @@ class PawannetDistTransform():
         
         y_patches = crop_tensor(y_patches, crop_size) #Crop y for overlapping tile strategy
         x_patches = tensor_blur(np.uint8(x_patches)) # Apply median blur to reduce neck variation, tensorize this
+        
+        #Rotate images by random angles
+#        st = lambda aug: iaa.Sometimes(1, aug)
+#        seq = iaa.Sequential([
+#        iaa.AdditiveGaussianNoise(scale=80),
+#        iaa.Fliplr(0.5),
+#        iaa.Flipud(0.5),
+#		st(iaa.Affine(
+#		    rotate=(-45, 45)
+#        , mode='symmetric'))
+#	    ], random_order=True)
+#
+#        seq_det = seq.to_deterministic()
+#    
+#        x_patches = seq_det.augment_images(x_patches)
+#        y_patches = seq_det.augment_images(y_patches)
         
         return x_patches.astype(float)/255, y_patches.astype(float)/255 # Why is this necessary?
     
@@ -52,7 +72,7 @@ class PawannetDistTransform():
     def run(self):
         """ Train network on whirlygig images and check that the training loss converges """
         history = History()
-        x, y = read_data(glob.glob('images/cropped/rgbs/*'), glob.glob('images/cropped/labeled/*'))
+        x, y = read_data(glob.glob('images/cropped/rgbs/*'), glob.glob('images/cropped/labeled_fainter/*'))
         
         # Testing by visualizing
         #x_test,y_test = fetch_batch(x, y, n=10, patch_size=56, preprocess=False, augment=True, crop_size=20)
@@ -61,7 +81,7 @@ class PawannetDistTransform():
         
         # Run the network
         dataGenerator = self.yield_batch(x, y, n=64, patch_size=56, crop_size=20)
-        self.model.fit_generator(dataGenerator, samples_per_epoch = 600, nb_epoch = 20, callbacks=[self.cb, history])
+        self.model.fit_generator(dataGenerator, samples_per_epoch = 600, nb_epoch = 100, callbacks=[self.cb, history])
         
         self.assertGreater(history.history['val_acc'][0], 0.4)
         
